@@ -1,0 +1,505 @@
+/* ============================================================
+   ARUNACHALESHWARA – Responsive Styles
+   ============================================================ */
+
+/* ---------- Extra Large Screens (1440px+) ---------- */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1320px;
+  }
+
+  .hero-title {
+    font-size: 4rem;
+  }
+
+  .hero-description {
+    font-size: 1.05rem;
+  }
+}
+
+/* ---------- Large Desktops (1200px – 1439px) ---------- */
+@media (max-width: 1399px) {
+  .hero-title {
+    font-size: 3.25rem;
+  }
+}
+
+/* ---------- Laptops (1024px – 1199px) ---------- */
+@media (max-width: 1199px) {
+  :root {
+    --section-py: 4rem;
+  }
+
+  .hero-title {
+    font-size: 2.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.15rem;
+  }
+
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.5rem; }
+
+  .masonry-grid {
+    column-count: 3;
+  }
+
+  .tour-list-item-img {
+    width: 240px;
+  }
+}
+
+/* ---------- Tablets (768px – 1023px) ---------- */
+@media (max-width: 1023px) {
+  :root {
+    --section-py: 3.5rem;
+  }
+
+  .hero-section {
+    min-height: 75vh;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+
+  .section-header h2 {
+    font-size: 1.85rem;
+  }
+
+  .page-hero {
+    min-height: 250px;
+  }
+
+  .page-hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .masonry-grid {
+    column-count: 2;
+  }
+
+  .tour-list-item {
+    flex-direction: column;
+  }
+
+  .tour-list-item-img {
+    width: 100%;
+    height: 220px;
+  }
+}
+
+/* ---------- Mobile Landscape & Large Phones (576px – 767px) ---------- */
+@media (max-width: 767px) {
+  :root {
+    --section-py: 3rem;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  /* Top Bar */
+  .top-bar {
+    padding: 6px 0;
+    font-size: 0.78rem;
+  }
+
+  .top-bar .top-info {
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .top-bar .top-info .d-none-mobile {
+    display: none;
+  }
+
+  .top-bar .social-links {
+    justify-content: center;
+  }
+
+  /* Navbar */
+  .navbar-brand-wrapper img {
+    height: 42px;
+  }
+
+  .brand-text .brand-name {
+    font-size: 0.95rem;
+  }
+
+  .brand-text .brand-subtitle {
+    font-size: 0.6rem;
+  }
+
+  .brand-text .brand-location {
+    display: none;
+  }
+
+  .main-navbar .navbar-collapse {
+    background: var(--clr-white);
+    padding: 1rem;
+    border-top: 1px solid var(--clr-gray-200);
+    margin-top: 0.5rem;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    box-shadow: var(--shadow-md);
+  }
+
+  .main-navbar .nav-link {
+    padding: 0.6rem 0 !important;
+    border-bottom: 1px solid var(--clr-gray-200);
+  }
+
+  .main-navbar .nav-link::after {
+    display: none;
+  }
+
+  .btn-enquire-nav {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Hero */
+  .hero-section {
+    min-height: auto;
+    padding: 3rem 0 2rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.1rem;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .hero-buttons .btn-primary-custom,
+  .hero-buttons .btn-whatsapp,
+  .hero-buttons .btn-gold,
+  .hero-buttons .btn-outline-gold {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Section headers */
+  .section-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .section-header .subtitle {
+    font-size: 0.92rem;
+  }
+
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.1rem; }
+
+  /* Page Hero */
+  .page-hero {
+    min-height: 200px;
+  }
+
+  .page-hero-content h1 {
+    font-size: 1.6rem;
+  }
+
+  /* Trust section */
+  .trust-section {
+    overflow-x: auto;
+    padding: 1.25rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .trust-section .row {
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
+
+  .trust-item {
+    padding: 0.75rem 1rem;
+  }
+
+  .trust-icon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .trust-item h6 {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Service Cards */
+  .service-card-img {
+    height: 170px;
+  }
+
+  .service-card-body {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  /* Tour Cards */
+  .tour-card-img {
+    height: 180px;
+  }
+
+  /* Gallery */
+  .masonry-grid {
+    column-count: 2;
+    column-gap: 0.75rem;
+  }
+
+  .gallery-item img {
+    height: 180px;
+  }
+
+  /* CTA */
+  .cta-content h2 {
+    font-size: 1.6rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cta-buttons .btn-primary-custom,
+  .cta-buttons .btn-whatsapp,
+  .cta-buttons .btn-gold,
+  .cta-buttons .btn-outline-gold {
+    width: 100%;
+    max-width: 320px;
+    justify-content: center;
+  }
+
+  /* Footer */
+  .site-footer {
+    padding-top: 2.5rem;
+  }
+
+  .footer-heading {
+    margin-top: 1.5rem;
+  }
+
+  .footer-bottom {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .footer-bottom .row > div {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Floating buttons */
+  .whatsapp-float {
+    width: 48px;
+    height: 48px;
+    bottom: 20px;
+    right: 18px;
+  }
+
+  .whatsapp-float i {
+    font-size: 1.5rem;
+  }
+
+  .back-to-top {
+    width: 38px;
+    height: 38px;
+    bottom: 78px;
+    right: 20px;
+  }
+
+  /* Forms */
+  .search-filter-bar {
+    padding: 1rem;
+  }
+
+  /* Enquiry form */
+  .enquiry-summary {
+    padding: 1rem;
+  }
+
+  /* Tour list view - force grid on mobile */
+  .tour-list-item {
+    flex-direction: column;
+  }
+
+  .tour-list-item-img {
+    width: 100%;
+    height: 180px;
+  }
+
+  /* Error page */
+  .error-page h1 {
+    font-size: 5rem;
+  }
+
+  /* CTA background attachment */
+  .cta-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ---------- Small Phones (320px – 575px) ---------- */
+@media (max-width: 575px) {
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-welcome {
+    font-size: 0.85rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .hero-tagline {
+    font-size: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .page-hero-content h1 {
+    font-size: 1.35rem;
+  }
+
+  .masonry-grid {
+    column-count: 1;
+  }
+
+  .gallery-item img {
+    height: 200px;
+  }
+
+  .testimonial-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .info-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .error-page h1 {
+    font-size: 4rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.35rem;
+  }
+
+  .btn-primary-custom,
+  .btn-gold,
+  .btn-outline-gold,
+  .btn-outline-maroon,
+  .btn-whatsapp {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-brand-wrapper img {
+    height: 38px;
+  }
+
+  .brand-text .brand-name {
+    font-size: 0.85rem;
+  }
+
+  .brand-text .brand-subtitle {
+    font-size: 0.55rem;
+  }
+
+  /* Contact page */
+  .contact-info-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* ---------- Extra Small (320px) ---------- */
+@media (max-width: 359px) {
+  .hero-title {
+    font-size: 1.45rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  .trust-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .trust-icon i {
+    font-size: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.3rem;
+  }
+
+  body {
+    font-size: 13px;
+  }
+}
+
+/* ---------- Print Styles ---------- */
+@media print {
+  .top-bar,
+  .main-navbar,
+  .whatsapp-float,
+  .back-to-top,
+  .page-preloader {
+    display: none !important;
+  }
+
+  .hero-section {
+    min-height: auto;
+    padding: 2rem 0;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+}
+

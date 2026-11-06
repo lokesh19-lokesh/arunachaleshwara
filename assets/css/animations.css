@@ -1,0 +1,261 @@
+/* ============================================================
+   ARUNACHALESHWARA – Animation Styles
+   ============================================================ */
+
+/* ---------- Page Transition ---------- */
+.page-transition {
+  animation: fadeInPage 0.5s ease-out;
+}
+
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Hero Animations ---------- */
+.hero-fade-in {
+  opacity: 0;
+  animation: heroFadeIn 1s ease-out forwards;
+}
+
+.hero-fade-in-delay-1 {
+  animation-delay: 0.3s;
+}
+
+.hero-fade-in-delay-2 {
+  animation-delay: 0.6s;
+}
+
+.hero-fade-in-delay-3 {
+  animation-delay: 0.9s;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Slide In Animations ---------- */
+.slide-in-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: all 0.7s ease-out;
+}
+
+.slide-in-left.animate {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-in-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.7s ease-out;
+}
+
+.slide-in-right.animate {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-in-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.7s ease-out;
+}
+
+.slide-in-up.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Scale In ---------- */
+.scale-in {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.5s ease-out;
+}
+
+.scale-in.animate {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---------- Floating Animation ---------- */
+.float-animation {
+  animation: floatUpDown 3s ease-in-out infinite;
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---------- Decorative Temple Elements ---------- */
+.temple-deco {
+  position: absolute;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.temple-deco-1 {
+  top: 10%;
+  right: 5%;
+  font-size: 4rem;
+  animation: floatUpDown 4s ease-in-out infinite;
+  color: var(--clr-gold-premium);
+}
+
+.temple-deco-2 {
+  bottom: 15%;
+  left: 8%;
+  font-size: 3rem;
+  animation: floatUpDown 5s ease-in-out infinite reverse;
+  color: var(--clr-gold);
+}
+
+/* ---------- Shimmer Effect ---------- */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--clr-beige) 25%,
+    var(--clr-cream) 50%,
+    var(--clr-beige) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerEffect 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmerEffect {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- Pulse ---------- */
+.pulse {
+  animation: pulseEffect 2s ease-in-out infinite;
+}
+
+@keyframes pulseEffect {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ---------- Gold Glow ---------- */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(201, 149, 53, 0);
+  transition: box-shadow 0.5s ease;
+}
+
+.gold-glow:hover {
+  box-shadow: 0 0 25px rgba(201, 149, 53, 0.3);
+}
+
+/* ---------- Stagger Children ---------- */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.stagger-children.animate > *:nth-child(1) { animation: staggerFadeIn 0.5s ease forwards 0.1s; }
+.stagger-children.animate > *:nth-child(2) { animation: staggerFadeIn 0.5s ease forwards 0.2s; }
+.stagger-children.animate > *:nth-child(3) { animation: staggerFadeIn 0.5s ease forwards 0.3s; }
+.stagger-children.animate > *:nth-child(4) { animation: staggerFadeIn 0.5s ease forwards 0.4s; }
+.stagger-children.animate > *:nth-child(5) { animation: staggerFadeIn 0.5s ease forwards 0.5s; }
+.stagger-children.animate > *:nth-child(6) { animation: staggerFadeIn 0.5s ease forwards 0.6s; }
+.stagger-children.animate > *:nth-child(7) { animation: staggerFadeIn 0.5s ease forwards 0.7s; }
+.stagger-children.animate > *:nth-child(8) { animation: staggerFadeIn 0.5s ease forwards 0.8s; }
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Counter Animation ---------- */
+.counter-value {
+  font-family: var(--ff-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--clr-primary);
+}
+
+/* ---------- Border Draw ---------- */
+.border-draw {
+  position: relative;
+}
+
+.border-draw::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--clr-gold);
+  transition: width 0.5s ease;
+}
+
+.border-draw:hover::before {
+  width: 100%;
+}
+
+/* ---------- Parallax helper ---------- */
+.parallax-bg {
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 767px) {
+  .parallax-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ---------- Reduced motion override ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-in,
+  .slide-in-left,
+  .slide-in-right,
+  .slide-in-up,
+  .scale-in,
+  .float-animation,
+  .temple-deco,
+  .shimmer,
+  .pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .stagger-children > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
