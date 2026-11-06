@@ -55,7 +55,7 @@ const PACKAGES_DATA = [
     category: 'Tamil Nadu Temple Tours',
     duration: '1–2 Days',
     durationDays: 2,
-    image: 'assets/images/packages/kanchipuram.jpg',
+    image: 'assets/images/gallery/g8.jpg',
     shortDesc: 'Explore the ancient temples of Kanchipuram, the City of Thousand Temples and one of India\'s seven sacred cities.',
     overview: 'Kanchipuram, known as the City of Thousand Temples, is one of the seven sacred cities of India. This tour takes you through the magnificent Pallava and Chola-era temples, including the famous Ekambareswarar Temple and Kailasanathar Temple. Experience the architectural grandeur and spiritual significance of this ancient city.',
     places: [
@@ -105,7 +105,7 @@ const PACKAGES_DATA = [
     category: 'Tamil Nadu Temple Tours',
     duration: '1 Day',
     durationDays: 1,
-    image: 'assets/images/packages/vellore.jpg',
+    image: 'assets/images/gallery/g11.jpg',
     shortDesc: 'Visit the stunning Golden Temple (Sripuram) and the historic Jalakandeswarar Temple in Vellore.',
     overview: 'Discover the spiritual splendor of Vellore with visits to the world-famous Sripuram Golden Temple, one of the most magnificent temples in India, and the historic Jalakandeswarar Temple inside Vellore Fort. This day trip offers a perfect blend of modern grandeur and ancient heritage.',
     places: [
@@ -147,7 +147,7 @@ const PACKAGES_DATA = [
     category: 'Pancha Bhootha Linga Yatra',
     duration: '5–7 Days',
     durationDays: 7,
-    image: 'assets/images/packages/pancha-bhootha.jpg',
+    image: 'assets/images/gallery/g2.jpg',
     shortDesc: 'The sacred pilgrimage to all five Pancha Bhootha Sthalams representing the five elements of nature.',
     overview: 'Embark on one of the most sacred Shaivite pilgrimages – the Pancha Bhootha Linga Yatra. Visit all five ancient temples representing the five elements of nature: Earth, Water, Fire, Air, and Space. This comprehensive tour covers temples across Tamil Nadu and Andhra Pradesh, offering a deeply spiritual and transformative experience.',
     places: [
@@ -215,7 +215,7 @@ const PACKAGES_DATA = [
     category: 'Tamil Nadu Temple Tours',
     duration: '3–5 Days',
     durationDays: 5,
-    image: 'assets/images/packages/tamilnadu-temples.jpg',
+    image: 'assets/images/gallery/g5.jpg',
     shortDesc: 'Comprehensive temple tours across Tamil Nadu covering major pilgrim centers and heritage sites.',
     overview: 'Explore the magnificent temple heritage of Tamil Nadu with our comprehensive temple tours. Visit iconic temples in Madurai, Rameswaram, Thanjavur, Trichy, and more. Each tour can be customized based on your interests, time, and the temples you wish to visit.',
     places: [
@@ -274,7 +274,7 @@ const PACKAGES_DATA = [
     category: 'Weekend Pilgrimage',
     duration: '2 Days',
     durationDays: 2,
-    image: 'assets/images/packages/weekend.jpg',
+    image: 'assets/images/gallery/g4.jpg',
     shortDesc: 'A short weekend pilgrimage covering Tiruvannamalai and nearby sacred temples.',
     overview: 'Perfect for those with limited time, our weekend pilgrimage package covers the most important temples in and around Tiruvannamalai. Spend a spiritually enriching weekend visiting ancient temples, performing Girivalam, and soaking in the divine atmosphere of this holy town.',
     places: [
@@ -322,7 +322,7 @@ const PACKAGES_DATA = [
     category: 'Customized Pilgrimage',
     duration: 'Flexible',
     durationDays: 0,
-    image: 'assets/images/packages/custom.jpg',
+    image: 'assets/images/gallery/g6.jpg',
     shortDesc: 'Create your own personalized pilgrimage itinerary. We plan everything according to your preferences.',
     overview: 'Every pilgrim\'s journey is unique. Our customized pilgrimage service lets you design your own spiritual tour. Tell us which temples you want to visit, your preferred dates, group size, and budget, and we will create a tailor-made itinerary with all travel and accommodation arrangements.',
     places: [
@@ -389,7 +389,7 @@ const PACKAGE_CATEGORIES = [
  */
 function renderTourCard(pkg, index) {
   const delay = (index % 4) * 100;
-  const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+  const imageMarkup = pkg.image
     ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
     : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
          <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
@@ -426,7 +426,7 @@ function renderTourCard(pkg, index) {
  * Render tour list item (list view)
  */
 function renderTourListItem(pkg, index) {
-  const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+  const imageMarkup = pkg.image
     ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 100%; min-height: 200px; width: 100%; object-fit: cover;">`
     : `<div class="placeholder-img" style="height: 100%; min-height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
         <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
@@ -606,7 +606,7 @@ function renderTourDetails() {
     <div class="col-lg-8">
       <!-- Tour Image -->
       <div class="img-overlay-zoom mb-4">
-        ${(tour.image && tour.image.includes('popup.png'))
+        ${tour.image
           ? `<img src="${tour.image}" alt="${tour.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
           : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
               <i class="bi bi-geo-alt-fill" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
@@ -742,7 +742,7 @@ function renderFeaturedPackages(containerId) {
 
   const featured = PACKAGES_DATA.filter(p => p.featured);
   container.innerHTML = featured.map(pkg => {
-    const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+    const imageMarkup = pkg.image
       ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
       : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
            <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>

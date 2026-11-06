@@ -17,11 +17,11 @@ const SERVICES_DATA = [
       'Affordable Daily & Weekly Rates',
       'Check-in/Check-out Assistance'
     ],
-    image: 'assets/images/services/accommodation.jpg',
+    image: 'assets/images/services/Accommodation.png',
     gallery: [
-      'assets/images/accommodation/room-1.jpg',
-      'assets/images/accommodation/room-2.jpg',
-      'assets/images/accommodation/room-3.jpg'
+      'assets/images/services/Accommodation.png',
+      'assets/images/gallery/Accommodation1.jpeg',
+      'assets/images/gallery/Accommodation2.jpg'
     ]
   },
   {
@@ -38,11 +38,12 @@ const SERVICES_DATA = [
       'Local Guide Assistance',
       'Festival & Special Occasion Visits'
     ],
-    image: 'assets/images/services/temple-darshan.jpg',
+    image: 'assets/images/services/temple-darshan.png',
     gallery: [
-      'assets/images/temples/arunachaleswarar-1.jpg',
-      'assets/images/temples/girivalam.jpg',
-      'assets/images/temples/temple-3.jpg'
+      'assets/images/services/temple-darshan.png',
+      'assets/images/gallery/g1.jpg',
+      'assets/images/gallery/g8.jpg',
+      'assets/images/gallery/g11.jpg'
     ]
   },
   {
@@ -59,10 +60,10 @@ const SERVICES_DATA = [
       'Advance Booking Assistance',
       'Travel Schedule Information'
     ],
-    image: 'assets/images/services/bus-booking.jpg',
+    image: 'assets/images/services/bus-booking.png',
     gallery: [
-      'assets/images/vehicles/bus-1.jpg',
-      'assets/images/vehicles/bus-2.jpg'
+      'assets/images/services/bus-booking.png',
+      'assets/images/gallery/Vehicles1.jpg'
     ]
   },
   {
@@ -79,9 +80,10 @@ const SERVICES_DATA = [
       'Tatkal & General Bookings',
       'Return Journey Reservations'
     ],
-    image: 'assets/images/services/train-booking.jpg',
+    image: 'assets/images/gallery/travel1.jpg',
     gallery: [
-      'assets/images/vehicles/train-1.jpg'
+      'assets/images/gallery/travel1.jpg',
+      'assets/images/gallery/g10.jpg'
     ]
   },
   {
@@ -98,11 +100,10 @@ const SERVICES_DATA = [
       'Experienced & Safe Drivers',
       'Flexible Rental Options'
     ],
-    image: 'assets/images/services/taxi-rental.jpg',
+    image: 'assets/images/gallery/Vehicles3.jpg',
     gallery: [
-      'assets/images/vehicles/car-1.jpg',
-      'assets/images/vehicles/car-2.jpg',
-      'assets/images/vehicles/car-3.jpg'
+      'assets/images/gallery/Vehicles3.jpg',
+      'assets/images/gallery/Vehicles1.jpg'
     ]
   },
   {
@@ -119,9 +120,10 @@ const SERVICES_DATA = [
       'Affordable Local Transport',
       'Available Day & Night'
     ],
-    image: 'assets/images/services/auto-service.jpg',
+    image: 'assets/images/gallery/Vehicles2.jpg',
     gallery: [
-      'assets/images/vehicles/auto-1.jpg'
+      'assets/images/gallery/Vehicles2.jpg',
+      'assets/images/gallery/travel1.jpg'
     ]
   },
   {
@@ -138,9 +140,10 @@ const SERVICES_DATA = [
       'Flexible Rental Duration',
       'Helmet Provided'
     ],
-    image: 'assets/images/services/bike-rental.jpg',
+    image: 'assets/images/gallery/Vehicles4.jpg',
     gallery: [
-      'assets/images/vehicles/bike-1.jpg'
+      'assets/images/gallery/Vehicles4.jpg',
+      'assets/images/gallery/travel1.jpg'
     ]
   },
   {
@@ -157,10 +160,11 @@ const SERVICES_DATA = [
       'Customized Itineraries',
       'Group & Family Packages'
     ],
-    image: 'assets/images/services/tour-packages.jpg',
+    image: 'assets/images/popup.png',
     gallery: [
-      'assets/images/packages/tour-1.jpg',
-      'assets/images/packages/tour-2.jpg'
+      'assets/images/popup.png',
+      'assets/images/gallery/g5.jpg',
+      'assets/images/gallery/g9.jpg'
     ]
   }
 ];
@@ -170,13 +174,17 @@ const SERVICES_DATA = [
  */
 function renderServiceCard(service, index) {
   const delay = (index % 4) * 100;
+  const imageMarkup = service.image
+    ? `<img src="${service.image}" alt="${service.title}" class="service-card-thumbnail" style="height: 200px; width: 100%; object-fit: cover; transition: transform 0.4s ease;">`
+    : `<div class="placeholder-img" style="height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+        <i class="bi ${service.icon}" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.4;"></i>
+      </div>`;
+
   return `
   <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
     <div class="service-card">
-      <div class="service-card-img">
-        <div class="placeholder-img" style="height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-          <i class="bi ${service.icon}" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.4;"></i>
-        </div>
+      <div class="service-card-img" style="overflow: hidden; position: relative;">
+        ${imageMarkup}
         <div class="service-card-icon">
           <i class="bi ${service.icon}"></i>
         </div>
@@ -244,13 +252,8 @@ function renderServiceDetails() {
   <div class="row g-4">
     <div class="col-lg-8">
       <!-- Service Image -->
-      <div class="img-overlay-zoom mb-4">
-        ${(service.id === 'temple-darshan' || service.id === 'accommodation')
-          ? `<img src="assets/images/popup.png" alt="${service.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
-          : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-              <i class="bi ${service.icon}" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
-            </div>`
-        }
+      <div class="img-overlay-zoom mb-4" style="border-radius: var(--border-radius-lg); overflow: hidden; border: 1px solid rgba(201, 149, 53, 0.35);">
+        <img src="${service.image || 'assets/images/popup.png'}" alt="${service.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">
       </div>
 
       <!-- Description -->
@@ -278,15 +281,15 @@ function renderServiceDetails() {
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
         <h4 class="mb-3">Gallery</h4>
         <div class="row g-3">
-          ${service.gallery.map((_, i) => `
+          ${(service.gallery || []).map(imgSrc => `
           <div class="col-md-4 col-6">
-            <div class="gallery-item">
-              <div class="placeholder-img" style="height: 160px; border-radius: var(--border-radius);">
-                <i class="bi ${service.icon}" style="font-size: 2rem; color: var(--clr-primary); opacity: 0.3;"></i>
-              </div>
-              <div class="gallery-item-overlay">
-                <i class="bi bi-zoom-in"></i>
-              </div>
+            <div class="gallery-item" style="border-radius: var(--border-radius-lg); overflow: hidden; border: 1px solid rgba(201, 149, 53, 0.3); margin-bottom: 0;">
+              <a href="${imgSrc}" class="glightbox" data-gallery="service-gallery" data-title="${service.title}">
+                <img src="${imgSrc}" alt="${service.title}" style="height: 160px; width: 100%; object-fit: cover;">
+                <div class="gallery-item-overlay">
+                  <i class="bi bi-zoom-in"></i>
+                </div>
+              </a>
             </div>
           </div>`).join('')}
         </div>
@@ -315,25 +318,42 @@ function renderServiceDetails() {
         </div>
       </div>
 
-      <!-- Other Services -->
+      <!-- Quick Contact Card -->
       <div class="info-card" data-aos="fade-left" data-aos-delay="100">
-        <h5 class="text-start mb-3">Other Services</h5>
-        <ul class="list-unstyled text-start">
-          ${SERVICES_DATA.filter(s => s.id !== service.id).map(s => `
-          <li class="mb-2">
-            <a href="service-details.html?id=${s.id}" class="d-flex align-items-center gap-2" style="color: var(--clr-text); font-size: 0.9rem;">
-              <i class="bi ${s.icon} text-gold"></i>
-              ${s.title}
-            </a>
-          </li>`).join('')}
-        </ul>
+        <h5>Need Immediate Help?</h5>
+        <p class="text-muted small">Our pilgrimage coordinators are available 24/7 to assist you.</p>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <i class="bi bi-telephone text-gold" style="font-size: 1.5rem;"></i>
+          <div>
+            <small class="text-muted d-block">Call Us</small>
+            <a href="tel:+91${NAV_CONFIG.phone}" class="fw-bold text-dark">+91 ${NAV_CONFIG.phone}</a>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <i class="bi bi-whatsapp text-success" style="font-size: 1.5rem;"></i>
+          <div>
+            <small class="text-muted d-block">WhatsApp</small>
+            <a href="https://wa.me/${NAV_CONFIG.whatsapp}" class="fw-bold text-dark" target="_blank" rel="noopener">+91 ${NAV_CONFIG.phone}</a>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <i class="bi bi-envelope text-gold" style="font-size: 1.5rem;"></i>
+          <div>
+            <small class="text-muted d-block">Email</small>
+            <a href="mailto:${NAV_CONFIG.email}" class="fw-bold text-dark">${NAV_CONFIG.email}</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>`;
+
+  if (typeof initLightbox === 'function') {
+    setTimeout(initLightbox, 60);
+  }
 }
 
-// Make functions globally accessible
+// Global exports
 window.SERVICES_DATA = SERVICES_DATA;
+window.renderServiceCard = renderServiceCard;
 window.renderServicesGrid = renderServicesGrid;
 window.renderServiceDetails = renderServiceDetails;
-

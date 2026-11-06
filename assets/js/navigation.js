@@ -85,7 +85,7 @@ function getNavbarHTML() {
   }).join('');
 
   return `
-  <nav class="navbar navbar-expand-lg main-navbar sticky-top" id="mainNavbar">
+  <nav class="navbar navbar-expand-lg main-navbar" id="mainNavbar">
     <div class="container">
       <a class="navbar-brand-wrapper" href="index.html">
         <img src="assets/logo.png" alt="Arunachaleshwara Tours & Travels Logo" class="brand-logo-img">
@@ -215,6 +215,12 @@ function getFooterHTML() {
  * Initialize navigation - inject header and footer
  */
 function initNavigation() {
+  // Ensure header has sticky-top & site-header class
+  const header = document.querySelector('header');
+  if (header) {
+    header.classList.add('site-header', 'sticky-top');
+  }
+
   // Inject top bar
   const topBarTarget = document.getElementById('topBar');
   if (topBarTarget) {
@@ -241,19 +247,26 @@ function initNavigation() {
 }
 
 /**
- * Sticky navbar on scroll
+ * Sticky navbar on scroll (always visible & never hidden)
  */
 function initStickyNavbar() {
+  const header = document.querySelector('header') || document.querySelector('.site-header');
   const navbar = document.getElementById('mainNavbar');
-  if (!navbar) return;
+  if (!navbar && !header) return;
 
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-      navbar.classList.add('scrolled');
+  const handleScroll = () => {
+    const scrollPos = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (scrollPos > 25) {
+      if (header) header.classList.add('scrolled');
+      if (navbar) navbar.classList.add('scrolled');
     } else {
-      navbar.classList.remove('scrolled');
+      if (header) header.classList.remove('scrolled');
+      if (navbar) navbar.classList.remove('scrolled');
     }
-  }, { passive: true });
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll(); // Run immediately in case page reloads mid-scroll
 }
 
 /**

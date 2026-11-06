@@ -48,11 +48,11 @@ function initSwipers() {
   const gallerySwiperEl = document.querySelector('.gallery-swiper');
   if (gallerySwiperEl && typeof Swiper !== 'undefined') {
     new Swiper('.gallery-swiper', {
-      slidesPerView: 1,
-      spaceBetween: 16,
+      slidesPerView: 1.25,
+      spaceBetween: 14,
       loop: true,
       autoplay: {
-        delay: 3000,
+        delay: 3200,
         disableOnInteraction: false,
         pauseOnMouseEnter: true
       },
@@ -65,9 +65,9 @@ function initSwipers() {
         clickable: true,
       },
       breakpoints: {
-        480: { slidesPerView: 2 },
-        768: { slidesPerView: 3 },
-        1024: { slidesPerView: 4 }
+        480: { slidesPerView: 2.1, spaceBetween: 16 },
+        768: { slidesPerView: 3, spaceBetween: 20 },
+        1024: { slidesPerView: 4, spaceBetween: 24 }
       }
     });
   }
@@ -95,12 +95,18 @@ function initSwipers() {
   }
 }
 
+let galleryLightboxInstance = null;
+
 /**
  * Initialize GLightbox
  */
 function initLightbox() {
   if (typeof GLightbox !== 'undefined') {
-    GLightbox({
+    if (galleryLightboxInstance && typeof galleryLightboxInstance.destroy === 'function') {
+      galleryLightboxInstance.destroy();
+    }
+    galleryLightboxInstance = GLightbox({
+      selector: '.glightbox',
       touchNavigation: true,
       loop: true,
       closeButton: true,
@@ -110,6 +116,8 @@ function initLightbox() {
         prev: '<i class="bi bi-chevron-left"></i>',
       }
     });
+    window.galleryLightboxInstance = galleryLightboxInstance;
+    return galleryLightboxInstance;
   }
 }
 
