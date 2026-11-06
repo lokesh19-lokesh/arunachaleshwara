@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tour Details – Arunachaleshwara Tours & Travels</title>
+  <meta name="description" content="View comprehensive itinerary, places covered, inclusions, exclusions, and travel details for our South Indian temple tour packages.">
+  <meta property="og:title" content="Tour Details – Arunachaleshwara Tours & Travels">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/fevicon.png">
+  <link rel="apple-touch-icon" href="assets/fevicon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- AOS CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+  <!-- Preloader -->
+  <div class="page-preloader" id="preloader">
+    <div class="preloader-spinner"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div id="topBar"></div>
+    <div id="mainNav"></div>
+  </header>
+
+  <main>
+    <!-- Dynamic Hero Banner -->
+    <section class="page-hero section-maroon" style="background: linear-gradient(135deg, #45120E 0%, #681D17 100%);">
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="text-gold fw-semibold text-uppercase small letter-spacing-2" data-aos="fade-down">Pilgrimage Itinerary</span>
+        <h1 class="mt-2" id="tourHeroTitle" data-aos="fade-up">Tour Package Overview</h1>
+        <div class="gold-divider"></div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+            <li class="breadcrumb-item"><a href="tour-packages.html">Tour Packages</a></li>
+            <li class="breadcrumb-item active" id="tourBreadcrumb" aria-current="page">Package Details</li>
+          </ol>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Tour Details Dynamic Container -->
+    <section class="section">
+      <div class="container" id="tourDetailContent">
+        <div class="text-center py-5">
+          <div class="preloader-spinner mx-auto mb-3"></div>
+          <p class="text-muted">Loading tour details and itinerary...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Floating WhatsApp Booking Quick Action -->
+    <div class="position-fixed bottom-0 start-50 translate-middle-x mb-4 d-md-none z-3 w-90 text-center" style="max-width: 320px;">
+      <a href="https://wa.me/919010515341?text=Hello!%20I%20am%20interested%20in%20booking%20this%20tour%20package." class="btn btn-whatsapp w-100 shadow-lg py-2" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Instant WhatsApp Booking
+      </a>
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <div id="siteFooter"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/packages.js"></script>
+  <script src="assets/js/animations.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof renderTourDetails === 'function') {
+        renderTourDetails();
+      }
+    });
+  </script>
+</body>
+</html>

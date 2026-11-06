@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo &amp; Video Gallery – Arunachaleshwara Tours & Travels</title>
+  <meta name="description" content="Browse our gallery of sacred temple moments, Girivalam walks, comfortable accommodations, modern travel vehicles, and devotion in Tiruvannamalai.">
+  <meta property="og:title" content="Gallery – Arunachaleshwara Tours & Travels">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/fevicon.png">
+  <link rel="apple-touch-icon" href="assets/fevicon.png">
+  <link rel="canonical" href="https://www.arunachaleshwaratravels.com/gallery.html">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- AOS CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <!-- GLightbox CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/glightbox@3.2.0/dist/css/glightbox.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+  <!-- Preloader -->
+  <div class="page-preloader" id="preloader">
+    <div class="preloader-spinner"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div id="topBar"></div>
+    <div id="mainNav"></div>
+  </header>
+
+  <main>
+    <!-- Page Hero Banner -->
+    <section class="page-hero section-maroon" style="background: linear-gradient(135deg, #45120E 0%, #681D17 100%);">
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="text-gold fw-semibold text-uppercase small letter-spacing-2" data-aos="fade-down">Visual Journey</span>
+        <h1 class="mt-2" data-aos="fade-up">Photo &amp; Video Gallery</h1>
+        <div class="gold-divider"></div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Gallery</li>
+          </ol>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Featured Video Showcase Section -->
+    <section class="section pb-0">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <span class="text-gold fw-bold text-uppercase small">Spiritual Darshan</span>
+          <h2 class="text-maroon">Glimpse of Tiruvannamalai &amp; Arunachala</h2>
+          <div class="gold-divider"></div>
+          <p class="subtitle">Experience the serene spiritual aura, grand gopurams, and tranquil hill path.</p>
+        </div>
+
+        <div class="row justify-content-center" data-aos="zoom-in">
+          <div class="col-lg-10">
+            <div class="position-relative rounded-4 overflow-hidden shadow-lg border border-gold-2">
+              <video controls playsinline preload="metadata" class="w-100 d-block" style="max-height: 480px; object-fit: cover; background: #000;" poster="assets/fevicon.png">
+                <source src="https://res.cloudinary.com/iyxb6je9/video/upload/v1793945550/video.mp4" type="video/mp4">
+                Your browser does not support HTML5 video.
+              </video>
+            </div>
+            <div class="text-center mt-3">
+              <small class="text-muted"><i class="bi bi-play-circle text-gold me-1"></i> Video coverage of Lord Arunachaleswarar Sannidhi and sacred pilgrimage experiences.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter Buttons Section -->
+    <section class="section pb-2 pt-5">
+      <div class="container text-center">
+        <div class="d-flex flex-wrap justify-content-center gap-2" id="galleryFilters" data-aos="fade-up">
+          <!-- Populated by gallery.js: All, Temple Gallery, Travel Gallery, Accommodation, Vehicles, Pilgrimage Experiences -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Masonry / Grid Section -->
+    <section class="section pt-3">
+      <div class="container">
+        <div class="masonry-grid" id="galleryGrid">
+          <!-- Populated dynamically by gallery.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Moments CTA -->
+    <section class="cta-section">
+      <div class="cta-overlay"></div>
+      <div class="container cta-content">
+        <div class="row justify-content-center">
+          <div class="col-lg-8" data-aos="zoom-in">
+            <div class="temple-ornament mb-3"><i class="bi bi-flower1"></i></div>
+            <h2>Create Your Own Sacred Memories</h2>
+            <div class="gold-divider mb-3"></div>
+            <p>
+              Join hundreds of happy families and pilgrims who trusted us with their holy journeys. Contact us today to plan your pilgrimage.
+            </p>
+            <div class="cta-buttons">
+              <a href="contact.html" class="btn btn-outline-gold btn-lg">Contact Us</a>
+              <a href="enquiry.html" class="btn btn-gold btn-lg">Book Tour Package</a>
+              <a href="https://wa.me/919010515341" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">
+                <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <div id="siteFooter"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/glightbox@3.2.0/dist/js/glightbox.min.js"></script>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/gallery.js"></script>
+  <script src="assets/js/animations.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof renderGalleryFilters === 'function') {
+        renderGalleryFilters('galleryFilters');
+      }
+      if (typeof renderGalleryGrid === 'function') {
+        renderGalleryGrid('galleryGrid');
+      }
+      if (typeof initLightbox === 'function') {
+        initLightbox();
+      }
+    });
+  </script>
+</body>
+</html>

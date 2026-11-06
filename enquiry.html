@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Enquiry &amp; Booking – Arunachaleshwara Tours & Travels</title>
+  <meta name="description" content="Plan your pilgrimage with Arunachaleshwara Tours & Travels. Submit your travel requirements for room bookings, darshan assistance, and car rentals.">
+  <meta property="og:title" content="Travel Enquiry & Booking – Arunachaleshwara Tours & Travels">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/fevicon.png">
+  <link rel="apple-touch-icon" href="assets/fevicon.png">
+  <link rel="canonical" href="https://www.arunachaleshwaratravels.com/enquiry.html">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- AOS CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+  <!-- Preloader -->
+  <div class="page-preloader" id="preloader">
+    <div class="preloader-spinner"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div id="topBar"></div>
+    <div id="mainNav"></div>
+  </header>
+
+  <main>
+    <!-- Page Hero Banner -->
+    <section class="page-hero section-maroon" style="background: linear-gradient(135deg, #45120E 0%, #681D17 100%);">
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="text-gold fw-semibold text-uppercase small letter-spacing-2" data-aos="fade-down">Hassle-Free Pilgrimage Planning</span>
+        <h1 class="mt-2" data-aos="fade-up">Travel Enquiry &amp; Booking</h1>
+        <div class="gold-divider"></div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Enquiry / Booking</li>
+          </ol>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Booking Form Section -->
+    <section class="section">
+      <div class="container">
+        <div class="row g-5">
+          <!-- Left: Form -->
+          <div class="col-lg-8" data-aos="fade-right">
+            <div class="p-4 p-md-5 bg-white rounded-4 shadow-sm border border-gold">
+              <span class="text-gold fw-bold text-uppercase small">Step 1: Share Your Details</span>
+              <h2 class="text-maroon mt-1 mb-2">Pilgrimage Requirement Form</h2>
+              <p class="text-muted small mb-4">
+                Please complete the form below. Once submitted, an enquiry summary will be generated and you can send it directly to our business WhatsApp for instant quote and confirmation.
+              </p>
+
+              <form id="enquiryForm" novalidate>
+                <div class="row g-3">
+                  <!-- Section A: Contact Details -->
+                  <div class="col-12">
+                    <h6 class="text-maroon border-bottom pb-2 mb-3">
+                      <i class="bi bi-person-circle text-gold me-2"></i>Personal Details
+                    </h6>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryName" class="form-label-custom">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-custom" id="enquiryName" placeholder="e.g. Anandha Krishnan" required>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryMobile" class="form-label-custom">Mobile Number <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control form-control-custom" id="enquiryMobile" placeholder="e.g. 9876543210" data-validate="mobile" required>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="enquiryEmail" class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control form-control-custom" id="enquiryEmail" placeholder="e.g. anand@example.com" required>
+                  </div>
+
+                  <!-- Section B: Travel Details -->
+                  <div class="col-12 mt-4">
+                    <h6 class="text-maroon border-bottom pb-2 mb-3">
+                      <i class="bi bi-calendar2-week text-gold me-2"></i>Travel &amp; Pilgrimage Details
+                    </h6>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="enquiryDate" class="form-label-custom">Expected Travel Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control form-control-custom" id="enquiryDate" required>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="enquiryAdults" class="form-label-custom">Number of Adults <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-custom" id="enquiryAdults" required>
+                      <option value="1">1 Adult</option>
+                      <option value="2" selected>2 Adults</option>
+                      <option value="3-4">3–4 Adults</option>
+                      <option value="5-7">5–7 Adults (Family)</option>
+                      <option value="8+">8+ Adults (Group)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="enquiryChildren" class="form-label-custom">Number of Children</label>
+                    <select class="form-select form-select-custom" id="enquiryChildren">
+                      <option value="0" selected>0 Children</option>
+                      <option value="1">1 Child</option>
+                      <option value="2">2 Children</option>
+                      <option value="3+">3+ Children</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryService" class="form-label-custom">Preferred Service <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-custom" id="enquiryService" required>
+                      <option value="" disabled selected>Select Primary Service</option>
+                      <option value="Accommodation">Accommodation / Room Booking</option>
+                      <option value="Temple Darshan Services">Temple Darshan &amp; Girivalam Assistance</option>
+                      <option value="Taxi & Car Rentals">Taxi &amp; Car Rental (Ertiga / Innova)</option>
+                      <option value="Temple Tour Packages">Temple Tour Package</option>
+                      <option value="Bus Ticket Booking">Bus Ticket Booking</option>
+                      <option value="Train Ticket Booking">Train Ticket Booking</option>
+                      <option value="Auto Services">Local Auto Services</option>
+                      <option value="Bike Rentals">Two-Wheeler Rental</option>
+                      <option value="Complete Package (Stay + Travel)">Complete Package (Stay + Travel)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryDays" class="form-label-custom">Duration / Number of Days</label>
+                    <select class="form-select form-select-custom" id="enquiryDays">
+                      <option value="1 Day">1 Day</option>
+                      <option value="2 Days" selected>2 Days (Weekend)</option>
+                      <option value="3-4 Days">3 – 4 Days</option>
+                      <option value="5+ Days">5+ Days (Full Yatra)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryDestination" class="form-label-custom">Destination / Tour Name</label>
+                    <input type="text" class="form-control form-control-custom" id="enquiryDestination" placeholder="e.g. Tiruvannamalai + Kanchipuram">
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="enquiryPickup" class="form-label-custom">Pickup Location</label>
+                    <input type="text" class="form-control form-control-custom" id="enquiryPickup" placeholder="e.g. Tiruvannamalai Rly Station / Chennai">
+                  </div>
+
+                  <!-- Section C: Requirements -->
+                  <div class="col-12">
+                    <label for="enquiryRequirements" class="form-label-custom">Additional Requirements / Special Notes</label>
+                    <textarea class="form-control form-control-custom" id="enquiryRequirements" rows="3" placeholder="Tell us if you need senior citizen assistance, AC room preferences, specific temple pooja, etc..."></textarea>
+                  </div>
+
+                  <!-- Submit -->
+                  <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-primary-custom btn-lg w-100 justify-content-center">
+                      <i class="bi bi-file-earmark-check-fill"></i> Generate Summary &amp; Send Enquiry
+                    </button>
+                    <p class="small text-muted text-center mt-2 mb-0">
+                      * Submitting generates a summary that connects you directly to our WhatsApp booking desk. No advance payment is charged online.
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Dynamic Enquiry Summary Container (populated after submit) -->
+            <div id="enquirySummary" class="mt-4" style="display: none;"></div>
+          </div>
+
+          <!-- Right: Sidebar Information -->
+          <div class="col-lg-4" data-aos="fade-left">
+            <!-- Trust Card -->
+            <div class="info-card mb-4 text-start">
+              <div class="info-card-icon ms-0"><i class="bi bi-shield-check"></i></div>
+              <h5 class="text-maroon">Booking Process</h5>
+              <ol class="small text-muted ps-3 mb-0" style="line-height: 1.8;">
+                <li>Fill and submit your requirements.</li>
+                <li>WhatsApp opens with pre-filled enquiry.</li>
+                <li>Our team shares options and confirmed quote.</li>
+                <li>Receive driver contact &amp; room vouchers.</li>
+              </ol>
+            </div>
+
+            <!-- Direct Contact Card -->
+            <div class="p-4 bg-cream rounded-4 border border-gold-2">
+              <h5 class="text-maroon mb-3"><i class="bi bi-telephone-fill text-gold me-2"></i>Prefer Instant Booking?</h5>
+              <p class="small text-muted">
+                If you are arriving in Tiruvannamalai today or need immediate pickup, please call or WhatsApp our hotline directly:
+              </p>
+              <div class="d-grid gap-2">
+                <a href="tel:+919010515341" class="btn btn-outline-maroon justify-content-center">
+                  <i class="bi bi-telephone-fill"></i> Call +91 90105 15341
+                </a>
+                <a href="https://wa.me/919010515341?text=Hello!%20I%20need%20urgent%20pilgrimage%20assistance%20in%20Tiruvannamalai." class="btn btn-whatsapp justify-content-center" target="_blank" rel="noopener">
+                  <i class="bi bi-whatsapp"></i> Instant WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <div id="siteFooter"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/forms.js"></script>
+  <script src="assets/js/animations.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof initEnquiryForm === 'function') {
+        initEnquiryForm();
+      }
+    });
+  </script>
+</body>
+</html>

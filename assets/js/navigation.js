@@ -88,7 +88,7 @@ function getNavbarHTML() {
   <nav class="navbar navbar-expand-lg main-navbar sticky-top" id="mainNavbar">
     <div class="container">
       <a class="navbar-brand-wrapper" href="index.html">
-        <img src="assets/images/logo/logo.png" alt="Arunachaleshwara Tours & Travels Logo" width="180" height="60">
+        <img src="assets/logo.png" alt="Arunachaleshwara Tours & Travels Logo" class="brand-logo-img">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -120,7 +120,7 @@ function getFooterHTML() {
         <div class="col-lg-4 col-md-6">
           <div class="footer-brand">
             <a href="index.html">
-              <img src="assets/images/logo/logo.png" alt="Arunachaleshwara Tours & Travels" width="180" height="60">
+              <img src="assets/logo.png" alt="Arunachaleshwara Tours & Travels" class="footer-logo-img">
             </a>
             <p>Your trusted pilgrimage travel partner in Tiruvannamalai. We provide comfortable accommodation, temple darshan services, transportation, and customized tour packages for a peaceful spiritual journey.</p>
             <div class="footer-social">
