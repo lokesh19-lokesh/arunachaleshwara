@@ -9,18 +9,18 @@
   }
 
   .hero-title {
-    font-size: 4rem;
+    font-size: 2.75rem;
   }
 
   .hero-description {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
   }
 }
 
 /* ---------- Large Desktops (1200px – 1439px) ---------- */
 @media (max-width: 1399px) {
   .hero-title {
-    font-size: 3.25rem;
+    font-size: 2.4rem;
   }
 }
 
@@ -31,11 +31,11 @@
   }
 
   .hero-title {
-    font-size: 2.75rem;
+    font-size: 2.2rem;
   }
 
   .hero-subtitle {
-    font-size: 1.15rem;
+    font-size: 0.92rem;
   }
 
   h1 { font-size: 2.25rem; }
@@ -58,19 +58,19 @@
   }
 
   .hero-section {
-    min-height: 75vh;
+    min-height: 80vh;
   }
 
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 
   .hero-subtitle {
-    font-size: 1.05rem;
+    font-size: 0.88rem;
   }
 
   .hero-description {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   h1 { font-size: 2rem; }
@@ -188,10 +188,10 @@
 
   /* Hero */
   .hero-section {
-    min-height: 88vh;
+    min-height: 85vh;
     display: flex;
     align-items: center;
-    padding: 3.5rem 0;
+    padding: 3rem 0;
   }
 
   .hero-video-container {
@@ -202,34 +202,64 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
+  }
+
+  /* Soft mobile overlay: clean, no red layer, video clearly visible */
+  .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(10, 5, 4, 0.68) 0%,
+      rgba(10, 5, 4, 0.4) 45%,
+      rgba(10, 5, 4, 0.65) 100%
+    );
+  }
+
+  .hero-content {
+    padding: 2.5rem 0;
+  }
+
+  .hero-welcome {
+    font-size: 0.78rem;
+    margin-bottom: 0.4rem;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    line-height: 1.22;
+    margin-bottom: 0.45rem;
   }
 
   .hero-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
+    margin-bottom: 0.55rem;
+    letter-spacing: 0.05em;
   }
 
   .hero-tagline {
-    font-size: 1.1rem;
+    font-size: 0.98rem;
+    margin-bottom: 0.55rem;
   }
 
   .hero-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin-bottom: 1.35rem;
   }
 
   .hero-buttons {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .hero-buttons .btn-primary-custom,
   .hero-buttons .btn-whatsapp,
   .hero-buttons .btn-gold,
   .hero-buttons .btn-outline-gold {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    font-size: 0.84rem;
+    padding: 0.55rem 1.15rem;
   }
 
   /* Section headers */
@@ -420,19 +450,35 @@
 /* ---------- Small Phones (320px – 575px) ---------- */
 @media (max-width: 575px) {
   .hero-title {
-    font-size: 1.65rem;
+    font-size: 1.48rem;
+    line-height: 1.25;
   }
 
   .hero-welcome {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
   }
 
   .hero-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.76rem;
   }
 
   .hero-tagline {
-    font-size: 1rem;
+    font-size: 0.88rem;
+  }
+
+  .hero-description {
+    font-size: 0.82rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-buttons .btn-whatsapp,
+  .hero-buttons .btn-outline-gold {
+    width: 100%;
+    justify-content: center;
   }
 
   .section-header h2 {
@@ -520,12 +566,13 @@
 /* ---------- Extra Small (320px) ---------- */
 @media (max-width: 359px) {
   .hero-title {
-    font-size: 1.45rem;
+    font-size: 1.28rem;
+    line-height: 1.25;
   }
 
   .hero-subtitle {
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
   }
 
   .trust-icon {
