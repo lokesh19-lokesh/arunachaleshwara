@@ -23,11 +23,17 @@ A professional, premium, fully responsive, semi-dynamic multi-page website for *
 - **White**: `#FFFFFF`
 - **Success Green**: `#168B55`
 
-### Typography
-- **Headings**: *Playfair Display*
-- **Premium Subheadings**: *Cormorant Garamond*
-- **Body Text**: *Poppins*
-- **Spiritual & Editorial Content**: *Lora*
+### Typography Specification
+| Website Element | Font Family |
+| :--- | :--- |
+| **Main brand logo** | `Cinzel` |
+| **Hero heading** | `Playfair Display` |
+| **Section headings** | `Playfair Display` |
+| **Card headings** | `Cinzel` |
+| **Body content** | `Poppins` |
+| **Navigation** | `Poppins` |
+| **Buttons** | `Poppins` |
+| **Small labels** | `Montserrat` |
 
 ---
 
