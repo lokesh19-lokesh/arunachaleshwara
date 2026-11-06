@@ -3,16 +3,16 @@
    ============================================================ */
 
 const GALLERY_DATA = [
-  { id: 1, category: 'temples', title: 'Arunachaleswarar Temple Gopuram', icon: 'bi-building' },
+  { id: 1, category: 'temples', title: 'Arunachaleswarar Temple Gopuram', icon: 'bi-building', image: 'assets/images/popup.png' },
   { id: 2, category: 'temples', title: 'Arunachaleswarar Temple Entrance', icon: 'bi-building' },
   { id: 3, category: 'temples', title: 'Temple Corridor', icon: 'bi-building' },
   { id: 4, category: 'temples', title: 'Sacred Nandi Statue', icon: 'bi-building' },
   { id: 5, category: 'temples', title: 'Girivalam Path', icon: 'bi-building' },
   { id: 6, category: 'temples', title: 'Temple Festival', icon: 'bi-building' },
-  { id: 7, category: 'travel', title: 'Arunachala Hills Sunrise', icon: 'bi-sunrise' },
+  { id: 7, category: 'travel', title: 'Arunachala Hills Sunrise', icon: 'bi-sunrise', image: 'assets/images/popup.png' },
   { id: 8, category: 'travel', title: 'Pilgrims on Girivalam', icon: 'bi-people' },
   { id: 9, category: 'travel', title: 'Scenic Route to Kanchipuram', icon: 'bi-signpost' },
-  { id: 10, category: 'travel', title: 'Arunachala Hill View', icon: 'bi-mountain' },
+  { id: 10, category: 'travel', title: 'Arunachala Hill View', icon: 'bi-mountain', image: 'assets/images/popup.png' },
   { id: 11, category: 'accommodation', title: 'Comfortable Guest Room', icon: 'bi-house-door' },
   { id: 12, category: 'accommodation', title: 'Family Room Setup', icon: 'bi-house-door' },
   { id: 13, category: 'accommodation', title: 'Clean & Hygienic Facilities', icon: 'bi-house-door' },
@@ -50,12 +50,16 @@ function renderGalleryGrid(containerId) {
 
   container.innerHTML = GALLERY_DATA.map((item, i) => {
     const height = heightVariations[i % heightVariations.length];
+    const imageContent = item.image 
+      ? `<img src="${item.image}" alt="${item.title}" style="height: ${height}px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
+      : `<div class="placeholder-img" style="height: ${height}px; background: linear-gradient(${135 + i * 15}deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%); border-radius: var(--border-radius-lg);">
+          <i class="bi ${item.icon}" style="font-size: 2.5rem; color: var(--clr-primary); opacity: 0.3;"></i>
+        </div>`;
+
     return `
     <div class="gallery-item gallery-filter-item" data-category="${item.category}" data-aos="fade-up" data-aos-delay="${(i % 6) * 50}">
-      <a href="javascript:void(0)" class="glightbox" data-gallery="gallery" data-title="${item.title}">
-        <div class="placeholder-img" style="height: ${height}px; background: linear-gradient(${135 + i * 15}deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%); border-radius: var(--border-radius-lg);">
-          <i class="bi ${item.icon}" style="font-size: 2.5rem; color: var(--clr-primary); opacity: 0.3;"></i>
-        </div>
+      <a href="${item.image || 'assets/images/popup.png'}" class="glightbox" data-gallery="gallery" data-title="${item.title}">
+        ${imageContent}
         <div class="gallery-item-overlay">
           <i class="bi bi-zoom-in"></i>
         </div>
@@ -114,19 +118,25 @@ function renderGalleryPreview(containerId) {
   if (!container) return;
 
   const previewItems = GALLERY_DATA.slice(0, 10);
-  container.innerHTML = previewItems.map((item, i) => `
-  <div class="swiper-slide">
-    <div class="gallery-item" style="margin-bottom: 0;">
-      <a href="javascript:void(0)" class="glightbox" data-gallery="home-gallery" data-title="${item.title}">
-        <div class="placeholder-img" style="height: 280px; background: linear-gradient(${135 + i * 20}deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%); border-radius: var(--border-radius-lg);">
+  container.innerHTML = previewItems.map((item, i) => {
+    const previewContent = item.image
+      ? `<img src="${item.image}" alt="${item.title}" style="height: 280px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
+      : `<div class="placeholder-img" style="height: 280px; background: linear-gradient(${135 + i * 20}deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%); border-radius: var(--border-radius-lg);">
           <i class="bi ${item.icon}" style="font-size: 2.5rem; color: var(--clr-primary); opacity: 0.3;"></i>
-        </div>
-        <div class="gallery-item-overlay">
-          <i class="bi bi-zoom-in"></i>
-        </div>
-      </a>
-    </div>
-  </div>`).join('');
+        </div>`;
+
+    return `
+    <div class="swiper-slide">
+      <div class="gallery-item" style="margin-bottom: 0;">
+        <a href="${item.image || 'assets/images/popup.png'}" class="glightbox" data-gallery="home-gallery" data-title="${item.title}">
+          ${previewContent}
+          <div class="gallery-item-overlay">
+            <i class="bi bi-zoom-in"></i>
+          </div>
+        </a>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // Make functions globally accessible

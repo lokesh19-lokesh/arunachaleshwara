@@ -245,9 +245,12 @@ function renderServiceDetails() {
     <div class="col-lg-8">
       <!-- Service Image -->
       <div class="img-overlay-zoom mb-4">
-        <div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-          <i class="bi ${service.icon}" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
-        </div>
+        ${(service.id === 'temple-darshan' || service.id === 'accommodation')
+          ? `<img src="assets/images/popup.png" alt="${service.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
+          : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+              <i class="bi ${service.icon}" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
+            </div>`
+        }
       </div>
 
       <!-- Description -->

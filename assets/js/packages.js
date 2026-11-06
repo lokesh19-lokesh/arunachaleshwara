@@ -9,7 +9,7 @@ const PACKAGES_DATA = [
     category: 'Local Temple Tours',
     duration: '1 Day',
     durationDays: 1,
-    image: 'assets/images/packages/tiruvannamalai.jpg',
+    image: 'assets/images/popup.png',
     shortDesc: 'Visit the sacred Arunachaleswarar Temple and other prominent temples in and around Tiruvannamalai.',
     overview: 'Explore the spiritual heart of Tiruvannamalai with our local temple tour. Visit the magnificent Arunachaleswarar Temple, one of the Pancha Bhootha Sthalams, along with other ancient and revered temples in the area. Experience the divine atmosphere and rich heritage of this holy city.',
     places: [
@@ -389,13 +389,17 @@ const PACKAGE_CATEGORIES = [
  */
 function renderTourCard(pkg, index) {
   const delay = (index % 4) * 100;
+  const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
+    : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+         <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
+       </div>`;
+
   return `
   <div class="col-lg-4 col-md-6 mb-4 tour-card-wrapper" data-category="${pkg.category}" data-duration="${pkg.durationDays}" data-aos="fade-up" data-aos-delay="${delay}">
     <div class="tour-card">
       <div class="tour-card-img">
-        <div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-          <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
-        </div>
+        ${imageMarkup}
         <span class="tour-card-badge">${pkg.category}</span>
       </div>
       <div class="tour-card-body">
@@ -422,12 +426,16 @@ function renderTourCard(pkg, index) {
  * Render tour list item (list view)
  */
 function renderTourListItem(pkg, index) {
+  const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 100%; min-height: 200px; width: 100%; object-fit: cover;">`
+    : `<div class="placeholder-img" style="height: 100%; min-height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+        <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
+      </div>`;
+
   return `
   <div class="tour-list-item tour-card-wrapper" data-category="${pkg.category}" data-duration="${pkg.durationDays}" data-aos="fade-up">
     <div class="tour-list-item-img">
-      <div class="placeholder-img" style="height: 100%; min-height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-        <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
-      </div>
+      ${imageMarkup}
     </div>
     <div class="tour-list-item-body">
       <span class="tour-card-badge d-inline-block mb-2" style="position: static;">${pkg.category}</span>
@@ -598,9 +606,12 @@ function renderTourDetails() {
     <div class="col-lg-8">
       <!-- Tour Image -->
       <div class="img-overlay-zoom mb-4">
-        <div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-          <i class="bi bi-geo-alt-fill" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
-        </div>
+        ${(tour.image && tour.image.includes('popup.png'))
+          ? `<img src="${tour.image}" alt="${tour.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
+          : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+              <i class="bi bi-geo-alt-fill" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
+            </div>`
+        }
       </div>
 
       <!-- Tour Meta -->
@@ -730,31 +741,37 @@ function renderFeaturedPackages(containerId) {
   if (!container) return;
 
   const featured = PACKAGES_DATA.filter(p => p.featured);
-  container.innerHTML = featured.map(pkg => `
-  <div class="swiper-slide">
-    <div class="tour-card">
-      <div class="tour-card-img">
-        <div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
-          <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
+  container.innerHTML = featured.map(pkg => {
+    const imageMarkup = (pkg.image && pkg.image.includes('popup.png'))
+      ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
+      : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+           <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
+         </div>`;
+
+    return `
+    <div class="swiper-slide">
+      <div class="tour-card">
+        <div class="tour-card-img">
+          ${imageMarkup}
+          <span class="tour-card-badge">${pkg.category}</span>
         </div>
-        <span class="tour-card-badge">${pkg.category}</span>
+        <div class="tour-card-body">
+          <h5>${pkg.title}</h5>
+          <p>${pkg.shortDesc}</p>
+          <div class="tour-card-meta">
+            <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
+            <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
+          </div>
+          <div class="tour-card-footer">
+            <span class="tour-card-price"><small>Contact for pricing</small></span>
+            <a href="tour-details.html?id=${pkg.id}" class="btn btn-primary-custom btn-sm">
+              View Details <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="tour-card-body">
-        <h5>${pkg.title}</h5>
-        <p>${pkg.shortDesc}</p>
-        <div class="tour-card-meta">
-          <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
-          <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
-        </div>
-        <div class="tour-card-footer">
-          <span class="tour-card-price"><small>Contact for pricing</small></span>
-          <a href="tour-details.html?id=${pkg.id}" class="btn btn-primary-custom btn-sm">
-            View Details <i class="bi bi-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // Make functions globally accessible
