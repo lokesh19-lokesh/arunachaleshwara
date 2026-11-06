@@ -185,14 +185,31 @@ function getFooterHTML() {
       <!-- Footer Bottom -->
       <div class="footer-bottom">
         <div class="row align-items-center">
-          <div class="col-md-6">
-            <p>&copy; ${currentYear} Arunachaleshwara Tours & Travels. All rights reserved.</p>
+          <div class="col-lg-7 text-center text-lg-start mb-2 mb-lg-0">
+            <p class="mb-0">
+              &copy; ${currentYear} Arunachaleshwara Tours &amp; Travels. All rights reserved.
+              <span class="d-inline-block ms-1">
+                | Design by <a href="https://thebubblesmedia.com/" target="_blank" rel="noopener" class="bubbles-media-link" title="The Bubbles Media">
+                  <span class="bubbles-text">The Bubbles Media</span>
+                  <span class="bubbles-container" aria-hidden="true">
+                    <span class="bubble b1"></span>
+                    <span class="bubble b2"></span>
+                    <span class="bubble b3"></span>
+                    <span class="bubble b4"></span>
+                    <span class="bubble b5"></span>
+                    <span class="bubble b6"></span>
+                    <span class="bubble b7"></span>
+                    <span class="bubble b8"></span>
+                  </span>
+                </a>
+              </span>
+            </p>
           </div>
-          <div class="col-md-6 text-md-end">
-            <p>
+          <div class="col-lg-5 text-center text-lg-end">
+            <p class="mb-0">
               <a href="privacy-policy.html">Privacy Policy</a>
               <span class="mx-2">|</span>
-              <a href="terms-and-conditions.html">Terms & Conditions</a>
+              <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
             </p>
           </div>
         </div>
@@ -244,6 +261,9 @@ function initNavigation() {
 
   // Initialize back to top
   initBackToTop();
+
+  // Initialize bubbles animation on footer branding
+  initBubbleEffect();
 }
 
 /**
@@ -286,6 +306,94 @@ function initBackToTop() {
 
   btn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+/**
+ * Interactive bubble animation on hover for The Bubbles Media link
+ */
+function initBubbleEffect() {
+  const links = document.querySelectorAll('.bubbles-media-link');
+  if (!links.length) return;
+
+  links.forEach(link => {
+    let spawnInterval = null;
+
+    const createDynamicBubble = (clientX, clientY) => {
+      const rect = link.getBoundingClientRect();
+      const bubble = document.createElement('span');
+      bubble.className = 'dynamic-bubble';
+
+      // Randomize size between 7px and 20px
+      const size = Math.floor(Math.random() * 14) + 7;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+
+      // Horizontal position
+      let x;
+      if (typeof clientX === 'number' && clientX >= rect.left && clientX <= rect.right) {
+        x = clientX - rect.left + (Math.random() * 16 - 8);
+      } else {
+        x = Math.random() * rect.width;
+      }
+      x = Math.max(2, Math.min(rect.width - 2, x));
+
+      bubble.style.left = `${x}px`;
+      bubble.style.bottom = `${rect.height * 0.3}px`;
+
+      // Randomize drift, rise and duration
+      const drift = (Math.random() * 36 - 18).toFixed(1);
+      const rise = (Math.random() * 40 + 45).toFixed(1);
+      const duration = (Math.random() * 0.6 + 1.2).toFixed(2);
+
+      bubble.style.setProperty('--drift', `${drift}px`);
+      bubble.style.setProperty('--rise', `-${rise}px`);
+      bubble.style.animation = `dynamicBubbleRise ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
+
+      link.appendChild(bubble);
+
+      setTimeout(() => {
+        if (bubble && bubble.parentNode) {
+          bubble.remove();
+        }
+      }, duration * 1000 + 50);
+    };
+
+    link.addEventListener('mouseenter', (e) => {
+      // Spawn burst of initial bubbles
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => createDynamicBubble(e.clientX, e.clientY), i * 70);
+      }
+      // Continue spawning while hovered
+      if (!spawnInterval) {
+        spawnInterval = setInterval(() => {
+          createDynamicBubble();
+        }, 150);
+      }
+    });
+
+    link.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.45) {
+        createDynamicBubble(e.clientX, e.clientY);
+      }
+    });
+
+    link.addEventListener('mouseleave', () => {
+      if (spawnInterval) {
+        clearInterval(spawnInterval);
+        spawnInterval = null;
+      }
+    });
+
+    // Touch support for mobile devices
+    link.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          createDynamicBubble(touch ? touch.clientX : undefined, touch ? touch.clientY : undefined);
+        }, i * 80);
+      }
+    }, { passive: true });
   });
 }
 
