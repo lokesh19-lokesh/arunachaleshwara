@@ -269,6 +269,12 @@ function initNavigation() {
 
   // Initialize bubbles animation on footer branding
   initBubbleEffect();
+
+  // Mark session visited so returning to index.html skips initial preloader
+  try {
+    sessionStorage.setItem('arunachala_visited', '1');
+    if (!window.name) window.name = 'arunachala_session';
+  } catch (e) {}
 }
 
 /**

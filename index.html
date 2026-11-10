@@ -18,6 +18,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/fevicon.png">
   <link rel="apple-touch-icon" href="assets/fevicon.png">
+  <link rel="preload" as="image" href="assets/logo.png">
   <link rel="canonical" href="https://www.arunachaleshwaratravels.com/">
 
   <!-- Google Fonts -->
@@ -41,6 +42,28 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/responsive.css">
+
+  <!-- Show Logo Preloader Only on Initial Website Open or Homepage Reload -->
+  <script>
+    (function() {
+      try {
+        var navEntries = window.performance && performance.getEntriesByType ? performance.getEntriesByType('navigation') : null;
+        var navType = (navEntries && navEntries.length)
+          ? navEntries[0].type
+          : (window.performance && performance.navigation && performance.navigation.type === 1 ? 'reload' : 'navigate');
+        var visitedStorage = false;
+        try { visitedStorage = sessionStorage.getItem('arunachala_visited') === '1'; } catch (e) {}
+        var visitedWindow = (typeof window.name === 'string' && window.name.indexOf('arunachala_session') !== -1);
+        var hasVisited = visitedStorage || visitedWindow;
+
+        if (navType === 'reload' || (navType !== 'back_forward' && !hasVisited)) {
+          document.documentElement.classList.add('show-preloader');
+        }
+        try { sessionStorage.setItem('arunachala_visited', '1'); } catch (e) {}
+        if (!window.name) window.name = 'arunachala_session';
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- LocalBusiness Schema.org Structured Data -->
   <script type="application/ld+json">
@@ -75,6 +98,18 @@
   </script>
 </head>
 <body>
+  <!-- Homepage Logo Preloader (Shown Only on Website Open or Homepage Reload) -->
+  <div class="page-preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-content">
+      <div class="preloader-logo-wrap">
+        <img src="assets/logo.png" alt="Arunachaleshwara Tours &amp; Travels" class="preloader-logo" loading="eager" decoding="sync">
+      </div>
+      <div class="preloader-bar">
+        <span class="preloader-bar-fill"></span>
+      </div>
+      <p class="preloader-tagline">Arunachaleshwara Sannidhi &ndash; Tiruvannamalai</p>
+    </div>
+  </div>
 
   <!-- Global Header (Top Bar + Main Navigation) Injected via navigation.js -->
   <header class="site-header sticky-top">

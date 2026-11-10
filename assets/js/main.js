@@ -4,12 +4,52 @@
    ============================================================ */
 
 /**
- * Remove any preloader immediately so navigation never blocks on white screen
+ * Handle homepage logo preloader (only shown on initial open or homepage reload)
  */
 function initPreloader() {
+  if (window.__preloaderInitialized) return;
+  window.__preloaderInitialized = true;
+
   const preloader = document.getElementById('preloader');
-  if (preloader) {
+  if (!preloader) {
+    document.documentElement.classList.remove('show-preloader');
+    return;
+  }
+
+  // Only show if <head> script flagged initial website open or explicit homepage reload
+  if (!document.documentElement.classList.contains('show-preloader')) {
     preloader.remove();
+    return;
+  }
+
+  let dismissed = false;
+  const dismissPreloader = () => {
+    if (dismissed) return;
+    dismissed = true;
+    preloader.classList.add('loaded');
+    setTimeout(() => {
+      document.documentElement.classList.remove('show-preloader');
+      if (preloader.parentNode) preloader.remove();
+    }, 450);
+  };
+
+  const minDisplayMs = 800;
+  const maxWaitMs = 1500;
+  const startTime = (window.performance && performance.now) ? performance.now() : Date.now();
+
+  const scheduleDismiss = () => {
+    const now = (window.performance && performance.now) ? performance.now() : Date.now();
+    const elapsed = now - startTime;
+    const remaining = Math.max(0, minDisplayMs - elapsed);
+    setTimeout(dismissPreloader, remaining);
+  };
+
+  if (document.readyState === 'complete') {
+    scheduleDismiss();
+  } else {
+    window.addEventListener('load', scheduleDismiss, { once: true });
+    // Safety timeout so heavy external media (e.g. hero video) never stalls preloader
+    setTimeout(dismissPreloader, maxWaitMs);
   }
 }
 
@@ -77,8 +117,12 @@ function initApp() {
   }
 
   // Handle back/forward cache restoration cleanly
-  window.addEventListener('pageshow', () => {
-    initPreloader();
+  window.addEventListener('pageshow', (event) => {
+    if (event && event.persisted) {
+      document.documentElement.classList.remove('show-preloader');
+      const preloader = document.getElementById('preloader');
+      if (preloader) preloader.remove();
+    }
   });
 }
 
