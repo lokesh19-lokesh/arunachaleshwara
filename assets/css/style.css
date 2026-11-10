@@ -894,6 +894,19 @@ header.scrolled .top-bar,
   transform: scale(1.08);
 }
 
+.service-card-img--contain {
+  background: var(--clr-white);
+  padding: 0.65rem 0.9rem;
+}
+
+.service-card-img--contain img {
+  object-fit: contain;
+}
+
+.service-card:hover .service-card-img--contain img {
+  transform: scale(1.04);
+}
+
 .service-card-icon {
   position: absolute;
   bottom: -22px;
@@ -2417,11 +2430,33 @@ html.show-preloader .page-preloader.loaded {
   box-shadow: var(--shadow-sm);
 }
 
+.detail-hero-media--contain {
+  background: var(--clr-white);
+  padding: 1.25rem;
+}
+
 .detail-hero-img {
   width: 100%;
   height: 400px;
   object-fit: cover;
   display: block;
+}
+
+.detail-hero-media--contain .detail-hero-img {
+  object-fit: contain;
+}
+
+.gallery-item img.service-gallery-thumb {
+  height: 160px;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-item img.service-gallery-thumb--contain {
+  object-fit: contain;
+  background: var(--clr-white);
+  padding: 0.5rem;
 }
 
 .detail-sidebar {

@@ -80,9 +80,10 @@ const SERVICES_DATA = [
       'Tatkal & General Bookings',
       'Return Journey Reservations'
     ],
-    image: 'assets/images/gallery/travel1.jpg',
+    image: 'assets/images/services/Train Ticket Booking.png',
+    imageFit: 'contain',
     gallery: [
-      'assets/images/gallery/travel1.jpg',
+      'assets/images/services/Train Ticket Booking.png',
       'assets/images/gallery/g10.jpg'
     ]
   },
@@ -100,9 +101,9 @@ const SERVICES_DATA = [
       'Experienced & Safe Drivers',
       'Flexible Rental Options'
     ],
-    image: 'assets/images/gallery/Vehicles3.jpg',
+    image: 'assets/images/services/Taxi & Car Rentals.png',
     gallery: [
-      'assets/images/gallery/Vehicles3.jpg',
+      'assets/images/services/Taxi & Car Rentals.png',
       'assets/images/gallery/Vehicles1.jpg'
     ]
   },
@@ -174,6 +175,7 @@ const SERVICES_DATA = [
  */
 function renderServiceCard(service, index) {
   const delay = (index % 4) * 100;
+  const imgWrapClass = service.imageFit === 'contain' ? 'service-card-img service-card-img--contain' : 'service-card-img';
   const imageMarkup = service.image
     ? `<img src="${service.image}" alt="${service.title}" class="service-card-thumbnail">`
     : `<div class="placeholder-img" style="height: 100%; min-height: 100%; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
@@ -184,7 +186,7 @@ function renderServiceCard(service, index) {
   <div class="col-lg-3 col-md-6 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
     <div class="service-card">
       <div class="service-card-media">
-        <div class="service-card-img">
+        <div class="${imgWrapClass}">
           ${imageMarkup}
         </div>
         <div class="service-card-icon">
@@ -250,11 +252,13 @@ function renderServiceDetails() {
   if (heroTitle) heroTitle.textContent = service.title;
   if (heroBreadcrumb) heroBreadcrumb.textContent = service.title;
 
+  const heroMediaClass = service.imageFit === 'contain' ? 'img-overlay-zoom detail-hero-media detail-hero-media--contain mb-4' : 'img-overlay-zoom detail-hero-media mb-4';
+
   container.innerHTML = `
   <div class="row g-4">
     <div class="col-lg-8">
       <!-- Service Image -->
-      <div class="img-overlay-zoom detail-hero-media mb-4">
+      <div class="${heroMediaClass}">
         <img src="${service.image || 'assets/images/popup.png'}" alt="${service.title}" class="detail-hero-img">
       </div>
 
@@ -283,17 +287,21 @@ function renderServiceDetails() {
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
         <h4 class="mb-3">Gallery</h4>
         <div class="row g-3">
-          ${(service.gallery || []).map(imgSrc => `
+          ${(service.gallery || []).map(imgSrc => {
+            const isContainThumb = service.imageFit === 'contain' && imgSrc === service.image;
+            const thumbClass = isContainThumb ? 'service-gallery-thumb service-gallery-thumb--contain' : 'service-gallery-thumb';
+            return `
           <div class="col-md-4 col-6">
             <div class="gallery-item" style="border-radius: var(--border-radius-lg); overflow: hidden; border: 1px solid rgba(201, 149, 53, 0.3); margin-bottom: 0;">
               <a href="${imgSrc}" class="glightbox" data-gallery="service-gallery" data-title="${service.title}">
-                <img src="${imgSrc}" alt="${service.title}" style="height: 160px; width: 100%; object-fit: cover;">
+                <img src="${imgSrc}" alt="${service.title}" class="${thumbClass}">
                 <div class="gallery-item-overlay">
                   <i class="bi bi-zoom-in"></i>
                 </div>
               </a>
             </div>
-          </div>`).join('')}
+          </div>`;
+          }).join('')}
         </div>
       </div>
     </div>
