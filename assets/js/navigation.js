@@ -232,6 +232,14 @@ function getFooterHTML() {
  * Initialize navigation - inject header and footer
  */
 function initNavigation() {
+  if (window.__navInitialized) return;
+  const topBarTarget = document.getElementById('topBar');
+  const navbarTarget = document.getElementById('mainNav');
+  const footerTarget = document.getElementById('siteFooter');
+
+  if (!topBarTarget && !navbarTarget && !footerTarget) return;
+  window.__navInitialized = true;
+
   // Ensure header has sticky-top & site-header class
   const header = document.querySelector('header');
   if (header) {
@@ -239,19 +247,16 @@ function initNavigation() {
   }
 
   // Inject top bar
-  const topBarTarget = document.getElementById('topBar');
   if (topBarTarget) {
     topBarTarget.innerHTML = getTopBarHTML();
   }
 
   // Inject navbar
-  const navbarTarget = document.getElementById('mainNav');
   if (navbarTarget) {
     navbarTarget.innerHTML = getNavbarHTML();
   }
 
   // Inject footer
-  const footerTarget = document.getElementById('siteFooter');
   if (footerTarget) {
     footerTarget.innerHTML = getFooterHTML();
   }
@@ -397,6 +402,10 @@ function initBubbleEffect() {
   });
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initNavigation);
+// Initialize immediately if targets exist, otherwise wait for DOM
+if (document.getElementById('mainNav') || document.getElementById('siteFooter')) {
+  initNavigation();
+} else {
+  document.addEventListener('DOMContentLoaded', initNavigation);
+}
 

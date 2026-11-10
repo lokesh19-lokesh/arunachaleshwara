@@ -1857,21 +1857,24 @@ header.scrolled .top-bar,
   font-size: 1.1rem;
 }
 
-/* ---------- Page Preloader ---------- */
+/* ---------- Page Preloader (Disabled for Instant Navigation) ---------- */
 .page-preloader {
-  position: fixed;
-  inset: 0;
-  background: var(--clr-cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .page-preloader.loaded {
   opacity: 0;
   visibility: hidden;
+}
+
+/* Ensure above-the-fold hero text renders immediately without waiting for JS */
+.hero-section [data-aos],
+.page-hero [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 .preloader-spinner {

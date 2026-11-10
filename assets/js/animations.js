@@ -8,11 +8,16 @@
 function initAOS() {
   if (typeof AOS !== 'undefined') {
     AOS.init({
-      duration: 800,
+      duration: 650,
       easing: 'ease-out',
       once: true,
-      offset: 80,
+      offset: 60,
       disable: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    });
+  } else {
+    document.querySelectorAll('[data-aos]').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
     });
   }
 }

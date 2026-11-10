@@ -1,28 +1,49 @@
 /* ============================================================
    ARUNACHALESHWARA – Main Application Entry
-   Global initialization, preloader, and utilities
+   Global initialization and utilities
    ============================================================ */
 
 /**
- * Initialize preloader
+ * Remove any preloader immediately so navigation never blocks on white screen
  */
 function initPreloader() {
   const preloader = document.getElementById('preloader');
   if (preloader) {
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        preloader.classList.add('loaded');
-        setTimeout(() => preloader.remove(), 400);
-      }, 300);
-    });
+    preloader.remove();
   }
 }
 
 /**
- * Page transition effect
+ * Preload linked internal pages on hover/touch over HTTP(S) for instant transitions
  */
-function initPageTransition() {
-  document.body.classList.add('page-transition');
+function initLinkPrefetch() {
+  if (!window.location.protocol.startsWith('http')) return;
+  const prefetched = new Set();
+
+  const prefetchUrl = (url) => {
+    if (!url || prefetched.has(url)) return;
+    prefetched.add(url);
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    document.head.appendChild(link);
+  };
+
+  document.addEventListener('pointerover', (e) => {
+    const anchor = e.target.closest('a[href]');
+    if (!anchor) return;
+    const href = anchor.getAttribute('href');
+    if (
+      href &&
+      !href.startsWith('#') &&
+      !href.startsWith('http') &&
+      !href.startsWith('mailto:') &&
+      !href.startsWith('tel:') &&
+      href.endsWith('.html')
+    ) {
+      prefetchUrl(href);
+    }
+  }, { passive: true });
 }
 
 /**
@@ -30,21 +51,34 @@ function initPageTransition() {
  */
 function initApp() {
   initPreloader();
-  initPageTransition();
 
-  // Wait for DOM
-  document.addEventListener('DOMContentLoaded', () => {
+  const onReady = () => {
+    initPreloader();
+    initLinkPrefetch();
+
     // Initialize animations
     if (typeof initAOS === 'function') initAOS();
     if (typeof initSmoothScroll === 'function') initSmoothScroll();
     if (typeof initScrollReveal === 'function') initScrollReveal();
     if (typeof initLazyLoading === 'function') initLazyLoading();
 
-    // Initialize swipers (slight delay to ensure DOM is rendered)
+    // Initialize swipers & lightbox right after page-specific DOMContentLoaded renderers
     setTimeout(() => {
       if (typeof initSwipers === 'function') initSwipers();
       if (typeof initLightbox === 'function') initLightbox();
-    }, 100);
+      if (typeof AOS !== 'undefined') AOS.refresh();
+    }, 0);
+  };
+
+  if (document.readyState === 'complete') {
+    onReady();
+  } else {
+    document.addEventListener('DOMContentLoaded', onReady);
+  }
+
+  // Handle back/forward cache restoration cleanly
+  window.addEventListener('pageshow', () => {
+    initPreloader();
   });
 }
 
