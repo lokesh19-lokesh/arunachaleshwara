@@ -489,7 +489,7 @@ header.scrolled .top-bar,
 /* ---------- Main Navbar (Permanently Sticky & Visible) ---------- */
 .main-navbar {
   background-color: var(--clr-white);
-  padding: 0.55rem 0;
+  padding: 0.4rem 0;
   transition: padding var(--transition), box-shadow var(--transition);
   position: relative;
   z-index: 1051;
@@ -497,11 +497,7 @@ header.scrolled .top-bar,
 }
 
 .main-navbar.scrolled {
-  padding: 0.35rem 0;
-}
-
-.main-navbar.scrolled .navbar-brand-wrapper img {
-  height: 46px;
+  padding: 0.28rem 0;
 }
 
 .navbar-brand-wrapper {
@@ -512,13 +508,13 @@ header.scrolled .top-bar,
 }
 
 .navbar-brand-wrapper img {
-  height: 55px;
+  height: 76px;
   width: auto;
   transition: var(--transition);
 }
 
 .main-navbar.scrolled .navbar-brand-wrapper img {
-  height: 45px;
+  height: 60px;
 }
 
 .brand-text {
@@ -1503,7 +1499,7 @@ header.scrolled .top-bar,
 }
 
 .footer-brand img {
-  height: 55px;
+  height: 72px;
   width: auto;
   margin-bottom: 1rem;
 }
@@ -1900,8 +1896,8 @@ html.show-preloader .page-preloader.loaded {
 }
 
 .preloader-logo {
-  width: 240px;
-  max-width: 72vw;
+  width: 300px;
+  max-width: 78vw;
   height: auto;
   object-fit: contain;
   animation: preloaderLogoPulse 1.8s ease-in-out infinite;
