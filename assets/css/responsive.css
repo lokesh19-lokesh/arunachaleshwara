@@ -106,6 +106,10 @@
     font-size: 2rem;
   }
 
+  .detail-hero-img {
+    height: 320px;
+  }
+
   .masonry-grid {
     column-count: 2;
   }
@@ -382,11 +386,15 @@
 
   /* Service Cards */
   .service-card-img {
-    height: 170px;
+    height: 185px;
   }
 
   .service-card-body {
-    padding: 1.5rem 1rem 1rem;
+    padding: 1.65rem 1rem 1.15rem;
+  }
+
+  .detail-hero-img {
+    height: 250px;
   }
 
   /* Tour Cards */
@@ -644,7 +652,11 @@
   }
 
   .info-card {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1.15rem;
+  }
+
+  .detail-hero-img {
+    height: 215px;
   }
 
   .error-page h1 {

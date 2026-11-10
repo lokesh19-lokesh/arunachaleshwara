@@ -175,16 +175,18 @@ const SERVICES_DATA = [
 function renderServiceCard(service, index) {
   const delay = (index % 4) * 100;
   const imageMarkup = service.image
-    ? `<img src="${service.image}" alt="${service.title}" class="service-card-thumbnail" style="height: 200px; width: 100%; object-fit: cover; transition: transform 0.4s ease;">`
-    : `<div class="placeholder-img" style="height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+    ? `<img src="${service.image}" alt="${service.title}" class="service-card-thumbnail">`
+    : `<div class="placeholder-img" style="height: 100%; min-height: 100%; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
         <i class="bi ${service.icon}" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.4;"></i>
       </div>`;
 
   return `
-  <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
+  <div class="col-lg-3 col-md-6 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
     <div class="service-card">
-      <div class="service-card-img" style="overflow: hidden; position: relative;">
-        ${imageMarkup}
+      <div class="service-card-media">
+        <div class="service-card-img">
+          ${imageMarkup}
+        </div>
         <div class="service-card-icon">
           <i class="bi ${service.icon}"></i>
         </div>
@@ -252,8 +254,8 @@ function renderServiceDetails() {
   <div class="row g-4">
     <div class="col-lg-8">
       <!-- Service Image -->
-      <div class="img-overlay-zoom mb-4" style="border-radius: var(--border-radius-lg); overflow: hidden; border: 1px solid rgba(201, 149, 53, 0.35);">
-        <img src="${service.image || 'assets/images/popup.png'}" alt="${service.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">
+      <div class="img-overlay-zoom detail-hero-media mb-4">
+        <img src="${service.image || 'assets/images/popup.png'}" alt="${service.title}" class="detail-hero-img">
       </div>
 
       <!-- Description -->
@@ -298,49 +300,51 @@ function renderServiceDetails() {
 
     <!-- Sidebar -->
     <div class="col-lg-4">
-      <!-- Enquiry CTA -->
-      <div class="info-card mb-4" data-aos="fade-left">
-        <div class="info-card-icon">
-          <i class="bi bi-send-fill"></i>
+      <div class="detail-sidebar">
+        <!-- Enquiry CTA -->
+        <div class="info-card" data-aos="fade-up">
+          <div class="info-card-icon">
+            <i class="bi bi-send-fill"></i>
+          </div>
+          <h5>Interested in this Service?</h5>
+          <p>Send us an enquiry and we will get back to you with details.</p>
+          <div class="d-grid gap-2">
+            <a href="enquiry.html?service=${encodeURIComponent(service.title)}" class="btn btn-primary-custom justify-content-center">
+              <i class="bi bi-pencil-square"></i> Send Enquiry
+            </a>
+            <a href="https://wa.me/${NAV_CONFIG.whatsapp}?text=Hello!%20I%20am%20interested%20in%20your%20${encodeURIComponent(service.title)}%20service.%20Please%20share%20more%20details." class="btn btn-whatsapp justify-content-center" target="_blank" rel="noopener">
+              <i class="bi bi-whatsapp"></i> WhatsApp Enquiry
+            </a>
+            <a href="tel:+91${NAV_CONFIG.phone}" class="btn btn-outline-maroon justify-content-center">
+              <i class="bi bi-telephone-fill"></i> Call Now
+            </a>
+          </div>
         </div>
-        <h5>Interested in this Service?</h5>
-        <p>Send us an enquiry and we will get back to you with details.</p>
-        <div class="d-grid gap-2">
-          <a href="enquiry.html?service=${encodeURIComponent(service.title)}" class="btn btn-primary-custom justify-content-center">
-            <i class="bi bi-pencil-square"></i> Send Enquiry
-          </a>
-          <a href="https://wa.me/${NAV_CONFIG.whatsapp}?text=Hello!%20I%20am%20interested%20in%20your%20${encodeURIComponent(service.title)}%20service.%20Please%20share%20more%20details." class="btn btn-whatsapp justify-content-center" target="_blank" rel="noopener">
-            <i class="bi bi-whatsapp"></i> WhatsApp Enquiry
-          </a>
-          <a href="tel:+91${NAV_CONFIG.phone}" class="btn btn-outline-maroon justify-content-center">
-            <i class="bi bi-telephone-fill"></i> Call Now
-          </a>
-        </div>
-      </div>
 
-      <!-- Quick Contact Card -->
-      <div class="info-card" data-aos="fade-left" data-aos-delay="100">
-        <h5>Need Immediate Help?</h5>
-        <p class="text-muted small">Our pilgrimage coordinators are available 24/7 to assist you.</p>
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <i class="bi bi-telephone text-gold" style="font-size: 1.5rem;"></i>
-          <div>
-            <small class="text-muted d-block">Call Us</small>
-            <a href="tel:+91${NAV_CONFIG.phone}" class="fw-bold text-dark">+91 ${NAV_CONFIG.phone}</a>
+        <!-- Quick Contact Card -->
+        <div class="info-card text-start" data-aos="fade-up" data-aos-delay="100">
+          <h5>Need Immediate Help?</h5>
+          <p>Our pilgrimage coordinators are available 24/7 to assist you.</p>
+          <div class="detail-contact-item mb-3">
+            <i class="bi bi-telephone text-gold"></i>
+            <div class="detail-contact-body">
+              <small class="text-muted d-block">Call Us</small>
+              <a href="tel:+91${NAV_CONFIG.phone}">+91 ${NAV_CONFIG.phone}</a>
+            </div>
           </div>
-        </div>
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <i class="bi bi-whatsapp text-success" style="font-size: 1.5rem;"></i>
-          <div>
-            <small class="text-muted d-block">WhatsApp</small>
-            <a href="https://wa.me/${NAV_CONFIG.whatsapp}" class="fw-bold text-dark" target="_blank" rel="noopener">+91 ${NAV_CONFIG.phone}</a>
+          <div class="detail-contact-item mb-3">
+            <i class="bi bi-whatsapp text-success"></i>
+            <div class="detail-contact-body">
+              <small class="text-muted d-block">WhatsApp</small>
+              <a href="https://wa.me/${NAV_CONFIG.whatsapp}" target="_blank" rel="noopener">+91 ${NAV_CONFIG.phone}</a>
+            </div>
           </div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-          <i class="bi bi-envelope text-gold" style="font-size: 1.5rem;"></i>
-          <div>
-            <small class="text-muted d-block">Email</small>
-            <a href="mailto:${NAV_CONFIG.email}" class="fw-bold text-dark">${NAV_CONFIG.email}</a>
+          <div class="detail-contact-item">
+            <i class="bi bi-envelope text-gold"></i>
+            <div class="detail-contact-body">
+              <small class="text-muted d-block">Email</small>
+              <a href="mailto:${NAV_CONFIG.email}">${NAV_CONFIG.email}</a>
+            </div>
           </div>
         </div>
       </div>
@@ -349,6 +353,9 @@ function renderServiceDetails() {
 
   if (typeof initLightbox === 'function') {
     setTimeout(initLightbox, 60);
+  }
+  if (typeof AOS !== 'undefined') {
+    setTimeout(() => AOS.refresh(), 80);
   }
 }
 

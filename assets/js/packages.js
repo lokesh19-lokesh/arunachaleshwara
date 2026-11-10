@@ -605,9 +605,9 @@ function renderTourDetails() {
   <div class="row g-4">
     <div class="col-lg-8">
       <!-- Tour Image -->
-      <div class="img-overlay-zoom mb-4">
+      <div class="img-overlay-zoom detail-hero-media mb-4">
         ${tour.image
-          ? `<img src="${tour.image}" alt="${tour.title}" style="height: 400px; width: 100%; object-fit: cover; border-radius: var(--border-radius-lg);">`
+          ? `<img src="${tour.image}" alt="${tour.title}" class="detail-hero-img">`
           : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
               <i class="bi bi-geo-alt-fill" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
             </div>`
@@ -695,42 +695,48 @@ function renderTourDetails() {
 
     <!-- Sidebar -->
     <div class="col-lg-4">
-      <!-- Booking CTA -->
-      <div class="info-card mb-4" data-aos="fade-left" style="position: sticky; top: 100px;">
-        <div class="info-card-icon">
-          <i class="bi bi-send-fill"></i>
-        </div>
-        <h5>Book This Tour</h5>
-        <p>Interested in the <strong>${tour.title}</strong>? Send us an enquiry for pricing and availability.</p>
-        <div class="d-grid gap-2">
-          <a href="enquiry.html?destination=${encodeURIComponent(tour.title)}" class="btn btn-primary-custom justify-content-center">
-            <i class="bi bi-pencil-square"></i> Send Enquiry
-          </a>
-          <a href="https://wa.me/${NAV_CONFIG.whatsapp}?text=Hello!%20I%20am%20interested%20in%20the%20${encodeURIComponent(tour.title)}%20package.%20Please%20share%20pricing%20and%20details." class="btn btn-whatsapp justify-content-center" target="_blank" rel="noopener">
-            <i class="bi bi-whatsapp"></i> WhatsApp Enquiry
-          </a>
-          <a href="tel:+91${NAV_CONFIG.phone}" class="btn btn-outline-maroon justify-content-center">
-            <i class="bi bi-telephone-fill"></i> Call Now
-          </a>
-        </div>
-      </div>
-
-      <!-- Other Packages -->
-      <div class="info-card" data-aos="fade-left" data-aos-delay="100">
-        <h5 class="text-start mb-3">Other Packages</h5>
-        <ul class="list-unstyled text-start">
-          ${PACKAGES_DATA.filter(p => p.id !== tour.id).slice(0, 5).map(p => `
-          <li class="mb-2">
-            <a href="tour-details.html?id=${p.id}" class="d-flex align-items-center gap-2" style="color: var(--clr-text); font-size: 0.9rem;">
-              <i class="bi bi-geo-alt text-gold"></i>
-              ${p.title}
+      <div class="detail-sidebar">
+        <!-- Booking CTA -->
+        <div class="info-card" data-aos="fade-up">
+          <div class="info-card-icon">
+            <i class="bi bi-send-fill"></i>
+          </div>
+          <h5>Book This Tour</h5>
+          <p>Interested in the <strong>${tour.title}</strong>? Send us an enquiry for pricing and availability.</p>
+          <div class="d-grid gap-2">
+            <a href="enquiry.html?destination=${encodeURIComponent(tour.title)}" class="btn btn-primary-custom justify-content-center">
+              <i class="bi bi-pencil-square"></i> Send Enquiry
             </a>
-          </li>`).join('')}
-        </ul>
-        <a href="tour-packages.html" class="btn btn-outline-gold btn-sm mt-2 w-100 justify-content-center">View All Packages</a>
+            <a href="https://wa.me/${NAV_CONFIG.whatsapp}?text=Hello!%20I%20am%20interested%20in%20the%20${encodeURIComponent(tour.title)}%20package.%20Please%20share%20pricing%20and%20details." class="btn btn-whatsapp justify-content-center" target="_blank" rel="noopener">
+              <i class="bi bi-whatsapp"></i> WhatsApp Enquiry
+            </a>
+            <a href="tel:+91${NAV_CONFIG.phone}" class="btn btn-outline-maroon justify-content-center">
+              <i class="bi bi-telephone-fill"></i> Call Now
+            </a>
+          </div>
+        </div>
+
+        <!-- Other Packages -->
+        <div class="info-card text-start" data-aos="fade-up" data-aos-delay="100">
+          <h5 class="mb-3">Other Packages</h5>
+          <ul class="list-unstyled text-start mb-3">
+            ${PACKAGES_DATA.filter(p => p.id !== tour.id).slice(0, 5).map(p => `
+            <li class="mb-2">
+              <a href="tour-details.html?id=${p.id}" class="d-flex align-items-center gap-2" style="color: var(--clr-text); font-size: 0.9rem;">
+                <i class="bi bi-geo-alt text-gold"></i>
+                ${p.title}
+              </a>
+            </li>`).join('')}
+          </ul>
+          <a href="tour-packages.html" class="btn btn-outline-gold btn-sm w-100 justify-content-center">View All Packages</a>
+        </div>
       </div>
     </div>
   </div>`;
+
+  if (typeof AOS !== 'undefined') {
+    setTimeout(() => AOS.refresh(), 80);
+  }
 }
 
 /**
