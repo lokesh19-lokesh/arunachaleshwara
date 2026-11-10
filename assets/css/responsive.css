@@ -368,20 +368,56 @@
     font-size: 1.6rem;
   }
 
-  /* Trust section */
+  /* Trust section: slow seamless left-to-right marquee on mobile only */
   .trust-section {
-    overflow-x: auto;
-    padding: 1.25rem 0;
-    -webkit-overflow-scrolling: touch;
+    overflow: hidden;
+    padding: 1.15rem 0;
   }
 
-  .trust-section .row {
+  .trust-container {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .trust-track {
+    display: flex;
     flex-wrap: nowrap;
-    min-width: max-content;
+    width: max-content;
+    will-change: transform;
+    animation: trustScrollLTR 28s linear infinite;
+  }
+
+  .trust-group {
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 0 0 auto;
+    width: auto;
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  .trust-group-clone {
+    display: flex;
   }
 
   .trust-item {
-    padding: 0.75rem 1rem;
+    flex: 0 0 auto;
+    padding: 0.65rem 1.25rem;
+  }
+
+  .trust-section [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .trust-section:focus-within .trust-track,
+  .trust-section:active .trust-track {
+    animation-play-state: paused;
   }
 
   .trust-icon {
@@ -734,6 +770,10 @@
     letter-spacing: 0.04em;
   }
 
+  .trust-item {
+    padding: 0.55rem 1rem;
+  }
+
   .trust-icon {
     width: 40px;
     height: 40px;
@@ -752,6 +792,40 @@
   }
 }
 
+/* ---------- Mobile Trust Indicators Marquee Keyframes & Motion Fallbacks ---------- */
+@keyframes trustScrollLTR {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 767px) and (hover: hover) {
+  .trust-section:hover .trust-track {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .trust-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .trust-track {
+    animation: none;
+    transform: none;
+  }
+
+  .trust-group-clone {
+    display: none;
+  }
+}
+
 /* ---------- Print Styles ---------- */
 @media print {
   .top-bar,
@@ -760,8 +834,14 @@
   .back-to-top,
   .audio-float,
   .welcome-popup-dialog,
-  .page-preloader {
+  .page-preloader,
+  .trust-group-clone {
     display: none !important;
+  }
+
+  .trust-track {
+    animation: none !important;
+    transform: none !important;
   }
 
   .hero-section {

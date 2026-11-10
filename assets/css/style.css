@@ -799,7 +799,26 @@ header.scrolled .top-bar,
   padding: 2rem 0;
 }
 
+.trust-track {
+  width: 100%;
+}
+
+.trust-group {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.trust-group-clone {
+  display: none;
+}
+
 .trust-item {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
