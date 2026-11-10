@@ -58,6 +58,7 @@
 
         if (navType === 'reload' || (navType !== 'back_forward' && !hasVisited)) {
           document.documentElement.classList.add('show-preloader');
+          window.__shouldShowWelcomePopup = true;
         }
         try { sessionStorage.setItem('arunachala_visited', '1'); } catch (e) {}
         if (!window.name) window.name = 'arunachala_session';
@@ -440,6 +441,30 @@
       </div>
     </section>
   </main>
+
+  <!-- Homepage Welcome Popup Modal (Shown Only on Website Open / Reload, Never on Inner-Page Redirects) -->
+  <dialog class="welcome-popup-dialog" id="welcomePopup" closedby="any" aria-label="Welcome to Arunachaleshwara Tours &amp; Travels">
+    <div class="welcome-popup-frame">
+      <button type="button" class="welcome-popup-close" id="welcomePopupClose" aria-label="Close welcome popup" autofocus>
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+      <img src="assets/images/popup.png" width="1536" height="1024" alt="Welcome to Arunachaleshwara Tours &amp; Travels – Your Spiritual Journey Begins Here." class="welcome-popup-img" loading="eager" decoding="async">
+    </div>
+  </dialog>
+
+  <!-- Background Sacred Shiva Mantram Audio (Starts on Popup Close, Controlled via Mute/Unmute Button) -->
+  <audio id="bgMantramAudio" loop preload="none">
+    <source src="assets/audio/Shiva%20mantram%20Om%20arunachaleswaraya%20namaha%20108%20times%20(original)%20%20arunachalam%20%20Tiruvannamalai%20-%20SriRamaJayam%20Telugu.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Floating Audio Mute / Unmute Button -->
+  <button type="button" class="audio-float is-muted" id="audioToggleBtn" aria-label="Unmute background Shiva Mantram audio" aria-pressed="false" title="Click to Mute / Unmute Shiva Mantram">
+    <i class="bi bi-volume-mute-fill audio-float-icon" id="audioToggleIcon" aria-hidden="true"></i>
+    <span class="audio-float-waves" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
+    <span class="audio-float-label" id="audioToggleLabel">Unmute</span>
+  </button>
 
   <!-- Global Footer Injected via navigation.js -->
   <div id="siteFooter"></div>

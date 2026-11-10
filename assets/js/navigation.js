@@ -119,7 +119,7 @@ function getFooterHTML() {
         <!-- Brand Column -->
         <div class="col-lg-4 col-md-6">
           <div class="footer-brand">
-            <a href="index.html">
+            <a href="index.html" class="footer-logo-link">
               <img src="assets/logo.png" alt="Arunachaleshwara Tours & Travels" class="footer-logo-img">
             </a>
             <p>Your trusted pilgrimage travel partner in Tiruvannamalai. We provide comfortable accommodation, temple darshan services, transportation, and customized tour packages for a peaceful spiritual journey.</p>
