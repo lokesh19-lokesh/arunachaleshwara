@@ -887,6 +887,55 @@
   }
 }
 
+/* ---------- Responsive Animated Bus Scroll Track ---------- */
+@media (max-width: 767px) {
+  .scroll-bus-track {
+    right: 3px;
+    width: 26px;
+    top: 70px;
+    height: calc(100vh - 160px);
+  }
+
+  .scroll-bus-road {
+    left: 11px;
+    width: 4px;
+  }
+
+  .scroll-bus-vehicle {
+    width: 22px;
+    height: 36px;
+    left: 2px;
+  }
+
+  .scroll-bus-vehicle svg {
+    width: 22px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 420px) {
+  .scroll-bus-track {
+    right: 2px;
+    width: 22px;
+  }
+
+  .scroll-bus-road {
+    left: 9px;
+    width: 4px;
+  }
+
+  .scroll-bus-vehicle {
+    width: 18px;
+    height: 30px;
+    left: 2px;
+  }
+
+  .scroll-bus-vehicle svg {
+    width: 18px;
+    height: 30px;
+  }
+}
+
 /* ---------- Print Styles ---------- */
 @media print {
   .top-bar,
@@ -896,7 +945,8 @@
   .audio-float,
   .welcome-popup-dialog,
   .page-preloader,
-  .trust-group-clone {
+  .trust-group-clone,
+  .scroll-bus-track {
     display: none !important;
   }
 

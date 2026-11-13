@@ -366,6 +366,159 @@ function initLinkPrefetch() {
 }
 
 /**
+ * Interactive Animated Tour Bus Scroll Progress Indicator
+ * Moves down and up along the vertical road track mirroring scroll position
+ */
+function initScrollBus() {
+  let track = document.getElementById('scrollBusTrack');
+  if (!track && document.body) {
+    const aside = document.createElement('aside');
+    aside.className = 'scroll-bus-track';
+    aside.id = 'scrollBusTrack';
+    aside.setAttribute('aria-hidden', 'true');
+    aside.title = 'Page Scroll Progress';
+    aside.innerHTML = `
+      <div class="scroll-bus-road">
+        <div class="scroll-bus-road-fill" id="scrollBusRoadFill"></div>
+        <div class="scroll-bus-road-line"></div>
+      </div>
+      <div class="scroll-bus-vehicle" id="scrollBusVehicle">
+        <div class="scroll-bus-beam"></div>
+        <svg class="scroll-bus-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 46" width="28" height="46" aria-hidden="true">
+          <rect x="0" y="8" width="2.2" height="6" rx="1" fill="#0F172A"/>
+          <rect x="25.8" y="8" width="2.2" height="6" rx="1" fill="#0F172A"/>
+          <rect x="0" y="32" width="2.2" height="6" rx="1" fill="#0F172A"/>
+          <rect x="25.8" y="32" width="2.2" height="6" rx="1" fill="#0F172A"/>
+          <rect x="0.5" y="6" width="2" height="2" rx="0.5" fill="#FFC908"/>
+          <rect x="25.5" y="6" width="2" height="2" rx="0.5" fill="#FFC908"/>
+          <rect x="2" y="2" width="24" height="42" rx="6" fill="#45120E" stroke="#FFC908" stroke-width="1.3"/>
+          <rect x="6" y="3" width="16" height="3" rx="1" fill="#FFC908"/>
+          <text x="14" y="5.2" font-size="2" font-family="sans-serif" font-weight="bold" fill="#45120E" text-anchor="middle">ARUNACHALA</text>
+          <path d="M5 8 Q14 5 23 8 L22 13 Q14 10 6 13 Z" fill="#60A5FA"/>
+          <rect x="6.5" y="16" width="15" height="14" rx="2" fill="#681D17" stroke="#FFC908" stroke-width="0.8"/>
+          <line x1="9" y1="19" x2="19" y2="19" stroke="#FFC908" stroke-width="0.6"/>
+          <line x1="9" y1="23" x2="19" y2="23" stroke="#FFC908" stroke-width="0.6"/>
+          <line x1="9" y1="27" x2="19" y2="27" stroke="#FFC908" stroke-width="0.6"/>
+          <rect x="3.5" y="15" width="2" height="5" rx="0.5" fill="#93C5FD" opacity="0.9"/>
+          <rect x="3.5" y="23" width="2" height="5" rx="0.5" fill="#93C5FD" opacity="0.9"/>
+          <rect x="22.5" y="15" width="2" height="5" rx="0.5" fill="#93C5FD" opacity="0.9"/>
+          <rect x="22.5" y="23" width="2" height="5" rx="0.5" fill="#93C5FD" opacity="0.9"/>
+          <rect x="6" y="38" width="16" height="2.5" rx="1" fill="#1E293B"/>
+          <circle cx="5" cy="42" r="1.5" fill="#EF4444"/>
+          <circle cx="23" cy="42" r="1.5" fill="#EF4444"/>
+          <circle cx="5" cy="4.5" r="1.8" fill="#FFF9C4" stroke="#FFC908" stroke-width="0.6"/>
+          <circle cx="23" cy="4.5" r="1.8" fill="#FFF9C4" stroke="#FFC908" stroke-width="0.6"/>
+        </svg>
+      </div>`;
+    document.body.appendChild(aside);
+    track = aside;
+  }
+
+  const vehicle = document.getElementById('scrollBusVehicle');
+  const roadFill = document.getElementById('scrollBusRoadFill');
+  if (!track || !vehicle) return;
+
+  let lastScrollY = window.scrollY;
+  let scrollTimeout = null;
+  let currentDirection = 'down';
+  let isDragging = false;
+
+  const updateBusPosition = () => {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (docHeight <= 30) {
+      track.classList.remove('is-visible');
+      return;
+    }
+    track.classList.add('is-visible');
+
+    const progress = Math.min(1, Math.max(0, scrollY / docHeight));
+    const trackHeight = track.clientHeight || (window.innerHeight - 190);
+    const busHeight = vehicle.clientHeight || 46;
+    const maxTravel = Math.max(0, trackHeight - busHeight);
+    const busY = progress * maxTravel;
+
+    if (roadFill) {
+      roadFill.style.height = `${(progress * 100).toFixed(1)}%`;
+    }
+
+    if (scrollY > lastScrollY + 2) {
+      currentDirection = 'down';
+    } else if (scrollY < lastScrollY - 2) {
+      currentDirection = 'up';
+    }
+    lastScrollY = scrollY;
+
+    // 180deg = nose pointing down towards destination; 0deg = nose pointing up towards top
+    const rotation = currentDirection === 'down' ? 180 : 0;
+    vehicle.style.transform = `translateY(${busY.toFixed(1)}px) rotate(${rotation}deg)`;
+
+    vehicle.classList.add('is-driving');
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      vehicle.classList.remove('is-driving');
+    }, 180);
+  };
+
+  // Jump to position on road click
+  track.addEventListener('click', (e) => {
+    if (isDragging) return;
+    const rect = track.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const ratio = Math.min(1, Math.max(0, clickY / rect.height));
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({
+      top: ratio * docHeight,
+      behavior: 'smooth'
+    });
+  });
+
+  // Dragging the bus up or down
+  vehicle.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    try {
+      vehicle.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    e.preventDefault();
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const rect = track.getBoundingClientRect();
+    const currentY = e.clientY - rect.top;
+    const ratio = Math.min(1, Math.max(0, currentY / rect.height));
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo({
+      top: ratio * docHeight,
+      behavior: 'auto'
+    });
+  });
+
+  const stopDragging = () => {
+    isDragging = false;
+  };
+  window.addEventListener('pointerup', stopDragging);
+  window.addEventListener('pointercancel', stopDragging);
+
+  // Throttled scroll listener
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        updateBusPosition();
+        ticking = false;
+      });
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', updateBusPosition, { passive: true });
+
+  // Initial call
+  setTimeout(updateBusPosition, 60);
+}
+
+/**
  * Initialize all global components
  */
 function initApp() {
@@ -375,6 +528,7 @@ function initApp() {
     initPreloader();
     initWelcomePopupAndAudio();
     initLinkPrefetch();
+    initScrollBus();
 
     // Initialize animations
     if (typeof initAOS === 'function') initAOS();

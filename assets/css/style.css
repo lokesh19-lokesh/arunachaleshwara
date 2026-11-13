@@ -3040,3 +3040,137 @@ body.page-home .audio-float:hover {
   border-color: #FFC908;
 }
 
+/* ============================================================
+   ANIMATED TOUR BUS SCROLL INDICATOR
+   ============================================================ */
+
+/* Sleek scrollbar track styling */
+::-webkit-scrollbar {
+  width: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(69, 18, 14, 0.04);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FFC908 0%, var(--clr-gold) 100%);
+  border-radius: 9px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #45120E;
+}
+
+/* Floating road track on right edge */
+.scroll-bus-track {
+  position: fixed;
+  right: 6px;
+  top: 85px;
+  height: calc(100vh - 190px);
+  width: 32px;
+  z-index: 1035;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.scroll-bus-track.is-visible {
+  opacity: 1;
+}
+
+/* The vertical asphalt road */
+.scroll-bus-road {
+  position: absolute;
+  left: 13px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: rgba(69, 18, 14, 0.16);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.scroll-bus-road-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0%;
+  background: linear-gradient(180deg, #FFC908 0%, #E5B400 100%);
+  border-radius: 3px;
+  transition: height 0.08s ease-out;
+}
+
+.scroll-bus-road-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background-image: linear-gradient(to bottom, #FFFFFF 50%, transparent 50%);
+  background-size: 1.5px 8px;
+  opacity: 0.65;
+}
+
+/* Moving Tour Bus */
+.scroll-bus-vehicle {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  width: 28px;
+  height: 46px;
+  will-change: transform;
+  transform: translateY(0) rotate(180deg);
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  cursor: grab;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+}
+
+.scroll-bus-vehicle:active {
+  cursor: grabbing;
+}
+
+/* Headlight beam glow */
+.scroll-bus-beam {
+  position: absolute;
+  top: -12px;
+  left: -4px;
+  right: -4px;
+  height: 18px;
+  background: radial-gradient(ellipse at bottom center, rgba(255, 249, 196, 0.6) 0%, rgba(255, 201, 8, 0) 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.scroll-bus-vehicle.is-driving .scroll-bus-beam {
+  opacity: 1;
+}
+
+/* Subtle driving vibration animation */
+@keyframes busDriveVibration {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.scroll-bus-vehicle.is-driving .scroll-bus-svg {
+  animation: busDriveVibration 0.12s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-bus-vehicle {
+    transition: none !important;
+  }
+  .scroll-bus-vehicle.is-driving .scroll-bus-svg {
+    animation: none !important;
+  }
+}
+
