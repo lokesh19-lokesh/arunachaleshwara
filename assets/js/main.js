@@ -143,27 +143,64 @@ function initWelcomePopupAndAudio() {
     if (audioBtn) audioBtn.classList.add('visible');
   };
 
+  let autoStopActive = false;
+  let autoStopTimeout = null;
+
+  const clearAutoStop = () => {
+    autoStopActive = false;
+    if (autoStopTimeout) {
+      clearTimeout(autoStopTimeout);
+      autoStopTimeout = null;
+    }
+  };
+
+  const stopAudioAfterTenSeconds = () => {
+    clearAutoStop();
+    if (!audio) return;
+    audio.pause();
+    try {
+      audio.currentTime = 0;
+    } catch (e) {}
+    audio.volume = 0.7;
+    updateAudioUI(false);
+  };
+
   const playMantramAudio = () => {
     if (!audio) return;
+    clearAutoStop();
     audio.muted = false;
     audio.volume = 0.7;
+    autoStopActive = true;
+
     try {
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.then === 'function') {
         updateAudioUI(true);
         playPromise
           .then(() => updateAudioUI(!audio.paused && !audio.muted))
-          .catch(() => updateAudioUI(false));
+          .catch(() => {
+            clearAutoStop();
+            updateAudioUI(false);
+          });
       } else {
         updateAudioUI(!audio.paused && !audio.muted);
       }
     } catch (e) {
+      clearAutoStop();
       updateAudioUI(false);
     }
+
+    // Safety fallback timeout ensuring audio turns off after 10.5 seconds
+    autoStopTimeout = setTimeout(() => {
+      if (autoStopActive && !audio.paused) {
+        stopAudioAfterTenSeconds();
+      }
+    }, 10500);
   };
 
   const muteMantramAudio = () => {
     if (!audio) return;
+    clearAutoStop();
     audio.muted = true;
     audio.pause();
     updateAudioUI(false);
@@ -173,6 +210,22 @@ function initWelcomePopupAndAudio() {
     audio.addEventListener('play', () => updateAudioUI(!audio.muted));
     audio.addEventListener('pause', () => updateAudioUI(false));
     audio.addEventListener('volumechange', () => updateAudioUI(!audio.paused && !audio.muted));
+
+    // Monitor playback: gentle fade-out during 9th-10th second, then auto turn off
+    audio.addEventListener('timeupdate', () => {
+      if (!autoStopActive) return;
+      if (audio.currentTime >= 9.0 && audio.currentTime < 10.0) {
+        const remaining = 10.0 - audio.currentTime; // 1.0 down to 0.0
+        audio.volume = Math.max(0, Math.min(0.7, 0.7 * remaining));
+      } else if (audio.currentTime >= 10.0) {
+        stopAudioAfterTenSeconds();
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      clearAutoStop();
+      updateAudioUI(false);
+    });
   }
 
   if (audioBtn) {
