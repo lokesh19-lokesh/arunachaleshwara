@@ -826,6 +826,67 @@
   }
 }
 
+/* ---------- Homepage Yellow (#FFC908) Mobile Hero Overrides ---------- */
+@media (max-width: 991.98px) {
+  body.page-home .hero-section {
+    background: #FFC908;
+  }
+
+  body.page-home .hero-video-container {
+    border-bottom: 2px solid #E5B400;
+  }
+
+  body.page-home .hero-welcome {
+    color: #681D17;
+    font-weight: 700;
+    text-shadow: none;
+  }
+
+  body.page-home .hero-welcome i {
+    color: #681D17;
+  }
+
+  body.page-home .hero-title {
+    color: #45120E;
+    font-weight: 800;
+    text-shadow: none;
+  }
+
+  body.page-home .hero-title .text-gold {
+    color: #8B2E26 !important;
+  }
+
+  body.page-home .hero-subtitle {
+    color: #681D17;
+    font-weight: 700;
+    text-shadow: none;
+  }
+
+  body.page-home .hero-tagline {
+    color: #45120E;
+    font-weight: 700;
+    text-shadow: none;
+  }
+
+  body.page-home .hero-description {
+    color: #3A0E0B;
+    text-shadow: none;
+  }
+
+  body.page-home .hero-buttons .btn-outline-gold {
+    background-color: #45120E;
+    color: #FFFFFF;
+    border: 2px solid #45120E;
+    font-weight: 600;
+  }
+
+  body.page-home .hero-buttons .btn-outline-gold:hover {
+    background-color: #681D17;
+    border-color: #681D17;
+    color: #FFFFFF;
+  }
+}
+
 /* ---------- Print Styles ---------- */
 @media print {
   .top-bar,

@@ -2781,3 +2781,262 @@ html.show-preloader .page-preloader.loaded {
   }
 }
 
+/* ============================================================
+   HOMEPAGE YELLOW (#FFC908) ACCENT THEME
+   Replaces dark brown background sections on index.html
+   ============================================================ */
+
+/* ---------- Top Bar on Homepage ---------- */
+body.page-home .top-bar {
+  background-color: #FFC908;
+  color: #45120E;
+  border-bottom: 1px solid rgba(69, 18, 14, 0.12);
+}
+
+body.page-home .top-bar .top-info-item {
+  color: #45120E;
+  font-weight: 600;
+}
+
+body.page-home .top-bar .top-info-item span {
+  color: #45120E;
+}
+
+body.page-home .top-bar .top-info-item i {
+  color: #681D17;
+}
+
+body.page-home .top-bar a.top-info-item:hover {
+  color: #681D17;
+}
+
+body.page-home .top-bar .social-links a {
+  background-color: rgba(69, 18, 14, 0.08);
+  color: #45120E;
+  border: 1.5px solid rgba(69, 18, 14, 0.25);
+}
+
+body.page-home .top-bar .social-links a:hover {
+  background-color: #45120E;
+  color: #FFC908;
+  border-color: #45120E;
+}
+
+/* ---------- Navbar "Enquire Now" Button on Homepage ---------- */
+body.page-home .btn-enquire-nav {
+  background-color: #FFC908;
+  color: #45120E !important;
+  border: 2px solid #FFC908;
+  font-weight: 700;
+}
+
+body.page-home .btn-enquire-nav i {
+  color: #45120E;
+}
+
+body.page-home .btn-enquire-nav:hover {
+  background-color: #E5B400;
+  border-color: #E5B400;
+  color: #45120E !important;
+}
+
+/* ---------- Trust Indicators Section on Homepage ---------- */
+body.page-home .trust-section {
+  background: #FFC908;
+  border-top: 1px solid rgba(69, 18, 14, 0.1);
+  border-bottom: 1px solid rgba(69, 18, 14, 0.1);
+}
+
+body.page-home .trust-icon {
+  background-color: rgba(69, 18, 14, 0.08);
+  border: 2px solid #45120E;
+}
+
+body.page-home .trust-icon i {
+  color: #45120E;
+}
+
+body.page-home .trust-item:hover .trust-icon {
+  background-color: #45120E;
+  border-color: #45120E;
+}
+
+body.page-home .trust-item:hover .trust-icon i {
+  color: #FFC908;
+}
+
+body.page-home .trust-item h6 {
+  color: #45120E;
+  font-weight: 700;
+}
+
+/* ---------- Final CTA Section on Homepage ---------- */
+body.page-home .cta-section {
+  background: #FFC908;
+  border-top: 1px solid rgba(69, 18, 14, 0.1);
+  border-bottom: 1px solid rgba(69, 18, 14, 0.1);
+}
+
+body.page-home .cta-overlay {
+  background: linear-gradient(135deg, rgba(255, 201, 8, 0.94) 0%, rgba(245, 190, 0, 0.96) 100%);
+}
+
+body.page-home .cta-content h2 {
+  color: #45120E;
+  font-weight: 800;
+  text-shadow: none;
+}
+
+body.page-home .cta-content p {
+  color: #3A0E0B;
+  font-weight: 500;
+  text-shadow: none;
+}
+
+body.page-home .cta-buttons .btn-outline-gold {
+  background-color: #45120E;
+  color: #FFFFFF;
+  border: 2px solid #45120E;
+  font-weight: 600;
+}
+
+body.page-home .cta-buttons .btn-outline-gold:hover {
+  background-color: #681D17;
+  border-color: #681D17;
+  color: #FFFFFF;
+}
+
+body.page-home .cta-buttons .btn-gold {
+  background-color: #681D17;
+  color: #FFFFFF;
+  border: 2px solid #681D17;
+  font-weight: 600;
+}
+
+body.page-home .cta-buttons .btn-gold:hover {
+  background-color: #45120E;
+  border-color: #45120E;
+  color: #FFFFFF;
+}
+
+/* ---------- Footer on Homepage ---------- */
+body.page-home .site-footer {
+  background: linear-gradient(180deg, #FFC908 0%, #F5BE00 100%);
+  color: #3A0E0B;
+  border-top: 2px solid rgba(69, 18, 14, 0.15);
+}
+
+body.page-home .footer-logo-link {
+  background: #FFFFFF;
+  border: 2px solid #45120E;
+  box-shadow: 0 4px 14px rgba(69, 18, 14, 0.15);
+}
+
+body.page-home .footer-brand p {
+  color: #3A0E0B;
+  font-weight: 500;
+}
+
+body.page-home .footer-heading {
+  color: #45120E;
+  font-weight: 700;
+}
+
+body.page-home .footer-heading::after {
+  background: #45120E;
+}
+
+body.page-home .footer-links a {
+  color: #45120E;
+  font-weight: 500;
+}
+
+body.page-home .footer-links a::before {
+  color: #681D17;
+}
+
+body.page-home .footer-links a:hover {
+  color: #8B2E26;
+  font-weight: 600;
+  padding-left: 5px;
+}
+
+body.page-home .footer-contact li {
+  color: #3A0E0B;
+  font-weight: 500;
+}
+
+body.page-home .footer-contact li i {
+  color: #681D17;
+}
+
+body.page-home .footer-contact li a {
+  color: #3A0E0B;
+  font-weight: 500;
+}
+
+body.page-home .footer-contact li a:hover {
+  color: #8B2E26;
+}
+
+body.page-home .footer-social a {
+  background-color: rgba(69, 18, 14, 0.08);
+  color: #45120E;
+  border: 1.5px solid rgba(69, 18, 14, 0.25);
+}
+
+body.page-home .footer-social a:hover {
+  background-color: #45120E;
+  color: #FFC908;
+  border-color: #45120E;
+}
+
+body.page-home .footer-bottom {
+  border-top: 1px solid rgba(69, 18, 14, 0.18);
+}
+
+body.page-home .footer-bottom p {
+  color: #45120E;
+  font-weight: 500;
+}
+
+body.page-home .footer-bottom a {
+  color: #45120E;
+  font-weight: 600;
+}
+
+body.page-home .footer-bottom a:hover {
+  color: #8B2E26;
+}
+
+body.page-home .bubbles-media-link {
+  color: #45120E !important;
+  font-weight: 700;
+}
+
+body.page-home .bubbles-media-link .bubbles-text {
+  color: #45120E !important;
+  border-bottom: 1px dotted rgba(69, 18, 14, 0.6);
+}
+
+body.page-home .bubbles-media-link:hover .bubbles-text {
+  color: #8B2E26 !important;
+}
+
+body.page-home .bubbles-media-link .bubble {
+  background: radial-gradient(circle, rgba(104, 29, 23, 0.65) 0%, rgba(69, 18, 14, 0.4) 70%, transparent 100%);
+}
+
+/* ---------- Audio Floating Button on Homepage ---------- */
+body.page-home .audio-float {
+  background: #45120E;
+  color: #FFC908;
+  border: 1.5px solid #FFC908;
+}
+
+body.page-home .audio-float:hover {
+  background: #681D17;
+  color: #FFC908;
+  border-color: #FFC908;
+}
+
