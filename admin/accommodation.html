@@ -18,10 +18,54 @@
       <header class="admin-header" id="adminHeader"></header>
 
       <div class="admin-content">
+        <!-- Live Bed & Room Occupancy Summary -->
+        <div class="row g-3 mb-4" id="bedSummaryRow">
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card">
+              <div class="admin-stat-info">
+                <h6>Total Beds</h6>
+                <div class="admin-stat-number" id="kpiTotalBeds">0</div>
+                <div class="admin-stat-sub" id="kpiTotalRoomsSub">Across 0 rooms</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-hospital-fill"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card warning">
+              <div class="admin-stat-info">
+                <h6>Beds Filled</h6>
+                <div class="admin-stat-number text-danger" id="kpiFilledBeds">0</div>
+                <div class="admin-stat-sub" id="kpiOccupiedRoomsSub">0 occupied room(s)</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-person-check-fill"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card green">
+              <div class="admin-stat-info">
+                <h6>Beds Available</h6>
+                <div class="admin-stat-number text-success" id="kpiFreeBeds">0</div>
+                <div class="admin-stat-sub" id="kpiFreeRoomsSub">0 available room(s)</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card blue">
+              <div class="admin-stat-info">
+                <h6>Occupancy Rate</h6>
+                <div class="admin-stat-number" id="kpiBedOccupancy">0%</div>
+                <div class="admin-stat-sub" id="kpiMaintRoomsSub">0 in maintenance</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-pie-chart-fill"></i></div>
+            </div>
+          </div>
+        </div>
+
         <ul class="nav nav-tabs mb-4" id="accTabs">
           <li class="nav-item">
             <button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#roomsTab">
-              <i class="bi bi-door-closed-fill me-1 text-warning"></i> Physical Rooms Inventory (17)
+              <i class="bi bi-door-closed-fill me-1 text-warning"></i> Physical Rooms Inventory (<span id="roomsCountTab">17</span>)
             </button>
           </li>
           <li class="nav-item">
@@ -49,6 +93,7 @@
                       <th>Category</th>
                       <th>Floor</th>
                       <th>Bed Configuration</th>
+                      <th>Beds (Filled / Total)</th>
                       <th>Capacity</th>
                       <th>Base Price / Night</th>
                       <th>Status</th>
@@ -56,7 +101,7 @@
                     </tr>
                   </thead>
                   <tbody id="roomsTableBody">
-                    <tr><td colspan="8" class="text-center py-4 text-muted">Loading rooms...</td></tr>
+                    <tr><td colspan="9" class="text-center py-4 text-muted">Loading rooms...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -111,6 +156,16 @@
               <div class="col-6">
                 <label class="form-label small fw-bold">Bed Type</label>
                 <input type="text" id="rBed" class="form-control" value="1 Double Bed">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Total Beds *</label>
+                <input type="number" id="rTotalBeds" class="form-control" value="1" min="1" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Beds Filled</label>
+                <input type="number" id="rFilledBeds" class="form-control" value="0" min="0">
               </div>
             </div>
             <div class="row g-2 mb-3">
@@ -222,14 +277,68 @@
       ).join('') + `<option value="__custom__">+ Add Custom Category...</option>`;
       toggleRoomCustomCategory();
 
+      // Update Bed & Room KPIs
+      const getRoomTotalBeds = (r) => {
+        if (Number(r.total_beds) > 0) return Number(r.total_beds);
+        const m = String(r.bed_type || '').match(/^(\d+)/);
+        return m ? Math.max(1, parseInt(m[1], 10)) : 1;
+      };
+      const getRoomFilledBeds = (r) => {
+        const total = getRoomTotalBeds(r);
+        if (r.status === 'Maintenance' || r.status === 'Blocked') return 0;
+        const filled = Number(r.filled_beds || 0);
+        if (r.status === 'Occupied' && filled === 0) return total;
+        return Math.min(total, Math.max(0, filled));
+      };
+
+      const totalBeds = roomsList.reduce((s, r) => s + getRoomTotalBeds(r), 0);
+      const filledBeds = roomsList.reduce((s, r) => s + getRoomFilledBeds(r), 0);
+      const maintBeds = roomsList
+        .filter(r => r.status === 'Maintenance' || r.status === 'Blocked')
+        .reduce((s, r) => s + getRoomTotalBeds(r), 0);
+      const freeBeds = Math.max(0, totalBeds - filledBeds - maintBeds);
+      const occRooms = roomsList.filter(r => getRoomFilledBeds(r) > 0 || r.status === 'Occupied').length;
+      const availRooms = roomsList.filter(r => r.status === 'Available' && getRoomFilledBeds(r) < getRoomTotalBeds(r)).length;
+      const maintRooms = roomsList.filter(r => r.status === 'Maintenance' || r.status === 'Blocked').length;
+      const occPct = totalBeds > 0 ? Math.round((filledBeds / totalBeds) * 100) : 0;
+
+      document.getElementById('roomsCountTab').textContent = roomsList.length;
+      document.getElementById('kpiTotalBeds').textContent = totalBeds;
+      document.getElementById('kpiTotalRoomsSub').textContent = `Across ${roomsList.length} room(s)`;
+      document.getElementById('kpiFilledBeds').textContent = filledBeds;
+      document.getElementById('kpiOccupiedRoomsSub').textContent = `${occRooms} room(s) with filled beds`;
+      document.getElementById('kpiFreeBeds').textContent = freeBeds;
+      document.getElementById('kpiFreeRoomsSub').textContent = `${availRooms} room(s) open`;
+      document.getElementById('kpiBedOccupancy').textContent = `${occPct}%`;
+      document.getElementById('kpiMaintRoomsSub').textContent = `${maintRooms} in maintenance/blocked`;
+
       // Render Rooms Table
       const tbody = document.getElementById('roomsTableBody');
-      tbody.innerHTML = roomsList.map(r => `
+      tbody.innerHTML = roomsList.map(r => {
+        const tBeds = getRoomTotalBeds(r);
+        const fBeds = getRoomFilledBeds(r);
+        const availBeds = Math.max(0, tBeds - fBeds);
+        const bedBadgeClass = fBeds >= tBeds
+          ? 'bg-danger-subtle text-danger border border-danger-subtle'
+          : fBeds > 0
+            ? 'bg-warning-subtle text-dark border border-warning'
+            : 'bg-success-subtle text-success border border-success-subtle';
+        return `
         <tr>
           <td><span class="badge bg-dark fs-6 px-3 py-2">Room ${r.room_number}</span></td>
           <td class="fw-bold text-maroon">${r.category_name || 'Standard'}</td>
           <td>${r.floor || '1st Floor'}</td>
           <td>${r.bed_type}</td>
+          <td>
+            <div class="d-flex align-items-center gap-1">
+              <button class="btn btn-xs btn-outline-secondary py-0 px-1" style="font-size:0.75rem;" onclick="adjustFilledBeds('${r.id}', ${fBeds - 1}, ${tBeds})" ${fBeds <= 0 || r.status === 'Maintenance' ? 'disabled' : ''} title="Decrease filled beds">−</button>
+              <span class="badge ${bedBadgeClass} px-2 py-1" style="min-width:92px;">
+                ${fBeds} / ${tBeds} Filled
+              </span>
+              <button class="btn btn-xs btn-outline-secondary py-0 px-1" style="font-size:0.75rem;" onclick="adjustFilledBeds('${r.id}', ${fBeds + 1}, ${tBeds})" ${fBeds >= tBeds || r.status === 'Maintenance' ? 'disabled' : ''} title="Increase filled beds">+</button>
+            </div>
+            <div class="small text-muted mt-1" style="font-size:0.72rem;">${r.status === 'Maintenance' ? 'Unavailable (Maint.)' : availBeds + ' bed(s) free'}</div>
+          </td>
           <td><i class="bi bi-people me-1"></i>Up to ${r.max_guests}</td>
           <td class="fw-bold text-success">${formatINR(r.base_price)}</td>
           <td>${getStatusBadge(r.status)}</td>
@@ -241,8 +350,8 @@
               </button>
             </div>
           </td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
 
       // Render Categories Grid
       const cGrid = document.getElementById('categoriesGrid');
@@ -277,14 +386,34 @@
       document.getElementById('rCategory').value = r.category_id || '';
       document.getElementById('rFloor').value = r.floor || '';
       document.getElementById('rBed').value = r.bed_type || '';
+      document.getElementById('rTotalBeds').value = r.total_beds || 1;
+      document.getElementById('rFilledBeds').value = r.filled_beds || 0;
       document.getElementById('rGuests').value = r.max_guests || 2;
       document.getElementById('rPrice').value = r.base_price || 1200;
       document.getElementById('rStatus').value = r.status || 'Available';
       new bootstrap.Modal(document.getElementById('addRoomModal')).show();
     }
 
+    async function adjustFilledBeds(roomId, nextFilled, totalBeds) {
+      const clamped = Math.max(0, Math.min(totalBeds, nextFilled));
+      const newStatus = clamped >= totalBeds ? 'Occupied' : 'Available';
+      const { error } = await window.adminSupabase
+        .from('accommodation_rooms')
+        .update({ filled_beds: clamped, status: newStatus })
+        .eq('id', roomId);
+      if (error) {
+        showAdminToast('Error updating bed occupancy: ' + error.message, 'error');
+        return;
+      }
+      await logAdminActivity('UPDATE_BED_OCCUPANCY', 'accommodation_rooms', roomId, { filled_beds: clamped, total_beds: totalBeds });
+      showAdminToast(`Updated: ${clamped} / ${totalBeds} beds filled`, 'success');
+      await loadData();
+    }
+
     async function toggleRoomStatus(id, newStatus) {
-      await window.adminSupabase.from('accommodation_rooms').update({ status: newStatus }).eq('id', id);
+      const updateObj = { status: newStatus };
+      if (newStatus === 'Available' || newStatus === 'Maintenance') updateObj.filled_beds = 0;
+      await window.adminSupabase.from('accommodation_rooms').update(updateObj).eq('id', id);
       await logAdminActivity('UPDATE_ROOM_STATUS', 'accommodation_rooms', id, { status: newStatus });
       showAdminToast(`Room status updated to ${newStatus}`, 'success');
       await loadData();
@@ -379,12 +508,16 @@
         categoryId = newCat.id;
       }
 
+      const totalBeds = Math.max(1, parseInt(document.getElementById('rTotalBeds').value) || 1);
+      const filledBeds = Math.min(totalBeds, Math.max(0, parseInt(document.getElementById('rFilledBeds').value) || 0));
       const payload = {
         room_number: document.getElementById('rNumber').value.trim(),
         category_id: categoryId,
         category_name: catName,
         floor: document.getElementById('rFloor').value.trim(),
         bed_type: bedType,
+        total_beds: totalBeds,
+        filled_beds: filledBeds,
         max_guests: guests,
         base_price: price,
         status: document.getElementById('rStatus').value

@@ -178,6 +178,8 @@ CREATE TABLE IF NOT EXISTS public.accommodation_rooms (
     category_name VARCHAR(100),
     floor VARCHAR(50) DEFAULT 'Ground Floor',
     bed_type VARCHAR(100) DEFAULT 'Double Bed',
+    total_beds INT NOT NULL DEFAULT 1,
+    filled_beds INT NOT NULL DEFAULT 0,
     max_guests INT NOT NULL DEFAULT 2,
     base_price NUMERIC(10, 2) NOT NULL DEFAULT 1500.00,
     status VARCHAR(50) DEFAULT 'Available', -- Available, Occupied, Maintenance, Blocked

@@ -116,10 +116,11 @@
       const sb = window.adminSupabase;
       await sb.from('accommodation_bookings').update({ booking_status: 'Checked In', checked_in_at: new Date().toISOString() }).eq('id', bookingId);
       if (roomId && roomId !== 'null') {
-        await sb.from('accommodation_rooms').update({ status: 'Occupied' }).eq('id', roomId);
+        const { data: rm } = await sb.from('accommodation_rooms').select('total_beds').eq('id', roomId).maybeSingle();
+        await sb.from('accommodation_rooms').update({ status: 'Occupied', filled_beds: (rm && rm.total_beds) || 1 }).eq('id', roomId);
       }
       await logAdminActivity('CHECK_IN', 'accommodation_bookings', code);
-      showAdminToast('Guest checked in & room marked Occupied!', 'success');
+      showAdminToast('Guest checked in & beds marked Filled!', 'success');
       loadOperations();
     }
 
@@ -128,10 +129,10 @@
       const sb = window.adminSupabase;
       await sb.from('accommodation_bookings').update({ booking_status: 'Checked Out', checked_out_at: new Date().toISOString() }).eq('id', bookingId);
       if (roomId && roomId !== 'null') {
-        await sb.from('accommodation_rooms').update({ status: 'Available' }).eq('id', roomId);
+        await sb.from('accommodation_rooms').update({ status: 'Available', filled_beds: 0 }).eq('id', roomId);
       }
       await logAdminActivity('CHECK_OUT', 'accommodation_bookings', code);
-      showAdminToast('Guest checked out & room returned to Available pool!', 'success');
+      showAdminToast('Guest checked out & beds returned to Available!', 'success');
       loadOperations();
     }
   </script>
