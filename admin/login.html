@@ -115,6 +115,9 @@
               <div class="input-group">
                 <span class="input-group-text bg-light"><i class="bi bi-key-fill text-muted"></i></span>
                 <input type="password" id="mainPassword" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('mainPassword', this)" aria-label="Show or hide password">
+                  <i class="bi bi-eye"></i>
+                </button>
               </div>
             </div>
             <button type="submit" class="btn btn-admin-yellow w-100 py-2 fs-6" id="mainLoginBtn">
@@ -138,6 +141,9 @@
               <div class="input-group">
                 <span class="input-group-text bg-light"><i class="bi bi-key-fill text-muted"></i></span>
                 <input type="password" id="subPassword" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('subPassword', this)" aria-label="Show or hide password">
+                  <i class="bi bi-eye"></i>
+                </button>
               </div>
             </div>
             <button type="submit" class="btn btn-admin-primary w-100 py-2 fs-6" id="subLoginBtn">
@@ -170,6 +176,17 @@
     });
 
     const errorAlert = document.getElementById('loginErrorAlert');
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+      }
+    }
     function showError(msg) {
       errorAlert.textContent = msg;
       errorAlert.classList.remove('d-none');
