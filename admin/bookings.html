@@ -364,6 +364,10 @@
         .map(r => `<option value="${r.id}" data-num="${r.room_number}" ${r.room_number === b.allocated_room_number ? 'selected' : ''}>Room ${r.room_number} – ${r.category_name} (${r.bed_type})</option>`)
         .join('');
 
+      const quickRoomCatOptions = allCategories
+        .map(c => `<option value="${c.id}" data-name="${c.name}" data-price="${c.base_price}" ${c.id === b.category_id ? 'selected' : ''}>${c.name}</option>`)
+        .join('');
+
       const existingInvoice = invs && invs[0];
 
       document.getElementById('bookingModalBody').innerHTML = `
@@ -462,11 +466,54 @@
               </div>
               <div class="card-body">
                 ${type === 'accommodation' ? `
-                <label class="form-label small fw-bold">Assign Physical Room (17-Room Registry)</label>
-                <select id="confirmRoomSelect" class="form-select form-select-sm mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+                  <label class="form-label small fw-bold mb-0">Assign Room (${allRooms.length} Rooms)</label>
+                  <div class="d-flex gap-2 flex-shrink-0">
+                    <button type="button" id="quickEditRoomBtn" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="openQuickEditRoom()" ${b.allocated_room_number ? '' : 'disabled'}>
+                      <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                    <button type="button" class="btn btn-admin-yellow btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="selectQuickNewRoom()">
+                      <i class="bi bi-plus-lg me-1"></i>New
+                    </button>
+                  </div>
+                </div>
+                <select id="confirmRoomSelect" class="form-select form-select-sm mb-2" onchange="toggleQuickNewRoomBox()">
                   <option value="">-- Select Physical Room --</option>
                   ${availableRoomsOptions}
-                </select>` : ''}
+                  <option value="__new_room__">+ Add New Room...</option>
+                </select>
+                <div id="quickNewRoomBox" class="p-3 rounded-3 border bg-light mb-3 d-none">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="small fw-bold text-maroon" id="quickRoomBoxTitle"><i class="bi bi-door-open me-1"></i>Quick Add New Physical Room</div>
+                    <button type="button" class="btn-close" style="font-size:0.65rem;" onclick="closeQuickRoomBox()"></button>
+                  </div>
+                  <input type="hidden" id="qrEditId" value="">
+                  <div class="row g-2 mb-2">
+                    <div class="col-5">
+                      <input type="text" id="qrNumber" class="form-control form-control-sm" placeholder="Room No. (e.g. 202)">
+                    </div>
+                    <div class="col-7">
+                      <select id="qrCategory" class="form-select form-select-sm">
+                        ${quickRoomCatOptions}
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <input type="text" id="qrFloor" class="form-control form-control-sm" placeholder="Floor" value="2nd Floor">
+                    </div>
+                    <div class="col-6">
+                      <input type="text" id="qrBed" class="form-control form-control-sm" placeholder="Bed Type" value="1 Double Bed">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" id="qrGuests" class="form-control form-control-sm" placeholder="Max Guests" value="${b.guests || 2}" min="1">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" id="qrPrice" class="form-control form-control-sm" placeholder="Rate / Night (₹)" value="${b.estimated_amount && b.nights ? Math.round(b.estimated_amount / b.nights) : 1500}" min="100">
+                    </div>
+                  </div>
+                  <button type="button" id="quickRoomSaveBtn" class="btn btn-sm btn-admin-yellow w-100" onclick="saveQuickNewRoom()">
+                    <i class="bi bi-plus-lg me-1"></i> Save &amp; Select Room
+                  </button>
+                </div>` : ''}
                 <div class="d-grid gap-2">
                   <button class="btn btn-success fw-bold" onclick="confirmBookingAction('${b.id}')">
                     <i class="bi bi-check-circle-fill me-1"></i> Confirm Booking & Send WhatsApp
@@ -611,6 +658,140 @@
       setTimeout(() => openBookingModal(bookingUuid), 350);
     }
 
+    function selectQuickNewRoom() {
+      const sel = document.getElementById('confirmRoomSelect');
+      if (!sel) return;
+      sel.value = '__new_room__';
+      document.getElementById('qrEditId').value = '';
+      document.getElementById('qrNumber').value = '';
+      document.getElementById('quickRoomBoxTitle').innerHTML = '<i class="bi bi-door-open me-1"></i>Quick Add New Physical Room';
+      document.getElementById('quickRoomSaveBtn').innerHTML = '<i class="bi bi-plus-lg me-1"></i> Save &amp; Select Room';
+      toggleQuickNewRoomBox();
+      const inp = document.getElementById('qrNumber');
+      if (inp) inp.focus();
+    }
+
+    function openQuickEditRoom() {
+      const sel = document.getElementById('confirmRoomSelect');
+      const box = document.getElementById('quickNewRoomBox');
+      if (!sel || !box || !sel.value || sel.value === '__new_room__') {
+        showAdminToast('Please select a room first to edit it.', 'error');
+        return;
+      }
+      const room = allRooms.find(r => r.id === sel.value);
+      if (!room) return;
+      document.getElementById('qrEditId').value = room.id;
+      document.getElementById('qrNumber').value = room.room_number || '';
+      if (room.category_id) document.getElementById('qrCategory').value = room.category_id;
+      document.getElementById('qrFloor').value = room.floor || '';
+      document.getElementById('qrBed').value = room.bed_type || '';
+      document.getElementById('qrGuests').value = room.max_guests || 2;
+      document.getElementById('qrPrice').value = room.base_price || 1200;
+      document.getElementById('quickRoomBoxTitle').innerHTML = `<i class="bi bi-pencil-square me-1"></i>Edit Room ${room.room_number}`;
+      document.getElementById('quickRoomSaveBtn').innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Room Changes';
+      box.classList.remove('d-none');
+      document.getElementById('qrNumber').focus();
+    }
+
+    function closeQuickRoomBox() {
+      const box = document.getElementById('quickNewRoomBox');
+      const sel = document.getElementById('confirmRoomSelect');
+      if (box) box.classList.add('d-none');
+      if (document.getElementById('qrEditId')) document.getElementById('qrEditId').value = '';
+      if (sel && sel.value === '__new_room__') sel.value = '';
+    }
+
+    function toggleQuickNewRoomBox() {
+      const sel = document.getElementById('confirmRoomSelect');
+      const box = document.getElementById('quickNewRoomBox');
+      const editBtn = document.getElementById('quickEditRoomBtn');
+      if (!sel || !box) return;
+      const isNew = sel.value === '__new_room__';
+      const hasExisting = Boolean(sel.value) && !isNew;
+      if (editBtn) editBtn.disabled = !hasExisting;
+      if (isNew) {
+        document.getElementById('qrEditId').value = '';
+        document.getElementById('quickRoomBoxTitle').innerHTML = '<i class="bi bi-door-open me-1"></i>Quick Add New Physical Room';
+        document.getElementById('quickRoomSaveBtn').innerHTML = '<i class="bi bi-plus-lg me-1"></i> Save &amp; Select Room';
+        box.classList.remove('d-none');
+      } else {
+        box.classList.add('d-none');
+        document.getElementById('qrEditId').value = '';
+      }
+    }
+
+    async function saveQuickNewRoom() {
+      const sb = window.adminSupabase;
+      const editId = (document.getElementById('qrEditId')?.value || '').trim();
+      const roomNum = (document.getElementById('qrNumber')?.value || '').trim();
+      if (!roomNum) {
+        showAdminToast('Please enter a Room Number (e.g. 202).', 'error');
+        return null;
+      }
+      const catSel = document.getElementById('qrCategory');
+      const catOpt = catSel && catSel.options[catSel.selectedIndex];
+      const payload = {
+        room_number: roomNum,
+        category_id: catSel && catSel.value ? catSel.value : null,
+        category_name: (catOpt && catOpt.dataset.name) || 'Standard',
+        floor: (document.getElementById('qrFloor')?.value || '2nd Floor').trim(),
+        bed_type: (document.getElementById('qrBed')?.value || '1 Double Bed').trim(),
+        max_guests: parseInt(document.getElementById('qrGuests')?.value) || 2,
+        base_price: parseFloat(document.getElementById('qrPrice')?.value) || 1500
+      };
+
+      if (editId) {
+        const { data: updatedRoom, error } = await sb.from('accommodation_rooms').update(payload).eq('id', editId).select().single();
+        if (error || !updatedRoom) {
+          showAdminToast('Could not update room: ' + (error?.message || 'Error'), 'error');
+          return null;
+        }
+        await logAdminActivity('EDIT_ROOM', 'accommodation_rooms', updatedRoom.room_number);
+        const idx = allRooms.findIndex(r => r.id === editId);
+        if (idx !== -1) allRooms[idx] = updatedRoom;
+
+        const sel = document.getElementById('confirmRoomSelect');
+        if (sel) {
+          const opt = sel.querySelector(`option[value="${editId}"]`);
+          if (opt) {
+            opt.dataset.num = updatedRoom.room_number;
+            opt.textContent = `Room ${updatedRoom.room_number} – ${updatedRoom.category_name} (${updatedRoom.bed_type})`;
+          }
+          sel.value = editId;
+        }
+        closeQuickRoomBox();
+        showAdminToast(`Room ${updatedRoom.room_number} updated!`, 'success');
+        return updatedRoom;
+      }
+
+      payload.status = 'Available';
+      payload.is_active = true;
+      const { data: createdRoom, error } = await sb.from('accommodation_rooms').insert([payload]).select().single();
+      if (error || !createdRoom) {
+        showAdminToast('Could not add room: ' + (error?.message || 'Duplicate room number?'), 'error');
+        return null;
+      }
+
+      await logAdminActivity('ADD_ROOM', 'accommodation_rooms', createdRoom.room_number);
+      allRooms.push(createdRoom);
+      allRooms.sort((a, b) => String(a.room_number).localeCompare(String(b.room_number)));
+
+      // Add & select the new room in the dropdown right away
+      const sel = document.getElementById('confirmRoomSelect');
+      if (sel) {
+        const opt = document.createElement('option');
+        opt.value = createdRoom.id;
+        opt.dataset.num = createdRoom.room_number;
+        opt.textContent = `Room ${createdRoom.room_number} – ${createdRoom.category_name} (${createdRoom.bed_type})`;
+        const addNewOpt = sel.querySelector('option[value="__new_room__"]');
+        sel.insertBefore(opt, addNewOpt);
+        sel.value = createdRoom.id;
+        toggleQuickNewRoomBox();
+      }
+      showAdminToast(`Room ${createdRoom.room_number} added & selected!`, 'success');
+      return createdRoom;
+    }
+
     async function confirmBookingAction(bookingUuid) {
       const sb = window.adminSupabase;
       const type = document.getElementById('filterType').value;
@@ -622,9 +803,13 @@
 
       if (type === 'accommodation') {
         const roomSelect = document.getElementById('confirmRoomSelect');
+        if (roomSelect.value === '__new_room__') {
+          const created = await saveQuickNewRoom();
+          if (!created) return;
+        }
         roomId = roomSelect.value;
-        if (!roomId) {
-          alert('Please select a physical room from the 17-room registry before confirming.');
+        if (!roomId || roomId === '__new_room__') {
+          alert('Please select a physical room from the registry before confirming.');
           return;
         }
         roomNumber = roomSelect.options[roomSelect.selectedIndex].dataset.num;
