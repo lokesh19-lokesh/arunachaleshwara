@@ -4,6 +4,301 @@
 
 const PACKAGES_DATA = [
   {
+    id: 'saptha-shiva-kshetra-yatra',
+    title: '1 Day Saptha Shiva Kshetra Yatra',
+    teluguTitle: 'సప్త శివక్షేత్ర యాత్ర (ఒకే రోజు.. ఏడు పవిత్ర క్షేత్రాలు..)',
+    badge: '1 Day Temple Tour',
+    category: 'Tamil Nadu Temple Tours',
+    duration: '1 Day (04:00 AM – Night)',
+    durationDays: 1,
+    departureTime: '04:00 AM from Tiruvannamalai',
+    returnTime: 'Return to Tiruvannamalai (రాత్రి తిరుగు ప్రయాణం)',
+    image: 'assets/images/packages/saptha-shiva-kshetra-yatra.jpg',
+    shortDesc: 'One Day – Seven Sacred Kshetras: Chidambaram, Vaitheeswaran Koil, Kumbakonam, Swamimalai, Thanjavur, Srirangam & Jambukeshwaram. Starts 04:00 AM from Tiruvannamalai.',
+    overview: 'Embark on the divine Saptha Shiva Kshetra Yatra (సప్త శివక్షేత్ర యాత్ర), an extraordinary one-day pilgrimage connecting seven of South India\'s holiest shrines in a single day. Starting at 04:00 AM from Tiruvannamalai, this journey covers the Cosmic Dance hall at Chidambaram (Akasha Sthalam), the divine healing shrine of Vaitheeswaran Koil (Angaraka Sthalam), the temple capital Kumbakonam, Lord Murugan\'s 4th Arupadaiveedu at Swamimalai, the UNESCO World Heritage Brihadeeswarar Big Temple in Thanjavur, the foremost Divya Desam at Srirangam, and the sanctified water element temple Jambukeshwaram in Thiruvanaikaval before returning to Tiruvannamalai.',
+    routeFlow: [
+      'Chidambaram',
+      'Vaitheeswaran Koil',
+      'Kumbakonam',
+      'Swamimalai',
+      'Thanjavur',
+      'Srirangam',
+      'Jambukeshwaram'
+    ],
+    posterHighlights: [
+      'Comfortable Journey (సౌకర్యవంతమైన ప్రయాణం)',
+      'Complete Darshans (పూర్తి దర్శనాలు)',
+      'Experienced Pilgrimage Drivers (అనుభవజ్ఞులైన డ్రైవర్స్)',
+      'Strict Punctuality & Timing (సమయపాలన)',
+      'Doorstep Pickup & Return in Tiruvannamalai',
+      'Spiritual Guidance for Queue & Darshan Timings'
+    ],
+    places: [
+      'Chidambaram (చిదంబరం) – Sri Nataraja Temple (Akasha Lingam)',
+      'Vaitheeswaran Koil (వైటీశ్వరన్ కోయిల్) – Sri Vaithiyanathar & Angaraka Sthalam',
+      'Kumbakonam (కుంభకోణం) – Sri Adi Kumbeswarar Temple & Mahamaham Tank',
+      'Swamimalai (స్వామిమలై) – Swaminatha Swamy Temple (4th Arupadaiveedu of Murugan)',
+      'Thanjavur (తంజావూరు) – Brihadeeswarar Temple (UNESCO Big Temple)',
+      'Srirangam (శ్రీరంగం) – Sri Ranganathaswamy Temple (Foremost Divya Desam)',
+      'Jambukeshwaram (జంబుకేశ్వరం) – Thiruvanaikaval (Appu / Water Lingam)'
+    ],
+    itinerary: [
+      {
+        day: '04:00 AM',
+        title: 'Departure from Tiruvannamalai',
+        description: 'Early morning departure from your hotel/ashram in Tiruvannamalai. Smooth highway drive in a comfortable sanitized A/C vehicle.'
+      },
+      {
+        day: '06:30 AM – 08:30 AM',
+        title: 'Chidambaram – Sri Nataraja Temple',
+        description: 'First sacred stop: Lord Nataraja Temple representing the Space element (Akasha Lingam). Darshan of the Kanaka Sabha and Chidambara Rahasyam.'
+      },
+      {
+        day: '09:15 AM – 10:30 AM',
+        title: 'Vaitheeswaran Koil – Healing Sthalam',
+        description: 'Darshan of Lord Shiva as Vaidyanathar (the divine doctor) and Goddess Thaiyalnayaki Ambal. Visit the sacred Angaraka (Mars) shrine and holy Siddhamirtham tank.'
+      },
+      {
+        day: '11:30 AM – 01:00 PM',
+        title: 'Kumbakonam – Adi Kumbeswarar Temple',
+        description: 'Worship at the ancient Sri Adi Kumbeswarar Temple, the spiritual epicenter of the Kumbakonam temple circuit. Brief view of the historic Mahamaham sacred tank.'
+      },
+      {
+        day: '01:30 PM – 02:45 PM',
+        title: 'Swamimalai – 4th Abode of Lord Murugan',
+        description: 'Ascend the 60 steps representing the 60 Tamil years to worship Sri Swaminatha Swamy, where Murugan initiated his father Lord Shiva into the Pranava Mantra.'
+      },
+      {
+        day: '03:45 PM – 05:15 PM',
+        title: 'Thanjavur – Brihadeeswarar Big Temple',
+        description: 'Marvel at the 1,000-year-old architectural marvel built by Raja Raja Chola I. Darshan of the massive monolithic Shivalinga and Nandi.'
+      },
+      {
+        day: '06:15 PM – 07:45 PM',
+        title: 'Srirangam – Sri Ranganathaswamy Temple',
+        description: 'Evening darshan of Lord Ranganatha reclining upon Adisesha inside the world\'s largest active Hindu temple complex on the banks of the Cauvery.'
+      },
+      {
+        day: '08:00 PM – 09:15 PM',
+        title: 'Jambukeshwaram – Water Element Shrine',
+        description: 'Final kshetra darshan at Thiruvanaikaval Jambukeswarar Temple (Water element) where natural spring waters continually bubble around the Lingam.'
+      },
+      {
+        day: '09:30 PM – Night',
+        title: 'Return Journey to Tiruvannamalai',
+        description: 'Relax in the A/C cab during the smooth return drive back to Tiruvannamalai with divine memories and blessings.'
+      }
+    ],
+    inclusions: [
+      'Comfortable A/C vehicle (Sedan / Ertiga / Innova / Tempo Traveler)',
+      'Experienced and courteous devotee driver',
+      'Doorstep pickup and return drop in Tiruvannamalai',
+      'All toll charges, fuel, parking fees, and driver allowances',
+      'Route management ensuring all 7 temples are covered in 1 day'
+    ],
+    exclusions: [
+      'Special darshan tickets or VIP entry passes',
+      'Meals, breakfast, and refreshments',
+      'Pooja materials, archana, and priest dakshina',
+      'Personal expenses'
+    ],
+    importantInfo: [
+      'Journey strictly begins at 04:00 AM from Tiruvannamalai to maintain the temple schedule.',
+      'Modest traditional South Indian temple attire is mandatory (Dhoti/Kurta for men, Saree/Churidar for women).',
+      'Mobile phones and cameras must be deposited at designated temple counters.',
+      'Advance booking recommended for weekend and festival dates.'
+    ],
+    featured: true
+  },
+  {
+    id: 'kamakshi-package',
+    title: '1 Day Kamakshi Package',
+    teluguTitle: 'కామాక్షి ప్యాకేజీ (కాంచీపురం, విష్ణు కంచి, శివ కంచి & శ్రీపురం గోల్డెన్ టెంపుల్)',
+    badge: '1 Day Package',
+    category: 'Tamil Nadu Temple Tours',
+    duration: '1 Day (05:00 AM – 09:30 PM)',
+    durationDays: 1,
+    departureTime: '05:00 AM from Tiruvannamalai',
+    returnTime: 'Return to Tiruvannamalai (రాత్రి తిరుగు ప్రయాణం)',
+    image: 'assets/images/packages/kamakshi-package.jpg',
+    shortDesc: 'Divine 1-Day Package to Kanchipuram, Vishnu Kanchi, Shiva Kanchi & Sripuram Golden Temple (Vellore). Starts 05:00 AM from Tiruvannamalai.',
+    overview: 'Experience profound spiritual bliss with our signature 1 Day Kamakshi Package (కామాక్షి ప్యాకేజీ). Departing at 05:00 AM from Tiruvannamalai, this sacred tour unites the divine mother Goddess Sri Kamakshi Amman at her supreme Shakti Peetham, the magnificent Shaivite heritage of Shiva Kanchi (Ekambareswarar & Kailasanathar), the celestial Divya Desam majesty of Vishnu Kanchi (Varadaraja Perumal), and the glittering spiritual beauty of Sri Lakshmi Narayani Sripuram Golden Temple in Vellore before returning comfortably by night.',
+    routeFlow: [
+      'Kanchipuram (Sri Kamakshi Amman)',
+      'Vishnu Kanchi (Varadaraja Perumal)',
+      'Shiva Kanchi (Ekambareswarar & Kailasanathar)',
+      'Sri Puram Golden Temple (Vellore)'
+    ],
+    posterHighlights: [
+      'Comfortable Journey (Dedicated A/C Cab)',
+      'Experienced Pilgrimage Driver',
+      'Well Planned Itinerary (No Rushing)',
+      'Book Now... Darshan Made Easy...',
+      'Doorstep Pickup & Return in Tiruvannamalai',
+      'Optimal Timing for Morning & Evening Aarti'
+    ],
+    places: [
+      'Kanchipuram (కాంచీపురం) – Sri Kamakshi Amman Temple (Supreme Shakti Peetham)',
+      'Vishnu Kanchi (విష్ణు కంచి) – Sri Varadaraja Perumal Temple (Divya Desam)',
+      'Shiva Kanchi (శివ కంచి) – Sri Ekambareswarar (Earth Lingam) & Kailasanathar Temple',
+      'Sri Puram Golden Temple (శ్రీపురం గోల్డెన్ టెంపుల్) – Vellore Mahalakshmi Swarna Mandir'
+    ],
+    itinerary: [
+      {
+        day: '05:00 AM',
+        title: 'Departure from Tiruvannamalai',
+        description: 'Early morning pickup from your hotel or ashram in Tiruvannamalai. Direct comfortable drive to the City of Thousand Temples, Kanchipuram.'
+      },
+      {
+        day: '07:30 AM – 09:30 AM',
+        title: 'Sri Kamakshi Amman Temple – Kanchipuram',
+        description: 'Darshan of the Universal Mother Sri Kamakshi Amman seated in Padmasana posture. Worship at the sanctified Sri Chakra established by Sri Adi Shankaracharya.'
+      },
+      {
+        day: '09:45 AM – 11:30 AM',
+        title: 'Shiva Kanchi – Ekambareswarar & Kailasanathar',
+        description: 'Visit Sri Ekambareswarar Temple representing the Earth element (Prithvi Lingam) with its 3,500-year-old sacred mango tree, followed by the 8th-century Pallava architectural jewel Kailasanathar Temple.'
+      },
+      {
+        day: '11:45 AM – 01:15 PM',
+        title: 'Vishnu Kanchi – Sri Varadaraja Perumal',
+        description: 'Darshan at Sri Varadaraja Perumal Temple. View the golden and silver lizard shrines, holy temple tank, and the celebrated 100-pillar stone mandapam.'
+      },
+      {
+        day: '01:30 PM – 02:45 PM',
+        title: 'Lunch Break & Authentic Kanchi Silk Center',
+        description: 'Traditional South Indian lunch break. Optional quick visit to traditional handloom Kanchipuram silk weavers.'
+      },
+      {
+        day: '04:00 PM – 07:00 PM',
+        title: 'Sripuram Sri Lakshmi Narayani Golden Temple (Vellore)',
+        description: 'Walk the serene star-shaped walkway (Sri Chakra path) to witness the breathtaking golden temple covered with over 1,500 kg of pure gold foil, radiating divine energy.'
+      },
+      {
+        day: '07:30 PM – 09:30 PM',
+        title: 'Return to Tiruvannamalai',
+        description: 'Comfortable return highway trip to Tiruvannamalai. Drop off at your doorstep by 09:30 PM.'
+      }
+    ],
+    inclusions: [
+      'Private air-conditioned vehicle for the entire circuit',
+      'Experienced devotee driver well-versed with temple timings',
+      'Pickup and drop from hotel / residence in Tiruvannamalai',
+      'All toll fees, fuel charges, and parking taxes',
+      'Well-organized schedule for peaceful darshan'
+    ],
+    exclusions: [
+      'Special darshan tickets or pooja fees',
+      'Meals, breakfast, and beverages',
+      'Personal shopping and silk saree purchases',
+      'Temple priest offerings'
+    ],
+    importantInfo: [
+      'Departure at 05:00 AM ensures you reach Kanchi before midday temple closure (12:30 PM).',
+      'Traditional dress code is required at all temples (Dhoti/Shirt for men, Saree/Salwar for women).',
+      'Mobile phones and leather items are strictly prohibited inside Sripuram Golden Temple (free lockers available).',
+      'Ideal for families, senior citizens, and devotees of Ambal, Shiva, and Perumal.'
+    ],
+    featured: true
+  },
+  {
+    id: 'ranganatha-package',
+    title: '1 Day Ranganatha Package',
+    teluguTitle: 'రంగనాథ ప్యాకేజీ (తిరుకోయిలూరు, ఆది తిరువరంగం, వరాహీవరతేడేశ్వరం, అరకండనల్లూరు & తుపవనం)',
+    badge: '1 Day Package',
+    category: 'Local Temple Tours',
+    duration: '1 Day (06:00 AM – 07:30 PM)',
+    durationDays: 1,
+    departureTime: '06:00 AM from Tiruvannamalai',
+    returnTime: 'Return to Tiruvannamalai (సాయంత్రం తిరుగు ప్రయాణం)',
+    image: 'assets/images/packages/ranganatha-package.jpg',
+    shortDesc: 'Sacred 1-Day Heritage Tour: Tirukoiluru, Adhitiruvarangam (Ancient Ranganatha), Varahiveretedhwaram, Arakondanallur & Thupavanam. Starts 06:00 AM from Tiruvannamalai.',
+    overview: 'Seek the divine grace of Lord Sri Ranganatha Swamy and discover the sacred soul of the Pennai river basin with our exclusive 1 Day Ranganatha Package (1 Day Raganatha Package / రంగనాథ ప్యాకేజీ). Situated within easy driving distance from Tiruvannamalai, this tour features Adi Thiruvarangam—the primeval Ranganatha temple older than Srirangam, where the magnificent reclining Lord stretches nearly 29 feet. Visit the celebrated Divya Desam at Tirukoiluru (Sri Trivikrama / Ulagalantha Perumal), the sacred hilltop rock at Arakondanallur where young Bhagavan Ramana Maharshi had his divine vision of Arunachala, the ancient shrine of Varahiveretedhwaram, and Thupavanam (Krupapureeswarar Temple in Thiruvennainallur).',
+    routeFlow: [
+      'Tirukoiluru',
+      'Adhitiruvarangam',
+      'Varahiveretedhwaram',
+      'Arakondanallur',
+      'Thupavanam'
+    ],
+    posterHighlights: [
+      'Comfortable Journey (Doorstep A/C Cab)',
+      'Experienced Driver with Local Heritage Knowledge',
+      'Well Planned Itinerary (Peaceful Darshan)',
+      'Convenient Return by Sunset (07:30 PM)',
+      'Visit Primeval Ranganatha Temple (Older than Srirangam)',
+      'Ramana Maharshi Sacred Cave & Divya Desam'
+    ],
+    places: [
+      'Tirukoiluru (తిరుకోయిలూరు) – Sri Ulagalantha Perumal (Divya Desam) & Veerattareshwarar',
+      'Adhitiruvarangam (ఆది తిరువరంగం) – Ancient Sri Ranganatha Swamy Temple (29-Foot Reclining Perumal)',
+      'Varahiveretedhwaram (వరాహీవరతేడేశ్వరం) – Sri Varahishwarar Temple',
+      'Arakondanallur (అరకండనల్లూరు) – Oppillamani Eswarar Temple & Ramana Maharshi Darshan Rock',
+      'Thupavanam (తుపవనం) – Sri Krupapureeswarar Temple, Thiruvennainallur (Sundarar Sthalam)'
+    ],
+    itinerary: [
+      {
+        day: '06:00 AM',
+        title: 'Departure from Tiruvannamalai',
+        description: 'Morning pickup from your ashram/hotel in Tiruvannamalai. Enjoy a pleasant morning drive through the quiet countryside roads.'
+      },
+      {
+        day: '07:15 AM – 08:45 AM',
+        title: 'Tirukoiluru – Sri Ulagalantha Perumal & Veerattareshwarar',
+        description: 'Darshan of the massive Lord Trivikrama (Vamana avatar with one foot raised to measure the heavens) at the Divya Desam where the Mudhal Alwars sang the first Divya Prabandham verses. Also visit Sri Veerattareshwarar Temple.'
+      },
+      {
+        day: '09:15 AM – 11:30 AM',
+        title: 'Adhitiruvarangam – Primeval Sri Ranganatha Swamy Temple',
+        description: 'Worship the gigantic 29-foot reclining Lord Ranganatha (Periya Perumal) on Adisesha along the Thenpennai river banks. Historically recognized as older than Srirangam (Krita Yuga shrine).'
+      },
+      {
+        day: '12:00 PM – 01:15 PM',
+        title: 'Varahiveretedhwaram – Sri Varahishwarar Temple',
+        description: 'Visit the sacred and serene sanctum of Lord Varahishwarar, an ancient shrine rich in sthala purana and peace.'
+      },
+      {
+        day: '01:30 PM – 02:30 PM',
+        title: 'Lunch Break',
+        description: 'Relaxed traditional vegetarian lunch break at Tirukoilur.'
+      },
+      {
+        day: '03:00 PM – 04:30 PM',
+        title: 'Arakondanallur – Oppillamani Eswarar & Ramana Vision Rock',
+        description: 'Climb the sacred granite rock hill to worship Lord Oppillamani Eswarar. Meditate inside the Pandava rock caves where 16-year-old Sri Ramana Maharshi had a divine vision of radiant Arunachala light while traveling to Tiruvannamalai.'
+      },
+      {
+        day: '05:00 PM – 06:15 PM',
+        title: 'Thupavanam – Sri Krupapureeswarar Temple, Thiruvennainallur',
+        description: 'Visit the historic temple where Lord Shiva in the guise of an old Brahmin stopped Saint Sundaramurthy Nayanar\'s wedding to claim him as his eternal servitor.'
+      },
+      {
+        day: '06:30 PM – 07:30 PM',
+        title: 'Return to Tiruvannamalai',
+        description: 'Smooth evening drive returning to Tiruvannamalai by 07:30 PM, giving you time for night temple darshan or Girivalam.'
+      }
+    ],
+    inclusions: [
+      'Private air-conditioned vehicle (Sedan / Innova / Tempo Traveler)',
+      'Courteous, soft-spoken local driver familiar with all 5 temples',
+      'Doorstep pickup and return in Tiruvannamalai',
+      'Fuel, tolls, and parking included',
+      'Comfortable and relaxed schedule suited for all age groups'
+    ],
+    exclusions: [
+      'Archana, pooja, and temple priest dakshina',
+      'Meals and personal refreshments',
+      'Personal expenses'
+    ],
+    importantInfo: [
+      'Convenient distance (35–50 km from Tiruvannamalai), making it ideal for a relaxed 1-day pilgrimage.',
+      'Adi Thiruvarangam is considered the primeval Ranganatha kshetra and is very peaceful.',
+      'Modest temple dress code recommended.',
+      'Comfortable walking footwear advised for rock steps at Arakondanallur.'
+    ],
+    featured: true
+  },
+  {
     id: 'tiruvannamalai-local',
     title: 'Tiruvannamalai Local Temples',
     category: 'Local Temple Tours',
@@ -377,6 +672,7 @@ const PACKAGES_DATA = [
 
 const PACKAGE_CATEGORIES = [
   'All',
+  '1 Day Temple Tours',
   'Local Temple Tours',
   'Tamil Nadu Temple Tours',
   'Pancha Bhootha Linga Yatra',
@@ -390,26 +686,36 @@ const PACKAGE_CATEGORIES = [
 function renderTourCard(pkg, index) {
   const delay = (index % 4) * 100;
   const imageMarkup = pkg.image
-    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
-    : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 230px; width: 100%; object-fit: cover;">`
+    : `<div class="placeholder-img" style="height: 230px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
          <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
        </div>`;
 
+  const departurePill = pkg.departureTime
+    ? `<span class="badge bg-gold text-dark fw-bold me-1"><i class="bi bi-alarm-fill me-1"></i>${pkg.departureTime.split(' from')[0]}</span>`
+    : '';
+
+  const teluguSub = pkg.teluguTitle
+    ? `<div class="text-maroon small fw-semibold mb-1" style="font-size: 0.85rem; line-height: 1.35;">${pkg.teluguTitle}</div>`
+    : '';
+
   return `
   <div class="col-lg-4 col-md-6 mb-4 tour-card-wrapper" data-category="${pkg.category}" data-duration="${pkg.durationDays}" data-aos="fade-up" data-aos-delay="${delay}">
-    <div class="tour-card">
-      <div class="tour-card-img">
+    <div class="tour-card h-100 d-flex flex-column">
+      <div class="tour-card-img position-relative">
         ${imageMarkup}
-        <span class="tour-card-badge">${pkg.category}</span>
+        <span class="tour-card-badge">${pkg.badge || pkg.category}</span>
       </div>
-      <div class="tour-card-body">
+      <div class="tour-card-body d-flex flex-column flex-grow-1">
         <h5>${pkg.title}</h5>
-        <p>${pkg.shortDesc}</p>
-        <div class="tour-card-meta">
+        ${teluguSub}
+        <p class="flex-grow-1">${pkg.shortDesc}</p>
+        <div class="tour-card-meta mb-2">
+          ${departurePill}
           <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
           <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
         </div>
-        <div class="tour-card-footer">
+        <div class="tour-card-footer mt-auto pt-2 border-top">
           <span class="tour-card-price">
             <small>Contact for pricing</small>
           </span>
@@ -427,10 +733,18 @@ function renderTourCard(pkg, index) {
  */
 function renderTourListItem(pkg, index) {
   const imageMarkup = pkg.image
-    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 100%; min-height: 200px; width: 100%; object-fit: cover;">`
-    : `<div class="placeholder-img" style="height: 100%; min-height: 200px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
+    ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 100%; min-height: 220px; width: 100%; object-fit: cover;">`
+    : `<div class="placeholder-img" style="height: 100%; min-height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
         <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
       </div>`;
+
+  const departurePill = pkg.departureTime
+    ? `<span class="badge bg-gold text-dark fw-bold me-2"><i class="bi bi-alarm-fill me-1"></i>${pkg.departureTime}</span>`
+    : '';
+
+  const teluguSub = pkg.teluguTitle
+    ? `<div class="text-maroon small fw-semibold mb-2" style="font-size: 0.9rem;">${pkg.teluguTitle}</div>`
+    : '';
 
   return `
   <div class="tour-list-item tour-card-wrapper" data-category="${pkg.category}" data-duration="${pkg.durationDays}" data-aos="fade-up">
@@ -438,10 +752,14 @@ function renderTourListItem(pkg, index) {
       ${imageMarkup}
     </div>
     <div class="tour-list-item-body">
-      <span class="tour-card-badge d-inline-block mb-2" style="position: static;">${pkg.category}</span>
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        <span class="tour-card-badge d-inline-block" style="position: static;">${pkg.badge || pkg.category}</span>
+        ${departurePill}
+      </div>
       <h5>${pkg.title}</h5>
+      ${teluguSub}
       <p>${pkg.shortDesc}</p>
-      <div class="tour-card-meta">
+      <div class="tour-card-meta mb-3">
         <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
         <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
       </div>
@@ -541,7 +859,15 @@ function filterPackages() {
     let show = true;
 
     // Category filter
-    if (category !== 'All' && cardCategory !== category) show = false;
+    if (category !== 'All') {
+      if (category === '1 Day Temple Tours') {
+        if (cardDuration !== 1 && !cardCategory.toLowerCase().includes('1 day')) {
+          show = false;
+        }
+      } else if (cardCategory !== category) {
+        show = false;
+      }
+    }
 
     // Search filter
     if (searchTerm && !cardText.includes(searchTerm)) show = false;
@@ -601,13 +927,61 @@ function renderTourDetails() {
   if (heroTitle) heroTitle.textContent = tour.title;
   if (heroBreadcrumb) heroBreadcrumb.textContent = tour.title;
 
+  const departureBadge = tour.departureTime
+    ? `<span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;"><i class="bi bi-alarm-fill text-gold me-1"></i> Starts: ${tour.departureTime}</span>`
+    : '';
+
+  const returnBadge = tour.returnTime
+    ? `<span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;"><i class="bi bi-arrow-return-left text-gold me-1"></i> ${tour.returnTime}</span>`
+    : '';
+
+  const teluguHeader = tour.teluguTitle
+    ? `<h5 class="text-maroon fw-bold mb-2">${tour.teluguTitle}</h5>`
+    : '';
+
+  const routeFlowHTML = tour.routeFlow && tour.routeFlow.length > 0
+    ? `
+    <div class="route-flow-box p-3 bg-cream rounded-4 border border-gold mb-4" data-aos="fade-up">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="text-maroon mb-0 fw-bold"><i class="bi bi-signpost-2-fill text-gold me-2"></i>Pilgrimage Route Sequence</h5>
+        <span class="badge bg-gold text-dark fw-bold px-2 py-1">${tour.places.length} Sacred Stops</span>
+      </div>
+      <div class="route-flow-steps d-flex flex-wrap align-items-center gap-2 pt-2">
+        ${tour.routeFlow.map((stop, sIdx) => `
+          <div class="px-3 py-1 bg-white rounded-pill border border-gold-2 shadow-xs d-flex align-items-center gap-2">
+            <span class="badge rounded-circle" style="background: #45120E; color: #FFC908; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">${sIdx + 1}</span>
+            <span class="fw-semibold text-dark small">${stop}</span>
+          </div>
+          ${sIdx < tour.routeFlow.length - 1 ? '<i class="bi bi-arrow-right text-gold fw-bold"></i>' : ''}
+        `).join('')}
+      </div>
+    </div>`
+    : '';
+
+  const posterHighlightsHTML = tour.posterHighlights && tour.posterHighlights.length > 0
+    ? `
+    <div class="p-3 bg-cream rounded-4 border border-gold mb-4" data-aos="fade-up">
+      <h5 class="text-maroon fw-bold mb-3"><i class="bi bi-stars text-gold me-2"></i>Key Tour Highlights</h5>
+      <div class="row g-2">
+        ${tour.posterHighlights.map(h => `
+          <div class="col-sm-6">
+            <div class="d-flex align-items-center gap-2 p-2 bg-white rounded-3 border border-gold-2">
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+              <span class="fw-semibold text-dark small">${h}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`
+    : '';
+
   container.innerHTML = `
   <div class="row g-4">
     <div class="col-lg-8">
-      <!-- Tour Image -->
-      <div class="img-overlay-zoom detail-hero-media mb-4">
+      <!-- Tour Image / Promotional Poster -->
+      <div class="img-overlay-zoom detail-hero-media mb-4" style="background: #FFF9EF; text-align: center;">
         ${tour.image
-          ? `<img src="${tour.image}" alt="${tour.title}" class="detail-hero-img">`
+          ? `<img src="${tour.image}" alt="${tour.title}" class="detail-hero-img" style="max-height: 480px; width: 100%; object-fit: contain; background: #FFF9EF; padding: 6px;">`
           : `<div class="placeholder-img" style="height: 400px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
               <i class="bi bi-geo-alt-fill" style="font-size: 5rem; color: var(--clr-primary); opacity: 0.3;"></i>
             </div>`
@@ -615,10 +989,12 @@ function renderTourDetails() {
       </div>
 
       <!-- Tour Meta -->
-      <div class="d-flex flex-wrap gap-3 mb-4" data-aos="fade-up">
+      <div class="d-flex flex-wrap gap-2 mb-4" data-aos="fade-up">
         <span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
           <i class="bi bi-clock text-gold me-1"></i> ${tour.duration}
         </span>
+        ${departureBadge}
+        ${returnBadge}
         <span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
           <i class="bi bi-geo-alt text-gold me-1"></i> ${tour.places.length} Places
         </span>
@@ -629,10 +1005,17 @@ function renderTourDetails() {
 
       <!-- Overview -->
       <div class="mb-4" data-aos="fade-up">
-        <h3 class="mb-3">Overview</h3>
+        <h3 class="mb-2">Overview</h3>
+        ${teluguHeader}
         <div class="gold-divider gold-divider-left"></div>
         <p class="lead-text mt-3">${tour.overview}</p>
       </div>
+
+      <!-- Route Flow Sequence if present -->
+      ${routeFlowHTML}
+
+      <!-- Poster Highlights if present -->
+      ${posterHighlightsHTML}
 
       <!-- Places Covered -->
       <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
@@ -650,7 +1033,7 @@ function renderTourDetails() {
 
       <!-- Itinerary -->
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
-        <h4 class="mb-3"><i class="bi bi-calendar-event text-gold me-2"></i>Itinerary</h4>
+        <h4 class="mb-3"><i class="bi bi-calendar-event text-gold me-2"></i>Detailed Itinerary</h4>
         <div class="ps-2">
           ${tour.itinerary.map(day => `
           <div class="itinerary-day">
@@ -754,21 +1137,27 @@ function renderFeaturedPackages(containerId) {
            <i class="bi bi-geo-alt-fill" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.3;"></i>
          </div>`;
 
+    const departureBadge = pkg.departureTime
+      ? `<span class="badge bg-gold text-dark fw-bold ms-2"><i class="bi bi-alarm-fill me-1"></i>${pkg.departureTime.split(' from')[0]}</span>`
+      : '';
+
     return `
     <div class="swiper-slide">
-      <div class="tour-card">
+      <div class="tour-card h-100 d-flex flex-column">
         <div class="tour-card-img">
           ${imageMarkup}
-          <span class="tour-card-badge">${pkg.category}</span>
+          <span class="tour-card-badge">${pkg.badge || pkg.category}</span>
         </div>
-        <div class="tour-card-body">
+        <div class="tour-card-body d-flex flex-column flex-grow-1">
           <h5>${pkg.title}</h5>
-          <p>${pkg.shortDesc}</p>
-          <div class="tour-card-meta">
+          ${pkg.teluguTitle ? `<div class="text-maroon small fw-semibold mb-1" style="font-size: 0.85rem; line-height: 1.35;">${pkg.teluguTitle}</div>` : ''}
+          <p class="flex-grow-1">${pkg.shortDesc}</p>
+          <div class="tour-card-meta mb-2">
+            ${departureBadge}
             <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
             <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
           </div>
-          <div class="tour-card-footer">
+          <div class="tour-card-footer mt-auto pt-2 border-top">
             <span class="tour-card-price"><small>Contact for pricing</small></span>
             <a href="tour-details.html?id=${pkg.id}" class="btn btn-primary-custom btn-sm">
               View Details <i class="bi bi-arrow-right"></i>
