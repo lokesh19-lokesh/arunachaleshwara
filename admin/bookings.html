@@ -612,7 +612,13 @@
       }
 
       const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
-      await sb.from(table).update({ payment_status: 'Verification Pending', booking_status: 'Payment Verification' }).eq('id', bookingUuid);
+      const existingBooking = currentBookings.find(x => x.id === bookingUuid);
+      const payUpdate = { payment_status: 'Verification Pending' };
+      // Only move booking_status to Payment Verification if not already Confirmed or Checked In
+      if (!existingBooking || ['Pending Request', 'Awaiting Payment'].includes(existingBooking.booking_status)) {
+        payUpdate.booking_status = 'Payment Verification';
+      }
+      await sb.from(table).update(payUpdate).eq('id', bookingUuid);
       await logAdminActivity('RECORD_MANUAL_PAYMENT', 'payment_transactions', bookingCode, { amount, method, ref });
 
       showAdminToast('Manual payment recorded! Please click Verify after checking bank/UPI.', 'success');
@@ -650,11 +656,16 @@
       const balance = Math.max(0, est - totalVerified);
       const newPayStatus = balance <= 0 ? 'Fully Paid' : 'Partially Paid';
 
-      await sb.from(table).update({
+      const bookingLedgerUpdate = {
         amount_paid: totalVerified,
         balance_amount: balance,
         payment_status: newPayStatus
-      }).eq('id', bookingUuid);
+      };
+      // If a room was already allocated or booking was previously confirmed, keep/restore Confirmed status
+      if (b.booking_status === 'Payment Verification' && (b.allocated_room_number || b.confirmed_at)) {
+        bookingLedgerUpdate.booking_status = 'Confirmed';
+      }
+      await sb.from(table).update(bookingLedgerUpdate).eq('id', bookingUuid);
 
       // Sync any already-issued invoice for this booking so PDF & WhatsApp always reflect verified payments
       await sb.from('invoices').update({

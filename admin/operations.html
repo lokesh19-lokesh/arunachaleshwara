@@ -65,12 +65,18 @@
 
     async function loadOperations() {
       const sb = window.adminSupabase;
-      const { data: confirmed } = await sb.from('accommodation_bookings').select('*').eq('booking_status', 'Confirmed').order('check_in');
-      const { data: checkedIn } = await sb.from('accommodation_bookings').select('*').eq('booking_status', 'Checked In').order('check_out');
+      const [{ data: confirmed }, { data: checkedIn }, { data: pendingList }] = await Promise.all([
+        sb.from('accommodation_bookings').select('*').eq('booking_status', 'Confirmed').order('check_in'),
+        sb.from('accommodation_bookings').select('*').eq('booking_status', 'Checked In').order('check_out'),
+        sb.from('accommodation_bookings').select('*').in('booking_status', ['Pending Request', 'Awaiting Payment', 'Payment Verification']).order('created_at', { ascending: false })
+      ]);
 
       const inBody = document.getElementById('checkinQueueBody');
       if (!confirmed || confirmed.length === 0) {
-        inBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No confirmed arrivals awaiting check-in.</td></tr>';
+        const pendingHint = pendingList && pendingList.length > 0
+          ? `<div class="mt-2"><a href="bookings.html" class="btn btn-sm btn-admin-yellow">${pendingList.length} Booking(s) Pending Confirmation → Confirm in All Bookings</a></div>`
+          : '';
+        inBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No confirmed arrivals awaiting check-in.${pendingHint}</td></tr>`;
       } else {
         inBody.innerHTML = confirmed.map(b => `
           <tr>
