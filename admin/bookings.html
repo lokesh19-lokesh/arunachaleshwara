@@ -420,7 +420,7 @@
                 <form onsubmit="recordPaymentSubmit(event, '${b.id}', '${b.booking_id}', '${b.customer_name}')">
                   <div class="row g-2">
                     <div class="col-md-4">
-                      <input type="number" step="0.01" id="payAmount" class="form-control form-control-sm" placeholder="Amount (₹)" value="${b.balance_amount || b.estimated_amount}" required>
+                      <input type="number" step="0.01" min="1" id="payAmount" class="form-control form-control-sm" placeholder="Amount (₹)" value="${Number(b.balance_amount) > 0 ? b.balance_amount : b.estimated_amount}" required>
                     </div>
                     <div class="col-md-4">
                       <select id="payMethod" class="form-select form-select-sm">
@@ -585,6 +585,10 @@
       const sb = window.adminSupabase;
       const type = document.getElementById('filterType').value;
       const amount = parseFloat(document.getElementById('payAmount').value);
+      if (!amount || amount <= 0) {
+        showAdminToast('Please enter a valid payment amount greater than ₹0.', 'error');
+        return;
+      }
       const method = document.getElementById('payMethod').value;
       const ref = document.getElementById('payRef').value.trim();
       const notes = document.getElementById('payNotes').value.trim();
@@ -638,8 +642,10 @@
 
       // Recalculate total verified paid for this booking
       const b = currentBookings.find(x => x.id === bookingUuid);
-      const { data: allTxns } = await sb.from('payment_transactions').select('amount, status').eq('booking_code', b.booking_id);
-      const totalVerified = (allTxns || []).filter(t => t.status === 'Verified').reduce((s, t) => s + Number(t.amount), 0);
+      const { data: allTxns } = await sb.from('payment_transactions').select('*').eq('booking_code', b.booking_id).order('created_at', { ascending: false });
+      const verifiedTxns = (allTxns || []).filter(t => t.status === 'Verified');
+      const totalVerified = verifiedTxns.reduce((s, t) => s + Number(t.amount), 0);
+      const latestVerified = verifiedTxns[0] || null;
       const est = Number(b.estimated_amount || 0);
       const balance = Math.max(0, est - totalVerified);
       const newPayStatus = balance <= 0 ? 'Fully Paid' : 'Partially Paid';
@@ -649,6 +655,15 @@
         balance_amount: balance,
         payment_status: newPayStatus
       }).eq('id', bookingUuid);
+
+      // Sync any already-issued invoice for this booking so PDF & WhatsApp always reflect verified payments
+      await sb.from('invoices').update({
+        amount_received: totalVerified,
+        balance_due: balance,
+        payment_status: balance <= 0 ? 'Paid' : 'Partially Paid',
+        payment_method: latestVerified ? latestVerified.payment_method : 'Manual Payment',
+        transaction_reference: latestVerified ? latestVerified.transaction_reference : null
+      }).eq('booking_code', b.booking_id);
 
       await logAdminActivity('VERIFY_MANUAL_PAYMENT', 'payment_transactions', txnId, { booking: b.booking_id, amount });
       showAdminToast('Payment verified and booking ledger updated!', 'success');
@@ -940,10 +955,42 @@
       setTimeout(() => openBookingModal(bookingUuid), 350);
     }
 
+    async function getSyncedInvoice(invoiceId) {
+      const sb = window.adminSupabase;
+      const { data: inv } = await sb.from('invoices').select('*').eq('id', invoiceId).single();
+      if (!inv) return null;
+
+      // Double-check verified payments so invoice always shows latest paid amount
+      const { data: vTxns } = await sb.from('payment_transactions')
+        .select('*')
+        .eq('booking_code', inv.booking_code)
+        .eq('status', 'Verified')
+        .order('created_at', { ascending: false });
+
+      if (vTxns && vTxns.length > 0) {
+        const verifiedTotal = vTxns.reduce((s, t) => s + Number(t.amount || 0), 0);
+        const totalAmt = Number(inv.total_amount || 0);
+        const balDue = Math.max(0, totalAmt - verifiedTotal);
+        if (verifiedTotal !== Number(inv.amount_received || 0) || balDue !== Number(inv.balance_due || 0)) {
+          const latest = vTxns[0];
+          const updatedFields = {
+            amount_received: verifiedTotal,
+            balance_due: balDue,
+            payment_status: balDue <= 0 ? 'Paid' : 'Partially Paid',
+            payment_method: latest.payment_method || inv.payment_method,
+            transaction_reference: latest.transaction_reference || inv.transaction_reference
+          };
+          await sb.from('invoices').update(updatedFields).eq('id', inv.id);
+          Object.assign(inv, updatedFields);
+        }
+      }
+      return inv;
+    }
+
     async function downloadExistingInvoice(invoiceId) {
       const sb = window.adminSupabase;
-      const [{ data: inv }, { data: settings }] = await Promise.all([
-        sb.from('invoices').select('*').eq('id', invoiceId).single(),
+      const [inv, { data: settings }] = await Promise.all([
+        getSyncedInvoice(invoiceId),
         sb.from('website_settings').select('value').eq('key', 'invoice_settings').maybeSingle()
       ]);
       if (inv) {
@@ -952,8 +999,7 @@
     }
 
     async function shareInvoiceViaWA(invoiceId) {
-      const sb = window.adminSupabase;
-      const { data: inv } = await sb.from('invoices').select('*').eq('id', invoiceId).single();
+      const inv = await getSyncedInvoice(invoiceId);
       if (!inv) return;
 
       const msg = `Dear ${inv.customer_name},\nThank you for choosing Arunachaleshwara Tours & Travels.\n\nYour booking has been confirmed.\n*Booking ID:* ${inv.booking_code}\n*Invoice Number:* ${inv.invoice_number}\n*Total Amount:* ${formatINR(inv.total_amount)}\n*Amount Paid:* ${formatINR(inv.amount_received)}\n*Balance Due:* ${formatINR(inv.balance_due)}\n\nPlease reply if you need the PDF copy re-attached. Om Namah Shivaya!`;

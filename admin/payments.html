@@ -116,14 +116,25 @@
       const table = bookingType === 'service' ? 'service_bookings' : 'accommodation_bookings';
       const { data: b } = await sb.from(table).select('id, estimated_amount').eq('booking_id', bookingCode).maybeSingle();
       if (b) {
-        const { data: allTxns } = await sb.from('payment_transactions').select('amount, status').eq('booking_code', bookingCode);
-        const totalVerified = (allTxns || []).filter(x => x.status === 'Verified').reduce((s, x) => s + Number(x.amount), 0);
+        const { data: allTxns } = await sb.from('payment_transactions').select('*').eq('booking_code', bookingCode).order('created_at', { ascending: false });
+        const verifiedTxns = (allTxns || []).filter(x => x.status === 'Verified');
+        const totalVerified = verifiedTxns.reduce((s, x) => s + Number(x.amount), 0);
+        const latestVerified = verifiedTxns[0] || null;
         const bal = Math.max(0, Number(b.estimated_amount || 0) - totalVerified);
         await sb.from(table).update({
           amount_paid: totalVerified,
           balance_amount: bal,
           payment_status: bal <= 0 ? 'Fully Paid' : 'Partially Paid'
         }).eq('id', b.id);
+
+        // Sync any already-issued invoice for this booking
+        await sb.from('invoices').update({
+          amount_received: totalVerified,
+          balance_due: bal,
+          payment_status: bal <= 0 ? 'Paid' : 'Partially Paid',
+          payment_method: latestVerified ? latestVerified.payment_method : 'Manual Payment',
+          transaction_reference: latestVerified ? latestVerified.transaction_reference : null
+        }).eq('booking_code', bookingCode);
       }
 
       await logAdminActivity('VERIFY_PAYMENT', 'payment_transactions', txnId, { bookingCode, amount });
