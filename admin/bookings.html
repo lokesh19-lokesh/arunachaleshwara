@@ -134,7 +134,27 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Room Category *</label>
-                <select id="wCategory" class="form-select" required></select>
+                <select id="wCategory" class="form-select" onchange="toggleWalkinCustomCategory()" required></select>
+              </div>
+              <div class="col-12 d-none" id="wCustomCategoryBox">
+                <div class="p-3 rounded-3 border bg-light">
+                  <div class="row g-2 align-items-end">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold mb-1">Custom Category Name *</label>
+                      <input type="text" id="wCustomCatName" class="form-control form-control-sm" placeholder="e.g. AC Family Suite / Group Hall">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label small fw-bold mb-1">Rate per Night (₹) *</label>
+                      <input type="number" id="wCustomCatPrice" class="form-control form-control-sm" placeholder="e.g. 2500" min="0" step="50">
+                    </div>
+                    <div class="col-md-2">
+                      <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="wSaveCustomCat" checked>
+                        <label class="form-check-label small" for="wSaveCustomCat">Save</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="col-md-4">
                 <label class="form-label small fw-bold">Check-in Date *</label>
@@ -211,7 +231,20 @@
       whatsappTemplates = (wa && wa.templates) || {};
 
       const catSelect = document.getElementById('wCategory');
-      catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}" data-price="${c.base_price}" data-name="${c.name}">${c.name} (${formatINR(c.base_price)}/night)</option>`).join('');
+      catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}" data-price="${c.base_price}" data-name="${c.name}">${c.name} (${formatINR(c.base_price)}/night)</option>`).join('') +
+        `<option value="__custom__">+ Custom Category / Price...</option>`;
+      toggleWalkinCustomCategory();
+    }
+
+    function toggleWalkinCustomCategory() {
+      const catSelect = document.getElementById('wCategory');
+      const box = document.getElementById('wCustomCategoryBox');
+      const nameInput = document.getElementById('wCustomCatName');
+      const priceInput = document.getElementById('wCustomCatPrice');
+      const isCustom = catSelect.value === '__custom__';
+      box.classList.toggle('d-none', !isCustom);
+      nameInput.required = isCustom;
+      priceInput.required = isCustom;
     }
 
     async function loadBookings() {
@@ -750,8 +783,44 @@
       const opt = catSelect.options[catSelect.selectedIndex];
       const checkIn = document.getElementById('wCheckIn').value;
       const checkOut = document.getElementById('wCheckOut').value;
-      const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
-      const price = parseFloat(opt.dataset.price || 1200);
+      if (new Date(checkOut) < new Date(checkIn)) {
+        showAdminToast('Check-out date cannot be before Check-in date.', 'error');
+        return;
+      }
+      const diffDays = Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000);
+      const nights = Math.max(1, diffDays);
+
+      let categoryId = catSelect.value;
+      let categoryName = opt.dataset.name;
+      let price = parseFloat(opt.dataset.price || 1200);
+
+      if (catSelect.value === '__custom__') {
+        categoryName = document.getElementById('wCustomCatName').value.trim();
+        price = parseFloat(document.getElementById('wCustomCatPrice').value) || 0;
+        if (!categoryName || price <= 0) {
+          showAdminToast('Please enter a valid custom category name and rate.', 'error');
+          return;
+        }
+        categoryId = null;
+
+        if (document.getElementById('wSaveCustomCat').checked) {
+          const slug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-4);
+          const { data: newCat } = await sb.from('accommodation_categories').insert([{
+            slug,
+            name: categoryName,
+            short_desc: `${categoryName} accommodation option`,
+            base_price: price,
+            max_guests: parseInt(document.getElementById('wGuests').value) || 2,
+            order_num: allCategories.length + 1,
+            is_active: true
+          }]).select().single();
+          if (newCat) {
+            categoryId = newCat.id;
+            await loadReferenceData();
+          }
+        }
+      }
+
       const total = nights * price;
 
       const { data, error } = await sb.from('accommodation_bookings').insert([{
@@ -759,8 +828,8 @@
         mobile: document.getElementById('wMobile').value.trim(),
         whatsapp_number: document.getElementById('wMobile').value.trim(),
         email: document.getElementById('wEmail').value.trim() || null,
-        category_id: catSelect.value,
-        category_name: opt.dataset.name,
+        category_id: categoryId,
+        category_name: categoryName,
         check_in: checkIn,
         check_out: checkOut,
         nights: nights,
@@ -787,6 +856,7 @@
       showAdminToast(`Booking ${data.booking_id} created!`, 'success');
       bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
       e.target.reset();
+      toggleWalkinCustomCategory();
       await loadBookings();
     });
   </script>

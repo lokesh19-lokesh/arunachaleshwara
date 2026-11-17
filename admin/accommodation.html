@@ -65,6 +65,12 @@
 
           <!-- Tab 2: Room Categories -->
           <div class="tab-pane fade" id="categoriesTab">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold text-maroon mb-0">Manage Room Categories &amp; Nightly Pricing</h6>
+              <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="bi bi-plus-lg me-1"></i> Add Custom Category
+              </button>
+            </div>
             <div class="row g-4" id="categoriesGrid">
               <!-- Populated dynamically -->
             </div>
@@ -91,7 +97,11 @@
             </div>
             <div class="mb-3">
               <label class="form-label small fw-bold">Category *</label>
-              <select id="rCategory" class="form-select" required></select>
+              <select id="rCategory" class="form-select" onchange="toggleRoomCustomCategory()" required></select>
+            </div>
+            <div class="mb-3 d-none" id="rCustomCatBox">
+              <label class="form-label small fw-bold">Custom Category Name *</label>
+              <input type="text" id="rCustomCatName" class="form-control" placeholder="e.g. AC Family Suite / VIP Room">
             </div>
             <div class="row g-2 mb-3">
               <div class="col-6">
@@ -125,6 +135,48 @@
             <div class="d-flex justify-content-end gap-2">
               <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
               <button type="submit" class="btn btn-admin-primary">Save Room</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Custom Category Modal -->
+  <div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold">Add Custom Room Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="categoryForm">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Category Name *</label>
+              <input type="text" id="catName" class="form-control" placeholder="e.g. AC Family Suite" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Base Price / Night (₹) *</label>
+                <input type="number" id="catPrice" class="form-control" value="2000" min="100" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Max Guests *</label>
+                <input type="number" id="catGuests" class="form-control" value="3" min="1" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Default Bed Type</label>
+              <input type="text" id="catBeds" class="form-control" value="1 King Bed">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Short Description</label>
+              <textarea id="catDesc" class="form-control" rows="2" placeholder="Comfortable custom room category near Arunachaleswarar Temple."></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Create Category</button>
             </div>
           </form>
         </div>
@@ -167,7 +219,8 @@
       // Populate modal category dropdown
       document.getElementById('rCategory').innerHTML = categoriesList.map(c =>
         `<option value="${c.id}" data-name="${c.name}" data-price="${c.base_price}">${c.name}</option>`
-      ).join('');
+      ).join('') + `<option value="__custom__">+ Add Custom Category...</option>`;
+      toggleRoomCustomCategory();
 
       // Render Rooms Table
       const tbody = document.getElementById('roomsTableBody');
@@ -247,21 +300,93 @@
       await loadData();
     }
 
+    function toggleRoomCustomCategory() {
+      const sel = document.getElementById('rCategory');
+      const box = document.getElementById('rCustomCatBox');
+      const inp = document.getElementById('rCustomCatName');
+      const isCustom = sel.value === '__custom__';
+      box.classList.toggle('d-none', !isCustom);
+      inp.required = isCustom;
+    }
+
+    document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const name = document.getElementById('catName').value.trim();
+      const price = parseFloat(document.getElementById('catPrice').value) || 1500;
+      const guests = parseInt(document.getElementById('catGuests').value) || 2;
+      const beds = document.getElementById('catBeds').value.trim() || '1 Double Bed';
+      const desc = document.getElementById('catDesc').value.trim() || `${name} accommodation near Arunachaleswarar Temple.`;
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-4);
+
+      const { error } = await sb.from('accommodation_categories').insert([{
+        slug,
+        name,
+        short_desc: desc,
+        description: desc,
+        base_price: price,
+        max_guests: guests,
+        default_beds: beds,
+        order_num: categoriesList.length + 1,
+        is_active: true
+      }]);
+
+      if (error) {
+        showAdminToast('Error creating category: ' + error.message, 'error');
+        return;
+      }
+
+      await logAdminActivity('ADD_CATEGORY', 'accommodation_categories', name, { price });
+      showAdminToast(`Category "${name}" created!`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+      e.target.reset();
+      await loadData();
+    });
+
     document.getElementById('roomForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const sb = window.adminSupabase;
       const editId = document.getElementById('editRoomId').value;
       const catSel = document.getElementById('rCategory');
-      const catName = catSel.options[catSel.selectedIndex]?.dataset?.name || 'Standard';
+      let categoryId = catSel.value || null;
+      let catName = catSel.options[catSel.selectedIndex]?.dataset?.name || 'Standard';
+      const price = parseFloat(document.getElementById('rPrice').value) || 1200;
+      const guests = parseInt(document.getElementById('rGuests').value) || 2;
+      const bedType = document.getElementById('rBed').value.trim();
+
+      if (catSel.value === '__custom__') {
+        catName = document.getElementById('rCustomCatName').value.trim();
+        if (!catName) {
+          showAdminToast('Please enter a custom category name.', 'error');
+          return;
+        }
+        const slug = catName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-4);
+        const { data: newCat, error: catErr } = await sb.from('accommodation_categories').insert([{
+          slug,
+          name: catName,
+          short_desc: `${catName} accommodation option`,
+          base_price: price,
+          max_guests: guests,
+          default_beds: bedType || '1 Double Bed',
+          order_num: categoriesList.length + 1,
+          is_active: true
+        }]).select().single();
+
+        if (catErr) {
+          showAdminToast('Error creating custom category: ' + catErr.message, 'error');
+          return;
+        }
+        categoryId = newCat.id;
+      }
 
       const payload = {
         room_number: document.getElementById('rNumber').value.trim(),
-        category_id: catSel.value || null,
+        category_id: categoryId,
         category_name: catName,
         floor: document.getElementById('rFloor').value.trim(),
-        bed_type: document.getElementById('rBed').value.trim(),
-        max_guests: parseInt(document.getElementById('rGuests').value) || 2,
-        base_price: parseFloat(document.getElementById('rPrice').value) || 1200,
+        bed_type: bedType,
+        max_guests: guests,
+        base_price: price,
         status: document.getElementById('rStatus').value
       };
 

@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS public.accommodation_bookings (
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now(),
-    CONSTRAINT valid_stay_range CHECK (check_out > check_in)
+    CONSTRAINT valid_stay_range CHECK (check_out >= check_in)
 );
 
 CREATE TABLE IF NOT EXISTS public.booking_room_allocations (
