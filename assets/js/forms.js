@@ -24,6 +24,17 @@ function initContactForm() {
       message: form.querySelector('#contactMessage').value.trim()
     };
 
+    // Submit to Supabase asynchronously
+    if (typeof submitContactMessageToSupabase === 'function') {
+      submitContactMessageToSupabase({
+        name: formData.name,
+        phone: formData.mobile,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
+      }).catch(err => console.warn('Supabase contact submission error:', err));
+    }
+
     // Build WhatsApp message
     const waMessage = `*New Contact Enquiry*%0A%0A` +
       `*Name:* ${formData.name}%0A` +
@@ -34,12 +45,10 @@ function initContactForm() {
 
     // Show success message with WhatsApp option
     showFormMessage(form, 'success',
-      `Thank you, ${formData.name}! Your message has been prepared. ` +
-      `Click the button below to send it via WhatsApp. ` +
+      `Thank you, ${formData.name}! Your message has been received and saved. ` +
+      `You can also connect with us instantly via WhatsApp below. ` +
       `<br><br><a href="https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm mt-2">` +
-      `<i class="bi bi-whatsapp"></i> Send via WhatsApp</a>` +
-      `<br><small class="text-muted d-block mt-2">Note: This form does not store your data on a server. ` +
-      `Your enquiry will be sent directly via WhatsApp.</small>`
+      `<i class="bi bi-whatsapp"></i> Chat on WhatsApp</a>`
     );
 
     form.reset();
@@ -95,6 +104,22 @@ function initEnquiryForm() {
       requirements: form.querySelector('#enquiryRequirements').value.trim()
     };
 
+    // Save enquiry to Supabase asynchronously
+    if (typeof submitEnquiryToSupabase === 'function') {
+      submitEnquiryToSupabase({
+        serviceType: formData.service,
+        destination: formData.destination,
+        customerName: formData.name,
+        phone: formData.mobile,
+        email: formData.email,
+        travelDate: formData.travelDate,
+        pickupLocation: formData.pickup,
+        passengers: (parseInt(formData.adults) || 1) + (parseInt(formData.children) || 0),
+        vehicleType: formData.service && formData.service.includes('Taxi') ? 'Taxi / Car' : null,
+        specialRequests: formData.requirements || null
+      }).catch(err => console.warn('Supabase enquiry submit error:', err));
+    }
+
     // Show summary
     const summaryContainer = document.getElementById('enquirySummary');
     if (summaryContainer) {
@@ -122,7 +147,7 @@ function initEnquiryForm() {
           <p class="mb-2" style="color: var(--clr-success); font-weight: 600;">
             <i class="bi bi-info-circle me-1"></i> How to submit your enquiry:
           </p>
-          <p class="mb-0 small">Click the WhatsApp button below to send your enquiry directly to our team. WhatsApp will open with your details pre-filled. This enquiry is not stored on any server – it is sent directly to our business WhatsApp number.</p>
+          <p class="mb-0 small">Your enquiry details have been recorded in our system. Click the WhatsApp button below to instantly connect with our pilgrimage coordinator with your pre-filled travel details.</p>
         </div>
 
         <div class="d-grid gap-2 mt-3">

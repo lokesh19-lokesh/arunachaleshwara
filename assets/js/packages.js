@@ -2,7 +2,7 @@
    ARUNACHALESHWARA – Tour Packages Data & Rendering
    ============================================================ */
 
-const PACKAGES_DATA = [
+let PACKAGES_DATA = [
   {
     id: 'saptha-shiva-kshetra-yatra',
     title: '1 Day Saptha Shiva Kshetra Yatra',
@@ -778,7 +778,7 @@ function renderPackagesPage() {
   const listContainer = document.getElementById('packagesList');
   if (!gridContainer) return;
 
-  // Render grid view
+  // Render grid view immediately from local cache
   gridContainer.innerHTML = `<div class="row">${PACKAGES_DATA.map((p, i) => renderTourCard(p, i)).join('')}</div>`;
 
   // Render list view
@@ -788,6 +788,24 @@ function renderPackagesPage() {
 
   // Initialize filters
   initPackageFilters();
+
+  // Silently hydrate with dynamic data from Supabase if available
+  if (typeof fetchPackagesFromSupabase === 'function') {
+    fetchPackagesFromSupabase().then(dbPackages => {
+      if (dbPackages && dbPackages.length > 0) {
+        PACKAGES_DATA = dbPackages;
+        window.PACKAGES_DATA = PACKAGES_DATA;
+        gridContainer.innerHTML = `<div class="row">${PACKAGES_DATA.map((p, i) => renderTourCard(p, i)).join('')}</div>`;
+        if (listContainer) {
+          listContainer.innerHTML = PACKAGES_DATA.map((p, i) => renderTourListItem(p, i)).join('');
+        }
+        filterPackages();
+        if (typeof AOS !== 'undefined') AOS.refresh();
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic packages fetch error:', err);
+    });
+  }
 }
 
 /**
@@ -891,33 +909,9 @@ function filterPackages() {
 }
 
 /**
- * Render tour details page
+ * Helper to populate tour details DOM
  */
-function renderTourDetails() {
-  const container = document.getElementById('tourDetailContent');
-  if (!container) return;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const tourId = urlParams.get('id');
-
-  const tour = PACKAGES_DATA.find(p => p.id === tourId);
-
-  if (!tour) {
-    container.innerHTML = `
-    <div class="text-center py-5">
-      <div class="mb-4">
-        <i class="bi bi-exclamation-circle" style="font-size: 4rem; color: var(--clr-gold);"></i>
-      </div>
-      <h2>Tour Package Not Found</h2>
-      <p class="lead-text">The tour package you are looking for does not exist or the link may be incorrect.</p>
-      <a href="tour-packages.html" class="btn btn-primary-custom mt-3">
-        <i class="bi bi-arrow-left"></i> View All Packages
-      </a>
-    </div>`;
-    document.title = 'Package Not Found – Arunachaleshwara Tours & Travels';
-    return;
-  }
-
+function populateTourDetailsDOM(tour, container) {
   // Update page title
   document.title = `${tour.title} – Arunachaleshwara Tours & Travels`;
 
@@ -944,7 +938,7 @@ function renderTourDetails() {
     <div class="route-flow-box p-3 bg-cream rounded-4 border border-gold mb-4" data-aos="fade-up">
       <div class="d-flex align-items-center justify-content-between mb-2">
         <h5 class="text-maroon mb-0 fw-bold"><i class="bi bi-signpost-2-fill text-gold me-2"></i>Pilgrimage Route Sequence</h5>
-        <span class="badge bg-gold text-dark fw-bold px-2 py-1">${tour.places.length} Sacred Stops</span>
+        <span class="badge bg-gold text-dark fw-bold px-2 py-1">${(tour.places || []).length} Sacred Stops</span>
       </div>
       <div class="route-flow-steps d-flex flex-wrap align-items-center gap-2 pt-2">
         ${tour.routeFlow.map((stop, sIdx) => `
@@ -996,7 +990,7 @@ function renderTourDetails() {
         ${departureBadge}
         ${returnBadge}
         <span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
-          <i class="bi bi-geo-alt text-gold me-1"></i> ${tour.places.length} Places
+          <i class="bi bi-geo-alt text-gold me-1"></i> ${(tour.places || []).length} Places
         </span>
         <span class="badge bg-cream text-maroon px-3 py-2 rounded-pill" style="font-size: 0.85rem;">
           <i class="bi bi-tag text-gold me-1"></i> ${tour.category}
@@ -1021,7 +1015,7 @@ function renderTourDetails() {
       <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
         <h4 class="mb-3"><i class="bi bi-geo-alt text-gold me-2"></i>Places Covered</h4>
         <div class="row g-2">
-          ${tour.places.map(place => `
+          ${(tour.places || []).map(place => `
           <div class="col-md-6">
             <div class="d-flex align-items-start gap-2 p-2 bg-cream rounded">
               <i class="bi bi-check-circle-fill text-gold mt-1"></i>
@@ -1035,7 +1029,7 @@ function renderTourDetails() {
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
         <h4 class="mb-3"><i class="bi bi-calendar-event text-gold me-2"></i>Detailed Itinerary</h4>
         <div class="ps-2">
-          ${tour.itinerary.map(day => `
+          ${(tour.itinerary || []).map(day => `
           <div class="itinerary-day">
             <h6>${day.day}: ${day.title}</h6>
             <p>${day.description}</p>
@@ -1049,7 +1043,7 @@ function renderTourDetails() {
           <div class="p-3 bg-cream rounded-3">
             <h5 class="text-success mb-3"><i class="bi bi-check-circle me-2"></i>Inclusions</h5>
             <ul class="inclusion-list list-unstyled mb-0">
-              ${tour.inclusions.map(item => `
+              ${(tour.inclusions || []).map(item => `
               <li><i class="bi bi-check-circle-fill"></i> ${item}</li>`).join('')}
             </ul>
           </div>
@@ -1058,7 +1052,7 @@ function renderTourDetails() {
           <div class="p-3 bg-cream rounded-3">
             <h5 class="text-maroon mb-3"><i class="bi bi-x-circle me-2"></i>Exclusions</h5>
             <ul class="exclusion-list list-unstyled mb-0">
-              ${tour.exclusions.map(item => `
+              ${(tour.exclusions || []).map(item => `
               <li><i class="bi bi-x-circle-fill"></i> ${item}</li>`).join('')}
             </ul>
           </div>
@@ -1070,7 +1064,7 @@ function renderTourDetails() {
         <h4 class="mb-3"><i class="bi bi-info-circle text-gold me-2"></i>Important Information</h4>
         <div class="alert" style="background: var(--clr-cream); border: 1px solid var(--clr-gold); border-radius: var(--border-radius-lg);">
           <ul class="mb-0 ps-3">
-            ${tour.importantInfo.map(info => `<li class="mb-1">${info}</li>`).join('')}
+            ${(tour.importantInfo || []).map(info => `<li class="mb-1">${info}</li>`).join('')}
           </ul>
         </div>
       </div>
@@ -1123,14 +1117,59 @@ function renderTourDetails() {
 }
 
 /**
+ * Render tour details page
+ */
+function renderTourDetails() {
+  const container = document.getElementById('tourDetailContent');
+  if (!container) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const tourId = urlParams.get('id');
+
+  const tour = PACKAGES_DATA.find(p => p.id === tourId);
+
+  if (tour) {
+    populateTourDetailsDOM(tour, container);
+  } else {
+    container.innerHTML = `
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-exclamation-circle" style="font-size: 4rem; color: var(--clr-gold);"></i>
+      </div>
+      <h2>Tour Package Not Found</h2>
+      <p class="lead-text">The tour package you are looking for does not exist or the link may be incorrect.</p>
+      <a href="tour-packages.html" class="btn btn-primary-custom mt-3">
+        <i class="bi bi-arrow-left"></i> View All Packages
+      </a>
+    </div>`;
+    document.title = 'Package Not Found – Arunachaleshwara Tours & Travels';
+  }
+
+  // Hydrate from Supabase if available
+  if (typeof fetchPackagesFromSupabase === 'function') {
+    fetchPackagesFromSupabase().then(dbPackages => {
+      if (dbPackages && dbPackages.length > 0) {
+        PACKAGES_DATA = dbPackages;
+        window.PACKAGES_DATA = PACKAGES_DATA;
+        const freshTour = PACKAGES_DATA.find(p => p.id === tourId);
+        if (freshTour) {
+          populateTourDetailsDOM(freshTour, container);
+        }
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic tour detail load error:', err);
+    });
+  }
+}
+
+/**
  * Render featured packages for homepage (Swiper)
  */
 function renderFeaturedPackages(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const featured = PACKAGES_DATA.filter(p => p.featured);
-  container.innerHTML = featured.map(pkg => {
+  const buildCardsHTML = (items) => items.map(pkg => {
     const imageMarkup = pkg.image
       ? `<img src="${pkg.image}" alt="${pkg.title}" style="height: 220px; width: 100%; object-fit: cover;">`
       : `<div class="placeholder-img" style="height: 220px; background: linear-gradient(135deg, #F5EBDD 0%, #FFF9EF 50%, #F5EBDD 100%);">
@@ -1155,7 +1194,7 @@ function renderFeaturedPackages(containerId) {
           <div class="tour-card-meta mb-2">
             ${departureBadge}
             <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
-            <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
+            <span><i class="bi bi-geo-alt"></i> ${(pkg.places || []).length} Places</span>
           </div>
           <div class="tour-card-footer mt-auto pt-2 border-top">
             <span class="tour-card-price"><small>Contact for pricing</small></span>
@@ -1167,6 +1206,27 @@ function renderFeaturedPackages(containerId) {
       </div>
     </div>`;
   }).join('');
+
+  // Initial immediate render
+  const featured = PACKAGES_DATA.filter(p => p.featured);
+  container.innerHTML = buildCardsHTML(featured);
+
+  // Silently hydrate from Supabase
+  if (typeof fetchPackagesFromSupabase === 'function') {
+    fetchPackagesFromSupabase().then(dbPackages => {
+      if (dbPackages && dbPackages.length > 0) {
+        PACKAGES_DATA = dbPackages;
+        window.PACKAGES_DATA = PACKAGES_DATA;
+        const freshFeatured = PACKAGES_DATA.filter(p => p.featured);
+        container.innerHTML = buildCardsHTML(freshFeatured);
+        if (window.packagesSwiper && typeof window.packagesSwiper.update === 'function') {
+          window.packagesSwiper.update();
+        }
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic featured packages fetch error:', err);
+    });
+  }
 }
 
 // Make functions globally accessible

@@ -2,7 +2,7 @@
    ARUNACHALESHWARA – Services Data & Rendering
    ============================================================ */
 
-const SERVICES_DATA = [
+let SERVICES_DATA = [
   {
     id: 'accommodation',
     title: 'Accommodation',
@@ -211,38 +211,28 @@ function renderServicesGrid(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  // Immediate render from local cached data (zero layout shift)
   container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
+
+  // Silently hydrate with dynamic data from Supabase if available
+  if (typeof fetchServicesFromSupabase === 'function') {
+    fetchServicesFromSupabase().then(dbServices => {
+      if (dbServices && dbServices.length > 0) {
+        SERVICES_DATA = dbServices;
+        window.SERVICES_DATA = SERVICES_DATA;
+        container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
+        if (typeof AOS !== 'undefined') AOS.refresh();
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic services fetch error:', err);
+    });
+  }
 }
 
 /**
- * Render full service details page content
+ * Helper to populate service details DOM
  */
-function renderServiceDetails() {
-  const container = document.getElementById('serviceDetailContent');
-  if (!container) return;
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const serviceId = urlParams.get('id');
-
-  const service = SERVICES_DATA.find(s => s.id === serviceId);
-
-  if (!service) {
-    container.innerHTML = `
-    <div class="text-center py-5">
-      <div class="mb-4">
-        <i class="bi bi-exclamation-circle" style="font-size: 4rem; color: var(--clr-gold);"></i>
-      </div>
-      <h2>Service Not Found</h2>
-      <p class="lead-text">The service you are looking for does not exist or the link may be incorrect.</p>
-      <a href="services.html" class="btn btn-primary-custom mt-3">
-        <i class="bi bi-arrow-left"></i> View All Services
-      </a>
-    </div>`;
-    // Update page title
-    document.title = 'Service Not Found – Arunachaleshwara Tours & Travels';
-    return;
-  }
-
+function populateServiceDetailsDOM(service, container) {
   // Update page title
   document.title = `${service.title} – Arunachaleshwara Tours & Travels`;
 
@@ -273,7 +263,7 @@ function renderServiceDetails() {
       <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
         <h4 class="mb-3">Features & Benefits</h4>
         <div class="row g-3">
-          ${service.features.map(f => `
+          ${(service.features || []).map(f => `
           <div class="col-md-6">
             <div class="d-flex align-items-start gap-2">
               <i class="bi bi-check-circle-fill text-gold mt-1"></i>
@@ -284,10 +274,11 @@ function renderServiceDetails() {
       </div>
 
       <!-- Gallery -->
+      ${service.gallery && service.gallery.length > 0 ? `
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
         <h4 class="mb-3">Gallery</h4>
         <div class="row g-3">
-          ${(service.gallery || []).map(imgSrc => {
+          ${service.gallery.map(imgSrc => {
             const isContainThumb = service.imageFit === 'contain' && imgSrc === service.image;
             const thumbClass = isContainThumb ? 'service-gallery-thumb service-gallery-thumb--contain' : 'service-gallery-thumb';
             return `
@@ -303,7 +294,7 @@ function renderServiceDetails() {
           </div>`;
           }).join('')}
         </div>
-      </div>
+      </div>` : ''}
     </div>
 
     <!-- Sidebar -->
@@ -364,6 +355,52 @@ function renderServiceDetails() {
   }
   if (typeof AOS !== 'undefined') {
     setTimeout(() => AOS.refresh(), 80);
+  }
+}
+
+/**
+ * Render full service details page content
+ */
+function renderServiceDetails() {
+  const container = document.getElementById('serviceDetailContent');
+  if (!container) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const serviceId = urlParams.get('id');
+
+  const service = SERVICES_DATA.find(s => s.id === serviceId);
+
+  if (service) {
+    populateServiceDetailsDOM(service, container);
+  } else {
+    container.innerHTML = `
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-exclamation-circle" style="font-size: 4rem; color: var(--clr-gold);"></i>
+      </div>
+      <h2>Service Not Found</h2>
+      <p class="lead-text">The service you are looking for does not exist or the link may be incorrect.</p>
+      <a href="services.html" class="btn btn-primary-custom mt-3">
+        <i class="bi bi-arrow-left"></i> View All Services
+      </a>
+    </div>`;
+    document.title = 'Service Not Found – Arunachaleshwara Tours & Travels';
+  }
+
+  // Hydrate from Supabase if available
+  if (typeof fetchServicesFromSupabase === 'function') {
+    fetchServicesFromSupabase().then(dbServices => {
+      if (dbServices && dbServices.length > 0) {
+        SERVICES_DATA = dbServices;
+        window.SERVICES_DATA = SERVICES_DATA;
+        const freshService = SERVICES_DATA.find(s => s.id === serviceId);
+        if (freshService) {
+          populateServiceDetailsDOM(freshService, container);
+        }
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic service detail load error:', err);
+    });
   }
 }
 
