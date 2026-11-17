@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Payments – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="alert alert-warning border-warning d-flex align-items-center gap-2 mb-4">
+          <i class="bi bi-shield-exclamation fs-4 text-dark"></i>
+          <div class="small">
+            <strong>Manual Payment Verification Policy:</strong> No online payment gateway is active. Verify every UPI / Bank Transfer UTR or Cash receipt independently before marking transactions as <strong>Verified</strong>.
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h6 class="admin-card-title"><i class="bi bi-cash-stack text-success"></i> Manual Payment Transactions Ledger</h6>
+            <select id="payStatusFilter" class="form-select form-select-sm w-auto" onchange="loadPayments()">
+              <option value="all">All Transactions</option>
+              <option value="Pending Verification">Pending Verification</option>
+              <option value="Verified">Verified Only</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>TXN ID</th>
+                  <th>Booking ID</th>
+                  <th>Customer</th>
+                  <th>Method & Ref (UTR)</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody id="paymentsBody"><tr><td colspan="8" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      if (!canAccessModule('payments')) { alert('Permission denied.'); window.location.href = 'dashboard.html'; return; }
+      renderAdminSidebar('payments');
+      renderAdminHeader('Manual Payments', 'Independent Payment Verification');
+      loadPayments();
+    });
+
+    async function loadPayments() {
+      const sb = window.adminSupabase;
+      const filter = document.getElementById('payStatusFilter').value;
+      let q = sb.from('payment_transactions').select('*').order('created_at', { ascending: false });
+      if (filter !== 'all') q = q.eq('status', filter);
+      const { data } = await q;
+
+      const tbody = document.getElementById('paymentsBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No manual payment transactions found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(t => `
+        <tr>
+          <td class="fw-bold small">${t.transaction_id}</td>
+          <td><a href="bookings.html?id=${t.booking_code}" class="fw-bold text-decoration-none">${t.booking_code}</a></td>
+          <td>${t.customer_name || 'Devotee'}</td>
+          <td>
+            <span class="badge bg-light text-dark border">${t.payment_method}</span>
+            <div class="small text-muted">${t.transaction_reference || 'No Ref'}</div>
+          </td>
+          <td class="fw-bold text-success">${formatINR(t.amount)}</td>
+          <td class="small">${formatDate(t.payment_date || t.created_at)}</td>
+          <td>${getStatusBadge(t.status)}</td>
+          <td class="text-end">
+            ${t.status === 'Pending Verification' ? `
+              <button class="btn btn-sm btn-success" onclick="quickVerify('${t.id}', '${t.booking_code}', '${t.booking_type}', ${t.amount})">Verify</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="quickReject('${t.id}')">Reject</button>
+            ` : '<span class="small text-muted">Processed</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function quickVerify(txnId, bookingCode, bookingType, amount) {
+      if (!confirm(`Confirm independent verification of ${formatINR(amount)} for ${bookingCode}?`)) return;
+      const sb = window.adminSupabase;
+      await sb.from('payment_transactions').update({
+        status: 'Verified',
+        verified_by: window.CURRENT_ADMIN_USER.id,
+        verified_at: new Date().toISOString()
+      }).eq('id', txnId);
+
+      // Update booking ledger
+      const table = bookingType === 'service' ? 'service_bookings' : 'accommodation_bookings';
+      const { data: b } = await sb.from(table).select('id, estimated_amount').eq('booking_id', bookingCode).maybeSingle();
+      if (b) {
+        const { data: allTxns } = await sb.from('payment_transactions').select('amount, status').eq('booking_code', bookingCode);
+        const totalVerified = (allTxns || []).filter(x => x.status === 'Verified').reduce((s, x) => s + Number(x.amount), 0);
+        const bal = Math.max(0, Number(b.estimated_amount || 0) - totalVerified);
+        await sb.from(table).update({
+          amount_paid: totalVerified,
+          balance_amount: bal,
+          payment_status: bal <= 0 ? 'Fully Paid' : 'Partially Paid'
+        }).eq('id', b.id);
+      }
+
+      await logAdminActivity('VERIFY_PAYMENT', 'payment_transactions', txnId, { bookingCode, amount });
+      showAdminToast('Payment verified successfully!', 'success');
+      loadPayments();
+    }
+
+    async function quickReject(txnId) {
+      if (!confirm('Reject this payment entry?')) return;
+      await window.adminSupabase.from('payment_transactions').update({ status: 'Rejected' }).eq('id', txnId);
+      await logAdminActivity('REJECT_PAYMENT', 'payment_transactions', txnId);
+      showAdminToast('Payment marked as Rejected.', 'warning');
+      loadPayments();
+    }
+  </script>
+</body>
+</html>
+

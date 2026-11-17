@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Settings – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="row g-4">
+          <div class="col-lg-5">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-whatsapp text-success"></i> WhatsApp Routing Numbers</h6>
+              </div>
+              <div class="admin-card-body">
+                <form id="waSettingsForm">
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Main Admin WhatsApp Number</label>
+                    <input type="text" id="waMain" class="form-control" placeholder="919010515341">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Accommodation Booking Desk Number</label>
+                    <input type="text" id="waAcc" class="form-control" placeholder="919010515341">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Services & Tour Booking Number</label>
+                    <input type="text" id="waSrv" class="form-control" placeholder="919010515341">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Customer Support Number</label>
+                    <input type="text" id="waSup" class="form-control" placeholder="919010515341">
+                  </div>
+                  <button type="submit" class="btn btn-admin-whatsapp w-100"><i class="bi bi-save me-1"></i> Save WhatsApp Routing</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-chat-left-text-fill text-warning"></i> WhatsApp Communication History</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Date</th><th>Booking</th><th>Recipient</th><th>Type</th><th>Status</th></tr></thead>
+                  <tbody id="waLogsBody"><tr><td colspan="5" class="text-center py-4 text-muted">Loading logs...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      renderAdminSidebar('whatsapp');
+      renderAdminHeader('WhatsApp Settings', 'Routing & Message History');
+      loadWaData();
+    });
+
+    async function loadWaData() {
+      const sb = window.adminSupabase;
+      const [{ data: sett }, { data: logs }] = await Promise.all([
+        sb.from('whatsapp_settings').select('*').maybeSingle(),
+        sb.from('whatsapp_messages').select('*').order('sent_at', { ascending: false }).limit(50)
+      ]);
+
+      if (sett) {
+        document.getElementById('waMain').value = sett.main_admin_number || '919010515341';
+        document.getElementById('waAcc').value = sett.accommodation_number || '919010515341';
+        document.getElementById('waSrv').value = sett.service_number || '919010515341';
+        document.getElementById('waSup').value = sett.support_number || '919010515341';
+      }
+
+      const tbody = document.getElementById('waLogsBody');
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No WhatsApp messages logged yet.</td></tr>';
+      } else {
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td class="small">${formatDate(l.sent_at)}</td>
+            <td class="small fw-bold">${l.booking_code || '—'}</td>
+            <td class="small">${l.recipient}</td>
+            <td class="small">${l.message_type}</td>
+            <td><span class="badge bg-success">${l.status}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    document.getElementById('waSettingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await window.adminSupabase.from('whatsapp_settings').upsert({
+        id: '00000000-0000-0000-0000-000000000001',
+        main_admin_number: document.getElementById('waMain').value.trim(),
+        accommodation_number: document.getElementById('waAcc').value.trim(),
+        service_number: document.getElementById('waSrv').value.trim(),
+        support_number: document.getElementById('waSup').value.trim(),
+        default_notification_number: document.getElementById('waMain').value.trim(),
+        updated_at: new Date().toISOString()
+      });
+      await logAdminActivity('UPDATE_WHATSAPP_SETTINGS', 'whatsapp_settings', 'routing');
+      showAdminToast('WhatsApp routing numbers saved!', 'success');
+    });
+  </script>
+</body>
+</html>
+

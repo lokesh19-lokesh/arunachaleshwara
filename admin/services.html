@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services & Tours – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <ul class="nav nav-tabs mb-4">
+          <li class="nav-item"><button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#servicesTab">Dynamic Services (8)</button></li>
+          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packagesTab">Tour Packages (10)</button></li>
+          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#enquiriesTab">Website Enquiries</button></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="servicesTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-gear-fill text-warning"></i> Active Website Services</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Order</th><th>Service Title</th><th>Short Description</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                  <tbody id="servicesBody"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="packagesTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-compass-fill text-warning"></i> Dynamic Temple Tour Packages</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Package Title</th><th>Category</th><th>Duration</th><th>Featured</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                  <tbody id="packagesBody"><tr><td colspan="6" class="text-center py-4">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="enquiriesTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-chat-dots-fill text-warning"></i> Customer Website Enquiries</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Date</th><th>Customer</th><th>Service / Destination</th><th>Travel Date</th><th>Status</th><th class="text-end">WhatsApp</th></tr></thead>
+                  <tbody id="enquiriesBody"><tr><td colspan="6" class="text-center py-4">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      renderAdminSidebar('services');
+      renderAdminHeader('Services & Tour Packages', 'Dynamic Catalog Management');
+      loadCatalog();
+    });
+
+    async function loadCatalog() {
+      const sb = window.adminSupabase;
+      const [{ data: srvs }, { data: pkgs }, { data: enqs }] = await Promise.all([
+        sb.from('services').select('*').order('order_num'),
+        sb.from('tour_packages').select('*').order('order_num'),
+        sb.from('enquiries').select('*').order('created_at', { ascending: false })
+      ]);
+
+      document.getElementById('servicesBody').innerHTML = (srvs || []).map(s => `
+        <tr>
+          <td>#${s.order_num}</td>
+          <td class="fw-bold text-maroon">${s.title}</td>
+          <td class="small text-muted">${s.short_desc}</td>
+          <td>${getStatusBadge(s.is_active ? 'Active' : 'Inactive')}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleActive('services', '${s.id}', ${!s.is_active})">
+              ${s.is_active ? 'Disable' : 'Enable'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('packagesBody').innerHTML = (pkgs || []).map(p => `
+        <tr>
+          <td class="fw-bold text-maroon">${p.title}<div class="small text-muted">${p.telugu_title || ''}</div></td>
+          <td class="small">${p.category}</td>
+          <td class="small">${p.duration}</td>
+          <td>${p.featured ? '<span class="badge bg-warning text-dark">Featured</span>' : '—'}</td>
+          <td>${getStatusBadge(p.is_active ? 'Active' : 'Inactive')}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleActive('tour_packages', '${p.id}', ${!p.is_active})">
+              ${p.is_active ? 'Hide' : 'Show'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('enquiriesBody').innerHTML = (enqs || []).length === 0
+        ? '<tr><td colspan="6" class="text-center py-4 text-muted">No enquiries submitted yet.</td></tr>'
+        : (enqs || []).map(e => `
+        <tr>
+          <td class="small">${formatDate(e.created_at)}</td>
+          <td><div class="fw-semibold">${e.customer_name}</div><small class="text-muted">${e.phone}</small></td>
+          <td class="small"><strong>${e.service_type || 'General'}</strong><br>${e.destination || ''}</td>
+          <td class="small">${formatDate(e.travel_date)}</td>
+          <td>${getStatusBadge(e.status || 'New')}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-admin-whatsapp" onclick="openWhatsAppShare('${e.phone}', 'Namaste ${e.customer_name}! Thank you for enquiring about ${e.service_type || e.destination || 'our services'} at Arunachaleshwara Tours & Travels. How can we help you?', null, 'Enquiry Reply')">
+              <i class="bi bi-whatsapp"></i> Reply
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function toggleActive(table, id, newState) {
+      await window.adminSupabase.from(table).update({ is_active: newState }).eq('id', id);
+      await logAdminActivity('TOGGLE_CATALOG_ACTIVE', table, id, { is_active: newState });
+      showAdminToast('Updated visibility successfully! Website reflects change immediately.', 'success');
+      loadCatalog();
+    }
+  </script>
+</body>
+</html>
+

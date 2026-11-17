@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookings Management – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+
+      <div class="admin-content">
+        <!-- Filters Bar -->
+        <div class="admin-card mb-4">
+          <div class="admin-card-body py-3">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Search Booking / Customer</label>
+                <input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Booking ID, Name, Phone...">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Booking Status</label>
+                <select id="filterStatus" class="form-select form-select-sm">
+                  <option value="all">All Statuses</option>
+                  <option value="Pending Request">Pending Request</option>
+                  <option value="Awaiting Payment">Awaiting Payment</option>
+                  <option value="Payment Verification">Payment Verification</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Checked In">Checked In</option>
+                  <option value="Checked Out">Checked Out</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Payment Status</label>
+                <select id="filterPayment" class="form-select form-select-sm">
+                  <option value="all">All Payment Status</option>
+                  <option value="Not Paid">Not Paid</option>
+                  <option value="Payment Instructions Sent">Instructions Sent</option>
+                  <option value="Verification Pending">Verification Pending</option>
+                  <option value="Partially Paid">Partially Paid</option>
+                  <option value="Fully Paid">Fully Paid</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Category</label>
+                <select id="filterType" class="form-select form-select-sm">
+                  <option value="accommodation">Accommodation</option>
+                  <option value="service">Services & Tours</option>
+                </select>
+              </div>
+              <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-sm btn-admin-primary flex-grow-1" onclick="loadBookings()"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
+                <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#newBookingModal"><i class="bi bi-plus-lg"></i> Walk-in</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bookings Data Table -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h6 class="admin-card-title"><i class="bi bi-calendar-check-fill text-warning"></i> <span id="tableTitle">Accommodation Bookings</span></h6>
+            <span class="badge bg-secondary" id="bookingsCountBadge">0 bookings</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Customer</th>
+                  <th>Accommodation / Details</th>
+                  <th>Dates / Guests</th>
+                  <th>Financials</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <tr><td colspan="7" class="text-center py-5 text-muted">Loading bookings from Supabase...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Booking Detail & Workflow Modal -->
+  <div class="modal fade" id="bookingActionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2 text-warning"></i>Manage Booking: <span id="modalBookingCode">—</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4" id="bookingModalBody">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Walk-in Booking Modal -->
+  <div class="modal fade" id="newBookingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2 text-warning"></i>Create Walk-In / Phone Booking</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="walkinBookingForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Customer Full Name *</label>
+                <input type="text" id="wName" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Mobile / WhatsApp Number *</label>
+                <input type="tel" id="wMobile" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input type="email" id="wEmail" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Room Category *</label>
+                <select id="wCategory" class="form-select" required></select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Check-in Date *</label>
+                <input type="date" id="wCheckIn" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Check-out Date *</label>
+                <input type="date" id="wCheckOut" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Number of Guests *</label>
+                <input type="number" id="wGuests" class="form-control" value="2" min="1" max="10" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Special Requirements / Notes</label>
+                <textarea id="wNotes" class="form-control" rows="2"></textarea>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Create Booking Request</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script src="assets/js/admin-invoice-pdf.js"></script>
+  <script>
+    let allRooms = [];
+    let allCategories = [];
+    let currentBookings = [];
+    let whatsappTemplates = {};
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      if (!canAccessModule('bookings')) {
+        alert('You do not have permission to access Bookings.');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      renderAdminSidebar('bookings');
+      renderAdminHeader('Booking Management', 'Manual Verification Workflow');
+
+      await loadReferenceData();
+      await loadBookings();
+
+      // Auto-open specific booking if ?id= in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetCode = urlParams.get('id');
+      if (targetCode) {
+        const found = currentBookings.find(b => b.booking_id === targetCode);
+        if (found) openBookingModal(found.id);
+      }
+    });
+
+    async function loadReferenceData() {
+      const sb = window.adminSupabase;
+      const [{ data: rooms }, { data: cats }, { data: wa }] = await Promise.all([
+        sb.from('accommodation_rooms').select('*').order('room_number'),
+        sb.from('accommodation_categories').select('*').order('order_num'),
+        sb.from('whatsapp_settings').select('*').maybeSingle()
+      ]);
+      allRooms = rooms || [];
+      allCategories = cats || [];
+      whatsappTemplates = (wa && wa.templates) || {};
+
+      const catSelect = document.getElementById('wCategory');
+      catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}" data-price="${c.base_price}" data-name="${c.name}">${c.name} (${formatINR(c.base_price)}/night)</option>`).join('');
+    }
+
+    async function loadBookings() {
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const status = document.getElementById('filterStatus').value;
+      const payStatus = document.getElementById('filterPayment').value;
+      const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+
+      document.getElementById('tableTitle').textContent = type === 'accommodation' ? 'Accommodation Bookings' : 'Service & Tour Bookings';
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+
+      let query = sb.from(table).select('*').order('created_at', { ascending: false });
+      if (status !== 'all') query = query.eq('booking_status', status);
+      if (payStatus !== 'all') query = query.eq('payment_status', payStatus);
+
+      const { data, error } = await query;
+      if (error) {
+        showAdminToast('Error fetching bookings: ' + error.message, 'error');
+        return;
+      }
+
+      let rows = data || [];
+      if (search) {
+        rows = rows.filter(r =>
+          (r.booking_id || '').toLowerCase().includes(search) ||
+          (r.customer_name || '').toLowerCase().includes(search) ||
+          (r.mobile || '').toLowerCase().includes(search)
+        );
+      }
+
+      currentBookings = rows;
+      document.getElementById('bookingsCountBadge').textContent = `${rows.length} booking(s)`;
+
+      const tbody = document.getElementById('bookingsTableBody');
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">No bookings match your current filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(b => {
+        const roomDesc = type === 'accommodation'
+          ? `<strong>${b.category_name || 'Room'}</strong><br><small class="text-muted">${b.allocated_room_number ? 'Room #' + b.allocated_room_number : 'Unallocated'}</small>`
+          : `<strong>${b.service_title || 'Service'}</strong><br><small class="text-muted">${b.vehicle_type || b.pickup_location || ''}</small>`;
+
+        const dateDesc = type === 'accommodation'
+          ? `<span>${formatDate(b.check_in)} → ${formatDate(b.check_out)}</span><br><small class="text-muted">${b.nights} Night(s) • ${b.guests} Guests</small>`
+          : `<span>${formatDate(b.travel_date)}</span><br><small class="text-muted">${b.passengers || 1} Pax</small>`;
+
+        return `
+          <tr>
+            <td>
+              <span class="fw-bold text-dark">${b.booking_id}</span>
+              <div class="small text-muted">${formatDate(b.created_at)}</div>
+            </td>
+            <td>
+              <div class="fw-semibold">${b.customer_name}</div>
+              <div class="small text-muted"><i class="bi bi-telephone me-1"></i>${b.mobile}</div>
+            </td>
+            <td>${roomDesc}</td>
+            <td>${dateDesc}</td>
+            <td>
+              <div class="fw-bold">${formatINR(b.estimated_amount)}</div>
+              <div class="small text-success">Paid: ${formatINR(b.amount_paid)}</div>
+              <div class="small text-danger">Bal: ${formatINR(b.balance_amount)}</div>
+            </td>
+            <td>
+              <div class="mb-1">${getStatusBadge(b.booking_status)}</div>
+              <div>${getStatusBadge(b.payment_status)}</div>
+            </td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-admin-primary" onclick="openBookingModal('${b.id}')">
+                <i class="bi bi-sliders me-1"></i> Manage
+              </button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function openBookingModal(bookingUuid) {
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const b = currentBookings.find(item => item.id === bookingUuid);
+      if (!b) return;
+
+      document.getElementById('modalBookingCode').textContent = b.booking_id;
+
+      // Load payment transactions & invoices for this booking
+      const [{ data: txns }, { data: invs }] = await Promise.all([
+        sb.from('payment_transactions').select('*').eq('booking_code', b.booking_id).order('created_at', { ascending: false }),
+        sb.from('invoices').select('*').eq('booking_code', b.booking_id).order('created_at', { ascending: false })
+      ]);
+
+      const paymentRows = (txns || []).length === 0
+        ? '<p class="text-muted small mb-0">No manual payments recorded yet.</p>'
+        : `<table class="table table-sm table-bordered mt-2 mb-0">
+            <thead class="table-light"><tr><th>TXN ID</th><th>Method</th><th>Ref / UTR</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+              ${txns.map(t => `
+                <tr>
+                  <td class="small fw-bold">${t.transaction_id}</td>
+                  <td class="small">${t.payment_method}</td>
+                  <td class="small">${t.transaction_reference || '—'}</td>
+                  <td class="small fw-bold text-success">${formatINR(t.amount)}</td>
+                  <td>${getStatusBadge(t.status)}</td>
+                  <td>
+                    ${t.status === 'Pending Verification'
+                      ? `<button class="btn btn-xs btn-success py-0 px-2 small" onclick="verifyPayment('${t.id}', '${b.id}', ${t.amount})">Verify</button>`
+                      : '<span class="small text-muted">Done</span>'}
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+           </table>`;
+
+      const availableRoomsOptions = allRooms
+        .filter(r => r.status === 'Available' || r.room_number === b.allocated_room_number)
+        .map(r => `<option value="${r.id}" data-num="${r.room_number}" ${r.room_number === b.allocated_room_number ? 'selected' : ''}>Room ${r.room_number} – ${r.category_name} (${r.bed_type})</option>`)
+        .join('');
+
+      const existingInvoice = invs && invs[0];
+
+      document.getElementById('bookingModalBody').innerHTML = `
+        <div class="row g-4">
+          <!-- Left Column: Info & Workflow Steps -->
+          <div class="col-lg-7">
+            <div class="p-3 bg-light rounded-3 border mb-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="fw-bold text-maroon mb-1">${b.customer_name}</h6>
+                  <div class="small text-muted"><i class="bi bi-telephone me-1"></i>${b.mobile} &nbsp;|&nbsp; <i class="bi bi-envelope me-1"></i>${b.email || 'N/A'}</div>
+                </div>
+                <div class="text-end">
+                  ${getStatusBadge(b.booking_status)}
+                  <div class="mt-1">${getStatusBadge(b.payment_status)}</div>
+                </div>
+              </div>
+              <hr class="my-2">
+              <div class="row g-2 small">
+                <div class="col-6"><strong>Category:</strong> ${b.category_name || b.service_title}</div>
+                <div class="col-6"><strong>Allocated Room:</strong> ${b.allocated_room_number ? '<span class="badge bg-success">Room ' + b.allocated_room_number + '</span>' : '<span class="text-danger">Not Allocated Yet</span>'}</div>
+                ${type === 'accommodation' ? `
+                <div class="col-6"><strong>Check-in:</strong> ${formatDate(b.check_in)}</div>
+                <div class="col-6"><strong>Check-out:</strong> ${formatDate(b.check_out)} (${b.nights} Nights)</div>
+                <div class="col-6"><strong>Guests:</strong> ${b.guests} Persons</div>
+                ` : `
+                <div class="col-6"><strong>Travel Date:</strong> ${formatDate(b.travel_date)}</div>
+                <div class="col-6"><strong>Pickup:</strong> ${b.pickup_location || 'Tiruvannamalai'}</div>
+                `}
+                <div class="col-12"><strong>Special Notes:</strong> ${b.special_requirements || b.special_requests || 'None'}</div>
+              </div>
+            </div>
+
+            <!-- Step 1: WhatsApp Payment Instructions -->
+            <div class="card border-0 shadow-sm mb-3">
+              <div class="card-header bg-white fw-bold small d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-1-circle-fill text-warning me-1"></i> Step 1: Share Payment Instructions (Manual)</span>
+                <button class="btn btn-sm btn-admin-whatsapp" onclick="sendPaymentInstructionsWA('${b.id}')">
+                  <i class="bi bi-whatsapp me-1"></i> Send Payment Instructions
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Record Manual Payment -->
+            <div class="card border-0 shadow-sm mb-3">
+              <div class="card-header bg-white fw-bold small">
+                <i class="bi bi-2-circle-fill text-warning me-1"></i> Step 2: Record & Verify Manual Payment (NO Gateway)
+              </div>
+              <div class="card-body">
+                <form onsubmit="recordPaymentSubmit(event, '${b.id}', '${b.booking_id}', '${b.customer_name}')">
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <input type="number" step="0.01" id="payAmount" class="form-control form-control-sm" placeholder="Amount (₹)" value="${b.balance_amount || b.estimated_amount}" required>
+                    </div>
+                    <div class="col-md-4">
+                      <select id="payMethod" class="form-select form-select-sm">
+                        <option value="UPI">UPI (GPay / PhonePe)</option>
+                        <option value="Bank Transfer">Bank Transfer (NEFT/IMPS)</option>
+                        <option value="Cash">Cash at Desk</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <input type="text" id="payRef" class="form-control form-control-sm" placeholder="UTR / Ref Number" required>
+                    </div>
+                    <div class="col-md-8">
+                      <input type="text" id="payNotes" class="form-control form-control-sm" placeholder="Internal notes (e.g. Verified in SBI account)">
+                    </div>
+                    <div class="col-md-4">
+                      <button type="submit" class="btn btn-sm btn-admin-primary w-100">Record Payment</button>
+                    </div>
+                  </div>
+                </form>
+                <div class="mt-3">
+                  <div class="small fw-bold text-muted mb-1">Recorded Payment History:</div>
+                  ${paymentRows}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Financials, Confirmation & Invoice -->
+          <div class="col-lg-5">
+            <!-- Financial Summary -->
+            <div class="p-3 rounded-3 mb-3" style="background: #FFC908; color: #45120E; border: 1px solid rgba(69,18,14,0.18);">
+              <div class="d-flex justify-content-between mb-1 small"><span>Total Estimated:</span><span class="fw-bold">${formatINR(b.estimated_amount)}</span></div>
+              <div class="d-flex justify-content-between mb-1 small text-success fw-semibold"><span>Verified Paid:</span><span class="fw-bold">${formatINR(b.amount_paid)}</span></div>
+              <hr class="my-2" style="border-color: rgba(69,18,14,0.25);">
+              <div class="d-flex justify-content-between fs-6 fw-bold"><span>Balance Remaining:</span><span>${formatINR(b.balance_amount)}</span></div>
+            </div>
+
+            <!-- Step 3: Allocate Room & Confirm Booking -->
+            <div class="card border-0 shadow-sm mb-3">
+              <div class="card-header bg-white fw-bold small">
+                <i class="bi bi-3-circle-fill text-success me-1"></i> Step 3: Confirm Booking & Allocate Room
+              </div>
+              <div class="card-body">
+                ${type === 'accommodation' ? `
+                <label class="form-label small fw-bold">Assign Physical Room (17-Room Registry)</label>
+                <select id="confirmRoomSelect" class="form-select form-select-sm mb-3">
+                  <option value="">-- Select Physical Room --</option>
+                  ${availableRoomsOptions}
+                </select>` : ''}
+                <div class="d-grid gap-2">
+                  <button class="btn btn-success fw-bold" onclick="confirmBookingAction('${b.id}')">
+                    <i class="bi bi-check-circle-fill me-1"></i> Confirm Booking & Send WhatsApp
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm" onclick="cancelBookingAction('${b.id}')">
+                    <i class="bi bi-x-circle me-1"></i> Cancel Booking
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Invoice Generation & WhatsApp Delivery -->
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white fw-bold small">
+                <i class="bi bi-4-circle-fill text-primary me-1"></i> Step 4: PDF Invoice & WhatsApp Share
+              </div>
+              <div class="card-body">
+                ${existingInvoice ? `
+                  <div class="alert alert-success py-2 small mb-2">
+                    <strong>Invoice Issued:</strong> ${existingInvoice.invoice_number}<br>
+                    Issued on ${formatDate(existingInvoice.invoice_date)}
+                  </div>
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-admin-yellow btn-sm" onclick="downloadExistingInvoice('${existingInvoice.id}')">
+                      <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Branded PDF
+                    </button>
+                    <button class="btn btn-admin-whatsapp btn-sm" onclick="shareInvoiceViaWA('${existingInvoice.id}')">
+                      <i class="bi bi-whatsapp me-1"></i> Send Invoice via WhatsApp
+                    </button>
+                  </div>
+                ` : `
+                  <p class="small text-muted mb-2">Generate a sequential invoice (ARN-INV-2026-XXXXX) once booking is verified.</p>
+                  <button class="btn btn-admin-primary btn-sm w-100" onclick="generateInvoiceForBooking('${b.id}')">
+                    <i class="bi bi-receipt me-1"></i> Generate Sequential Invoice
+                  </button>
+                `}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const modal = new bootstrap.Modal(document.getElementById('bookingActionModal'));
+      modal.show();
+    }
+
+    async function sendPaymentInstructionsWA(bookingUuid) {
+      const b = currentBookings.find(x => x.id === bookingUuid);
+      if (!b) return;
+      const type = document.getElementById('filterType').value;
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+
+      const adv = Math.round((Number(b.estimated_amount) || 0) * 0.5) || b.estimated_amount;
+      const msg = `Namaste ${b.customer_name},\nGreetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.\n\nRegarding your booking *${b.booking_id}*:\nTotal Estimated: ${formatINR(b.estimated_amount)}\nSuggested Advance: ${formatINR(adv)}\n\nPlease transfer via UPI / Bank Transfer:\n*UPI / GPay / PhonePe:* 9010515341\n*Name:* Arunachaleshwara Tours & Travels\n\nOnce paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!`;
+
+      // Update status to Awaiting Payment
+      await window.adminSupabase.from(table).update({
+        booking_status: b.booking_status === 'Pending Request' ? 'Awaiting Payment' : b.booking_status,
+        payment_status: b.payment_status === 'Not Paid' ? 'Payment Instructions Sent' : b.payment_status
+      }).eq('id', b.id);
+
+      await logAdminActivity('SEND_PAYMENT_INSTRUCTIONS', table, b.booking_id);
+      await openWhatsAppShare(b.whatsapp_number || b.mobile, msg, b.booking_id, 'Payment Instructions');
+      await loadBookings();
+    }
+
+    async function recordPaymentSubmit(e, bookingUuid, bookingCode, customerName) {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const amount = parseFloat(document.getElementById('payAmount').value);
+      const method = document.getElementById('payMethod').value;
+      const ref = document.getElementById('payRef').value.trim();
+      const notes = document.getElementById('payNotes').value.trim();
+
+      const { error } = await sb.from('payment_transactions').insert([{
+        booking_id: bookingUuid,
+        booking_code: bookingCode,
+        booking_type: type,
+        customer_name: customerName,
+        amount: amount,
+        payment_method: method,
+        transaction_reference: ref,
+        notes: notes,
+        status: 'Pending Verification',
+        recorded_by: window.CURRENT_ADMIN_USER.id
+      }]);
+
+      if (error) {
+        showAdminToast('Error recording payment: ' + error.message, 'error');
+        return;
+      }
+
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+      await sb.from(table).update({ payment_status: 'Verification Pending', booking_status: 'Payment Verification' }).eq('id', bookingUuid);
+      await logAdminActivity('RECORD_MANUAL_PAYMENT', 'payment_transactions', bookingCode, { amount, method, ref });
+
+      showAdminToast('Manual payment recorded! Please click Verify after checking bank/UPI.', 'success');
+      await loadBookings();
+      bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+      setTimeout(() => openBookingModal(bookingUuid), 350);
+    }
+
+    async function verifyPayment(txnId, bookingUuid, amount) {
+      if (!confirm(`Confirm you have independently verified receipt of ${formatINR(amount)} in bank/UPI?`)) return;
+
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+
+      // Mark transaction verified
+      const { error } = await sb.from('payment_transactions').update({
+        status: 'Verified',
+        verified_by: window.CURRENT_ADMIN_USER.id,
+        verified_at: new Date().toISOString()
+      }).eq('id', txnId);
+
+      if (error) {
+        showAdminToast('Verification error: ' + error.message, 'error');
+        return;
+      }
+
+      // Recalculate total verified paid for this booking
+      const b = currentBookings.find(x => x.id === bookingUuid);
+      const { data: allTxns } = await sb.from('payment_transactions').select('amount, status').eq('booking_code', b.booking_id);
+      const totalVerified = (allTxns || []).filter(t => t.status === 'Verified').reduce((s, t) => s + Number(t.amount), 0);
+      const est = Number(b.estimated_amount || 0);
+      const balance = Math.max(0, est - totalVerified);
+      const newPayStatus = balance <= 0 ? 'Fully Paid' : 'Partially Paid';
+
+      await sb.from(table).update({
+        amount_paid: totalVerified,
+        balance_amount: balance,
+        payment_status: newPayStatus
+      }).eq('id', bookingUuid);
+
+      await logAdminActivity('VERIFY_MANUAL_PAYMENT', 'payment_transactions', txnId, { booking: b.booking_id, amount });
+      showAdminToast('Payment verified and booking ledger updated!', 'success');
+
+      await loadBookings();
+      bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+      setTimeout(() => openBookingModal(bookingUuid), 350);
+    }
+
+    async function confirmBookingAction(bookingUuid) {
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+      const b = currentBookings.find(x => x.id === bookingUuid);
+
+      let roomId = null;
+      let roomNumber = null;
+
+      if (type === 'accommodation') {
+        const roomSelect = document.getElementById('confirmRoomSelect');
+        roomId = roomSelect.value;
+        if (!roomId) {
+          alert('Please select a physical room from the 17-room registry before confirming.');
+          return;
+        }
+        roomNumber = roomSelect.options[roomSelect.selectedIndex].dataset.num;
+
+        // Check for overlapping confirmed bookings on this exact physical room
+        const { data: conflicts } = await sb.from('accommodation_bookings')
+          .select('booking_id, check_in, check_out')
+          .eq('room_id', roomId)
+          .in('booking_status', ['Confirmed', 'Checked In'])
+          .neq('id', bookingUuid)
+          .lt('check_in', b.check_out)
+          .gt('check_out', b.check_in);
+
+        if (conflicts && conflicts.length > 0) {
+          alert(`ROOM CONFLICT! Room ${roomNumber} is already allocated to booking ${conflicts[0].booking_id} during these dates. Please choose another room.`);
+          return;
+        }
+      }
+
+      const updatePayload = {
+        booking_status: 'Confirmed',
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: window.CURRENT_ADMIN_USER.id
+      };
+
+      if (type === 'accommodation') {
+        updatePayload.room_id = roomId;
+        updatePayload.allocated_room_number = roomNumber;
+      }
+
+      const { error } = await sb.from(table).update(updatePayload).eq('id', bookingUuid);
+      if (error) {
+        showAdminToast('Confirmation failed: ' + error.message, 'error');
+        return;
+      }
+
+      if (type === 'accommodation' && roomId) {
+        await sb.from('booking_room_allocations').insert([{
+          booking_id: bookingUuid,
+          room_id: roomId,
+          allocated_by: window.CURRENT_ADMIN_USER.id
+        }]);
+      }
+
+      await logAdminActivity('CONFIRM_BOOKING', table, b.booking_id, { allocated_room: roomNumber });
+      showAdminToast(`Booking ${b.booking_id} CONFIRMED!`, 'success');
+
+      // Send WhatsApp Confirmation
+      const msg = `*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*\n\nNamaste ${b.customer_name},\nYour booking has been officially CONFIRMED!\n\n*Booking ID:* ${b.booking_id}\n` +
+        (roomNumber ? `*Allocated Room:* Room ${roomNumber} (${b.category_name})\n*Check-in:* ${formatDate(b.check_in)}\n*Check-out:* ${formatDate(b.check_out)}\n` : `*Service:* ${b.service_title}\n`) +
+        `*Amount Paid:* ${formatINR(b.amount_paid)}\n*Balance Due:* ${formatINR(b.balance_amount)}\n\nLocation: Avulpet Bypass, Tiruvannamalai.\nWe look forward to serving you. Om Namah Shivaya!`;
+
+      await openWhatsAppShare(b.whatsapp_number || b.mobile, msg, b.booking_id, 'Booking Confirmation');
+      await loadBookings();
+      bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+    }
+
+    async function cancelBookingAction(bookingUuid) {
+      const reason = prompt('Enter reason for cancellation:');
+      if (!reason) return;
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+      const b = currentBookings.find(x => x.id === bookingUuid);
+
+      await sb.from(table).update({ booking_status: 'Cancelled', notes: (b.notes ? b.notes + ' | ' : '') + 'Cancelled: ' + reason }).eq('id', bookingUuid);
+      await logAdminActivity('CANCEL_BOOKING', table, b.booking_id, { reason });
+
+      showAdminToast('Booking marked as Cancelled.', 'warning');
+      await loadBookings();
+      bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+    }
+
+    async function generateInvoiceForBooking(bookingUuid) {
+      const sb = window.adminSupabase;
+      const type = document.getElementById('filterType').value;
+      const b = currentBookings.find(x => x.id === bookingUuid);
+
+      // Prefer server-side Supabase Edge Function (atomic invoice + line items + audit log)
+      const { data: fnData, error: fnErr } = await sb.functions.invoke('generate-invoice', {
+        body: { booking_id: b.id, booking_type: type }
+      });
+
+      if (!fnErr && fnData?.success && fnData.invoice) {
+        showAdminToast(`Invoice ${fnData.invoice.invoice_number} generated!`, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+        setTimeout(() => openBookingModal(bookingUuid), 350);
+        return;
+      }
+
+      // Graceful fallback if Edge Function is unavailable
+      const { data: txns } = await sb.from('payment_transactions').select('*').eq('booking_code', b.booking_id).eq('status', 'Verified');
+      const lastTxn = txns && txns[0];
+
+      const { data: inv, error } = await sb.from('invoices').insert([{
+        booking_id: b.id,
+        booking_code: b.booking_id,
+        booking_type: type,
+        customer_name: b.customer_name,
+        customer_mobile: b.mobile,
+        customer_email: b.email,
+        service_description: type === 'accommodation'
+          ? `${b.category_name} – ${b.nights} Night(s) (${formatDate(b.check_in)} to ${formatDate(b.check_out)})`
+          : `${b.service_title}`,
+        check_in: b.check_in || null,
+        check_out: b.check_out || null,
+        room_details: b.allocated_room_number ? `Room ${b.allocated_room_number} (${b.category_name})` : (b.category_name || b.service_title),
+        subtotal: b.estimated_amount || 0,
+        discount: 0,
+        tax_amount: 0,
+        total_amount: b.estimated_amount || 0,
+        amount_received: b.amount_paid || 0,
+        balance_due: b.balance_amount || 0,
+        payment_status: b.payment_status,
+        payment_method: lastTxn ? lastTxn.payment_method : 'Manual Transfer',
+        transaction_reference: lastTxn ? lastTxn.transaction_reference : 'Verified',
+        created_by: window.CURRENT_ADMIN_USER.id
+      }]).select().single();
+
+      if (error) {
+        showAdminToast('Invoice generation error: ' + error.message, 'error');
+        return;
+      }
+
+      await logAdminActivity('GENERATE_INVOICE', 'invoices', inv.invoice_number, { booking: b.booking_id });
+      showAdminToast(`Invoice ${inv.invoice_number} generated!`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('bookingActionModal')).hide();
+      setTimeout(() => openBookingModal(bookingUuid), 350);
+    }
+
+    async function downloadExistingInvoice(invoiceId) {
+      const sb = window.adminSupabase;
+      const [{ data: inv }, { data: settings }] = await Promise.all([
+        sb.from('invoices').select('*').eq('id', invoiceId).single(),
+        sb.from('website_settings').select('value').eq('key', 'invoice_settings').maybeSingle()
+      ]);
+      if (inv) {
+        generateInvoicePDF(inv, settings ? settings.value : null);
+      }
+    }
+
+    async function shareInvoiceViaWA(invoiceId) {
+      const sb = window.adminSupabase;
+      const { data: inv } = await sb.from('invoices').select('*').eq('id', invoiceId).single();
+      if (!inv) return;
+
+      const msg = `Dear ${inv.customer_name},\nThank you for choosing Arunachaleshwara Tours & Travels.\n\nYour booking has been confirmed.\n*Booking ID:* ${inv.booking_code}\n*Invoice Number:* ${inv.invoice_number}\n*Total Amount:* ${formatINR(inv.total_amount)}\n*Amount Paid:* ${formatINR(inv.amount_received)}\n*Balance Due:* ${formatINR(inv.balance_due)}\n\nPlease reply if you need the PDF copy re-attached. Om Namah Shivaya!`;
+      await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
+    }
+
+    // Walk-in Booking Submission
+    document.getElementById('walkinBookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const catSelect = document.getElementById('wCategory');
+      const opt = catSelect.options[catSelect.selectedIndex];
+      const checkIn = document.getElementById('wCheckIn').value;
+      const checkOut = document.getElementById('wCheckOut').value;
+      const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
+      const price = parseFloat(opt.dataset.price || 1200);
+      const total = nights * price;
+
+      const { data, error } = await sb.from('accommodation_bookings').insert([{
+        customer_name: document.getElementById('wName').value.trim(),
+        mobile: document.getElementById('wMobile').value.trim(),
+        whatsapp_number: document.getElementById('wMobile').value.trim(),
+        email: document.getElementById('wEmail').value.trim() || null,
+        category_id: catSelect.value,
+        category_name: opt.dataset.name,
+        check_in: checkIn,
+        check_out: checkOut,
+        nights: nights,
+        guests: parseInt(document.getElementById('wGuests').value) || 2,
+        estimated_amount: total,
+        balance_amount: total,
+        special_requirements: document.getElementById('wNotes').value.trim()
+      }]).select().single();
+
+      if (error) {
+        showAdminToast('Error creating booking: ' + error.message, 'error');
+        return;
+      }
+
+      // Upsert customer
+      await sb.from('customers').upsert({
+        full_name: data.customer_name,
+        mobile: data.mobile,
+        whatsapp_number: data.whatsapp_number,
+        email: data.email
+      }, { onConflict: 'mobile' });
+
+      await logAdminActivity('CREATE_WALKIN_BOOKING', 'accommodation_bookings', data.booking_id);
+      showAdminToast(`Booking ${data.booking_id} created!`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
+      e.target.reset();
+      await loadBookings();
+    });
+  </script>
+</body>
+</html>
+

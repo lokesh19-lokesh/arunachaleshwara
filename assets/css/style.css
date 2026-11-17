@@ -446,19 +446,35 @@ header.scrolled .top-bar,
 .top-bar .top-info {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  gap: 1.25rem;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .top-bar .top-info-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.top-bar .top-info-location {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.top-bar .top-info-location span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .top-bar .top-info-item i {
   color: var(--clr-gold);
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .top-bar .social-links {

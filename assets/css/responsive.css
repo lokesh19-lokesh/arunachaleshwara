@@ -210,8 +210,10 @@
 
   .top-bar .top-info {
     justify-content: center;
-    gap: 0.4rem 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
     font-size: 0.75rem;
+    width: 100%;
   }
 
   .top-bar .top-info .d-none-mobile {

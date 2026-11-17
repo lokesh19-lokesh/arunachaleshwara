@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Operations – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="row g-4">
+          <!-- Confirmed Arrivals Ready for Check-In -->
+          <div class="col-lg-6">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-box-arrow-in-right text-success"></i> Confirmed Arrivals (Check-In Queue)</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Room / Booking</th><th>Guest</th><th>Dates</th><th class="text-end">Action</th></tr></thead>
+                  <tbody id="checkinQueueBody"><tr><td colspan="4" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Currently Occupied Rooms (Check-Out Queue) -->
+          <div class="col-lg-6">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-door-open-fill text-primary"></i> Currently Occupied Rooms (Check-Out)</h6>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead><tr><th>Room / Booking</th><th>Guest</th><th>Check-Out</th><th class="text-end">Action</th></tr></thead>
+                  <tbody id="occupiedQueueBody"><tr><td colspan="4" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      renderAdminSidebar('operations');
+      renderAdminHeader('Room Operations Desk', 'Check-Ins & Check-Outs');
+      loadOperations();
+    });
+
+    async function loadOperations() {
+      const sb = window.adminSupabase;
+      const { data: confirmed } = await sb.from('accommodation_bookings').select('*').eq('booking_status', 'Confirmed').order('check_in');
+      const { data: checkedIn } = await sb.from('accommodation_bookings').select('*').eq('booking_status', 'Checked In').order('check_out');
+
+      const inBody = document.getElementById('checkinQueueBody');
+      if (!confirmed || confirmed.length === 0) {
+        inBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No confirmed arrivals awaiting check-in.</td></tr>';
+      } else {
+        inBody.innerHTML = confirmed.map(b => `
+          <tr>
+            <td><span class="badge bg-dark">Room ${b.allocated_room_number || 'TBD'}</span><div class="small fw-bold">${b.booking_id}</div></td>
+            <td><div class="fw-semibold">${b.customer_name}</div><small class="text-muted">${b.mobile}</small></td>
+            <td class="small">${formatDate(b.check_in)} → ${formatDate(b.check_out)}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-success" onclick="markCheckedIn('${b.id}', '${b.room_id}', '${b.booking_id}')">
+                <i class="bi bi-check2-circle"></i> Check In
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      const outBody = document.getElementById('occupiedQueueBody');
+      if (!checkedIn || checkedIn.length === 0) {
+        outBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No rooms currently occupied.</td></tr>';
+      } else {
+        outBody.innerHTML = checkedIn.map(b => `
+          <tr>
+            <td><span class="badge bg-primary">Room ${b.allocated_room_number || 'N/A'}</span><div class="small fw-bold">${b.booking_id}</div></td>
+            <td><div class="fw-semibold">${b.customer_name}</div><small class="text-muted">Bal: ${formatINR(b.balance_amount)}</small></td>
+            <td class="small">${formatDate(b.check_out)}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger" onclick="markCheckedOut('${b.id}', '${b.room_id}', '${b.booking_id}')">
+                <i class="bi bi-box-arrow-right"></i> Check Out
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    async function markCheckedIn(bookingId, roomId, code) {
+      if (!confirm(`Confirm Guest Check-In for ${code}?`)) return;
+      const sb = window.adminSupabase;
+      await sb.from('accommodation_bookings').update({ booking_status: 'Checked In', checked_in_at: new Date().toISOString() }).eq('id', bookingId);
+      if (roomId && roomId !== 'null') {
+        await sb.from('accommodation_rooms').update({ status: 'Occupied' }).eq('id', roomId);
+      }
+      await logAdminActivity('CHECK_IN', 'accommodation_bookings', code);
+      showAdminToast('Guest checked in & room marked Occupied!', 'success');
+      loadOperations();
+    }
+
+    async function markCheckedOut(bookingId, roomId, code) {
+      if (!confirm(`Confirm Guest Check-Out for ${code}? Room will become Available.`)) return;
+      const sb = window.adminSupabase;
+      await sb.from('accommodation_bookings').update({ booking_status: 'Checked Out', checked_out_at: new Date().toISOString() }).eq('id', bookingId);
+      if (roomId && roomId !== 'null') {
+        await sb.from('accommodation_rooms').update({ status: 'Available' }).eq('id', roomId);
+      }
+      await logAdminActivity('CHECK_OUT', 'accommodation_bookings', code);
+      showAdminToast('Guest checked out & room returned to Available pool!', 'success');
+      loadOperations();
+    }
+  </script>
+</body>
+</html>
+

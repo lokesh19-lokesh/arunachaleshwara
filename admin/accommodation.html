@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accommodation Management – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+
+      <div class="admin-content">
+        <ul class="nav nav-tabs mb-4" id="accTabs">
+          <li class="nav-item">
+            <button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#roomsTab">
+              <i class="bi bi-door-closed-fill me-1 text-warning"></i> Physical Rooms Inventory (17)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#categoriesTab">
+              <i class="bi bi-tags-fill me-1 text-warning"></i> Room Categories & Pricing
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Tab 1: Physical Rooms -->
+          <div class="tab-pane fade show active" id="roomsTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-building-fill text-warning"></i> All Physical Rooms Registry</h6>
+                <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+                  <i class="bi bi-plus-lg me-1"></i> Add New Room
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table">
+                  <thead>
+                    <tr>
+                      <th>Room No.</th>
+                      <th>Category</th>
+                      <th>Floor</th>
+                      <th>Bed Configuration</th>
+                      <th>Capacity</th>
+                      <th>Base Price / Night</th>
+                      <th>Status</th>
+                      <th class="text-end">Quick Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="roomsTableBody">
+                    <tr><td colspan="8" class="text-center py-4 text-muted">Loading rooms...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Room Categories -->
+          <div class="tab-pane fade" id="categoriesTab">
+            <div class="row g-4" id="categoriesGrid">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Room Modal -->
+  <div class="modal fade" id="addRoomModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="roomModalTitle">Add Physical Room</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="roomForm">
+            <input type="hidden" id="editRoomId">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Room Number *</label>
+              <input type="text" id="rNumber" class="form-control" placeholder="e.g. 202" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Category *</label>
+              <select id="rCategory" class="form-select" required></select>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Floor</label>
+                <input type="text" id="rFloor" class="form-control" value="2nd Floor">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Bed Type</label>
+                <input type="text" id="rBed" class="form-control" value="1 Double Bed">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Max Guests</label>
+                <input type="number" id="rGuests" class="form-control" value="2" min="1">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Price / Night (₹)</label>
+                <input type="number" id="rPrice" class="form-control" value="1500">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Room Status</label>
+              <select id="rStatus" class="form-select">
+                <option value="Available">Available</option>
+                <option value="Occupied">Occupied</option>
+                <option value="Maintenance">Under Maintenance</option>
+                <option value="Blocked">Blocked</option>
+              </select>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Room</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    let categoriesList = [];
+    let roomsList = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      if (!canAccessModule('accommodation')) {
+        alert('Permission denied.');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      renderAdminSidebar('accommodation');
+      renderAdminHeader('Accommodation Management', 'Room Inventory & Categories');
+      await loadData();
+    });
+
+    async function loadData() {
+      const sb = window.adminSupabase;
+      const [{ data: cats }, { data: rooms }] = await Promise.all([
+        sb.from('accommodation_categories').select('*').order('order_num'),
+        sb.from('accommodation_rooms').select('*').order('room_number')
+      ]);
+
+      categoriesList = cats || [];
+      roomsList = rooms || [];
+
+      // Populate modal category dropdown
+      document.getElementById('rCategory').innerHTML = categoriesList.map(c =>
+        `<option value="${c.id}" data-name="${c.name}" data-price="${c.base_price}">${c.name}</option>`
+      ).join('');
+
+      // Render Rooms Table
+      const tbody = document.getElementById('roomsTableBody');
+      tbody.innerHTML = roomsList.map(r => `
+        <tr>
+          <td><span class="badge bg-dark fs-6 px-3 py-2">Room ${r.room_number}</span></td>
+          <td class="fw-bold text-maroon">${r.category_name || 'Standard'}</td>
+          <td>${r.floor || '1st Floor'}</td>
+          <td>${r.bed_type}</td>
+          <td><i class="bi bi-people me-1"></i>Up to ${r.max_guests}</td>
+          <td class="fw-bold text-success">${formatINR(r.base_price)}</td>
+          <td>${getStatusBadge(r.status)}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" onclick="editRoom('${r.id}')" title="Edit"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-warning" onclick="toggleRoomStatus('${r.id}', '${r.status === 'Maintenance' ? 'Available' : 'Maintenance'}')" title="Toggle Maintenance">
+                <i class="bi bi-tools"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Render Categories Grid
+      const cGrid = document.getElementById('categoriesGrid');
+      cGrid.innerHTML = categoriesList.map(c => {
+        const count = roomsList.filter(r => r.category_id === c.id).length;
+        return `
+        <div class="col-md-4">
+          <div class="admin-card h-100 overflow-hidden">
+            <img src="../${c.image || 'assets/images/services/Accommodation.png'}" style="height: 180px; width: 100%; object-fit: cover;">
+            <div class="admin-card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold text-maroon mb-0">${c.name}</h6>
+                <span class="badge bg-warning text-dark">${count} Rooms</span>
+              </div>
+              <p class="small text-muted mb-3">${c.short_desc}</p>
+              <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                <span class="fs-5 fw-bold text-success">${formatINR(c.base_price)} <small class="text-muted fs-6">/night</small></span>
+                <button class="btn btn-sm btn-outline-primary" onclick="updateCategoryPrice('${c.id}', '${c.name}', ${c.base_price})">Update Price</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function editRoom(id) {
+      const r = roomsList.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('roomModalTitle').textContent = 'Edit Room ' + r.room_number;
+      document.getElementById('editRoomId').value = r.id;
+      document.getElementById('rNumber').value = r.room_number;
+      document.getElementById('rCategory').value = r.category_id || '';
+      document.getElementById('rFloor').value = r.floor || '';
+      document.getElementById('rBed').value = r.bed_type || '';
+      document.getElementById('rGuests').value = r.max_guests || 2;
+      document.getElementById('rPrice').value = r.base_price || 1200;
+      document.getElementById('rStatus').value = r.status || 'Available';
+      new bootstrap.Modal(document.getElementById('addRoomModal')).show();
+    }
+
+    async function toggleRoomStatus(id, newStatus) {
+      await window.adminSupabase.from('accommodation_rooms').update({ status: newStatus }).eq('id', id);
+      await logAdminActivity('UPDATE_ROOM_STATUS', 'accommodation_rooms', id, { status: newStatus });
+      showAdminToast(`Room status updated to ${newStatus}`, 'success');
+      await loadData();
+    }
+
+    async function updateCategoryPrice(id, name, currentPrice) {
+      const val = prompt(`Enter new base price per night (₹) for "${name}":`, currentPrice);
+      if (!val || isNaN(val)) return;
+      await window.adminSupabase.from('accommodation_categories').update({ base_price: parseFloat(val) }).eq('id', id);
+      await window.adminSupabase.from('accommodation_rooms').update({ base_price: parseFloat(val) }).eq('category_id', id);
+      await logAdminActivity('UPDATE_CATEGORY_PRICE', 'accommodation_categories', name, { price: val });
+      showAdminToast('Category & room prices updated!', 'success');
+      await loadData();
+    }
+
+    document.getElementById('roomForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const editId = document.getElementById('editRoomId').value;
+      const catSel = document.getElementById('rCategory');
+      const catName = catSel.options[catSel.selectedIndex]?.dataset?.name || 'Standard';
+
+      const payload = {
+        room_number: document.getElementById('rNumber').value.trim(),
+        category_id: catSel.value || null,
+        category_name: catName,
+        floor: document.getElementById('rFloor').value.trim(),
+        bed_type: document.getElementById('rBed').value.trim(),
+        max_guests: parseInt(document.getElementById('rGuests').value) || 2,
+        base_price: parseFloat(document.getElementById('rPrice').value) || 1200,
+        status: document.getElementById('rStatus').value
+      };
+
+      let err;
+      if (editId) {
+        ({ error: err } = await sb.from('accommodation_rooms').update(payload).eq('id', editId));
+      } else {
+        ({ error: err } = await sb.from('accommodation_rooms').insert([payload]));
+      }
+
+      if (err) {
+        showAdminToast('Error saving room: ' + err.message, 'error');
+        return;
+      }
+
+      await logAdminActivity(editId ? 'EDIT_ROOM' : 'ADD_ROOM', 'accommodation_rooms', payload.room_number);
+      showAdminToast('Room saved successfully!', 'success');
+      bootstrap.Modal.getInstance(document.getElementById('addRoomModal')).hide();
+      e.target.reset();
+      document.getElementById('editRoomId').value = '';
+      await loadData();
+    });
+  </script>
+</body>
+</html>
+

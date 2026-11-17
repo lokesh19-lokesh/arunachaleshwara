@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h6 class="admin-card-title"><i class="bi bi-people-fill text-warning"></i> Registered Customers & Devotees</h6>
+            <input type="text" id="custSearch" class="form-control form-control-sm w-auto" placeholder="Search name or mobile..." oninput="filterCustomers()">
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Mobile / WhatsApp</th>
+                  <th>Email</th>
+                  <th>Registered On</th>
+                  <th>Status</th>
+                  <th class="text-end">Contact</th>
+                </tr>
+              </thead>
+              <tbody id="customersBody"><tr><td colspan="6" class="text-center py-4 text-muted">Loading customers...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    let allCustomers = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      renderAdminSidebar('customers');
+      renderAdminHeader('Customer Directory', 'Devotee Profiles & History');
+      await loadCustomers();
+    });
+
+    async function loadCustomers() {
+      const { data } = await window.adminSupabase.from('customers').select('*').order('created_at', { ascending: false });
+      allCustomers = data || [];
+      renderRows(allCustomers);
+    }
+
+    function filterCustomers() {
+      const term = document.getElementById('custSearch').value.toLowerCase();
+      const filtered = allCustomers.filter(c =>
+        (c.full_name || '').toLowerCase().includes(term) ||
+        (c.mobile || '').toLowerCase().includes(term) ||
+        (c.email || '').toLowerCase().includes(term)
+      );
+      renderRows(filtered);
+    }
+
+    function renderRows(list) {
+      const tbody = document.getElementById('customersBody');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No customer records found yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(c => `
+        <tr>
+          <td class="fw-bold text-dark">${c.full_name}</td>
+          <td>${c.mobile}</td>
+          <td class="small text-muted">${c.email || '—'}</td>
+          <td class="small">${formatDate(c.created_at)}</td>
+          <td>${getStatusBadge(c.status || 'Active')}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-admin-whatsapp" onclick="openWhatsAppShare('${c.whatsapp_number || c.mobile}', 'Namaste ${c.full_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?', null, 'Customer Outreach')">
+              <i class="bi bi-whatsapp"></i> Chat
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
+

@@ -17,6 +17,7 @@ const NAV_CONFIG = {
 const NAV_LINKS = [
   { text: 'Home', href: 'index.html', id: 'home' },
   { text: 'About Us', href: 'about.html', id: 'about' },
+  { text: 'Accommodation', href: 'accommodation.html', id: 'accommodation' },
   { text: 'Services', href: 'services.html', id: 'services' },
   { text: 'Tour Packages', href: 'tour-packages.html', id: 'tour-packages' },
   { text: 'Gallery', href: 'gallery.html', id: 'gallery' },
@@ -43,29 +44,25 @@ function getTopBarHTML() {
   return `
   <div class="top-bar">
     <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-8 col-md-7">
-          <div class="top-info">
-            <span class="top-info-item">
-              <i class="bi bi-geo-alt-fill"></i>
-              <span>${NAV_CONFIG.location}</span>
-            </span>
-            <a href="tel:+91${NAV_CONFIG.phone}" class="top-info-item">
-              <i class="bi bi-telephone-fill"></i>
-              <span>${NAV_CONFIG.phoneFormatted}</span>
-            </a>
-            <a href="mailto:${NAV_CONFIG.email}" class="top-info-item d-none-mobile d-none d-md-flex">
-              <i class="bi bi-envelope-fill"></i>
-              <span>${NAV_CONFIG.email}</span>
-            </a>
-          </div>
+      <div class="top-bar-inner d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+        <div class="top-info">
+          <span class="top-info-item top-info-location" title="${NAV_CONFIG.location}">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>${NAV_CONFIG.location}</span>
+          </span>
+          <a href="tel:+91${NAV_CONFIG.phone}" class="top-info-item">
+            <i class="bi bi-telephone-fill"></i>
+            <span>${NAV_CONFIG.phoneFormatted}</span>
+          </a>
+          <a href="mailto:${NAV_CONFIG.email}" class="top-info-item d-none-mobile d-none d-lg-flex">
+            <i class="bi bi-envelope-fill"></i>
+            <span>${NAV_CONFIG.email}</span>
+          </a>
         </div>
-        <div class="col-lg-4 col-md-5">
-          <div class="social-links justify-content-md-end justify-content-center d-flex">
-            <a href="${NAV_CONFIG.facebook}" aria-label="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
-            <a href="${NAV_CONFIG.instagram}" aria-label="Instagram" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
-            <a href="https://wa.me/${NAV_CONFIG.whatsapp}" aria-label="WhatsApp" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
-          </div>
+        <div class="social-links flex-shrink-0">
+          <a href="${NAV_CONFIG.facebook}" aria-label="Facebook" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+          <a href="${NAV_CONFIG.instagram}" aria-label="Instagram" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+          <a href="https://wa.me/${NAV_CONFIG.whatsapp}" aria-label="WhatsApp" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
         </div>
       </div>
     </div>
@@ -149,7 +146,7 @@ function getFooterHTML() {
         <div class="col-lg-3 col-md-6 col-6">
           <h5 class="footer-heading">Our Services</h5>
           <ul class="footer-links">
-            <li><a href="service-details.html?id=accommodation">Accommodation</a></li>
+            <li><a href="accommodation.html">Accommodation</a></li>
             <li><a href="service-details.html?id=temple-darshan">Temple Darshan</a></li>
             <li><a href="service-details.html?id=taxi-car-rentals">Taxi & Car Rentals</a></li>
             <li><a href="service-details.html?id=bus-ticket-booking">Bus Tickets</a></li>
@@ -164,7 +161,7 @@ function getFooterHTML() {
           <ul class="footer-contact">
             <li>
               <i class="bi bi-geo-alt-fill"></i>
-              <span>${NAV_CONFIG.location}, Tamil Nadu, India</span>
+              <span>${NAV_CONFIG.location.includes('Tamil Nadu') ? NAV_CONFIG.location : NAV_CONFIG.location + ', Tamil Nadu, India'}</span>
             </li>
             <li>
               <i class="bi bi-telephone-fill"></i>
@@ -210,6 +207,8 @@ function getFooterHTML() {
               <a href="privacy-policy.html">Privacy Policy</a>
               <span class="mx-2">|</span>
               <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
+              <span class="mx-2">|</span>
+              <a href="admin/login.html" title="Admin & Sub-Admin Login"><i class="bi bi-shield-lock me-1"></i>Admin</a>
             </p>
           </div>
         </div>
@@ -275,6 +274,61 @@ function initNavigation() {
     sessionStorage.setItem('arunachala_visited', '1');
     if (!window.name) window.name = 'arunachala_session';
   } catch (e) {}
+
+  // Silently hydrate dynamic CMS contact/site settings from Supabase
+  hydrateNavigationFromCMS();
+}
+
+/**
+ * Dynamically hydrate top bar and footer from Supabase website_settings (key = 'site_info')
+ */
+function hydrateNavigationFromCMS() {
+  if (!window.supabaseClient) return;
+  window.supabaseClient
+    .from('website_settings')
+    .select('value')
+    .eq('key', 'site_info')
+    .maybeSingle()
+    .then(({ data }) => {
+      if (!data || !data.value) return;
+      const v = data.value;
+      let changed = false;
+      if (v.phone) {
+        const cleanDigits = String(v.phone).replace(/[^0-9]/g, '');
+        const local10 = cleanDigits.length > 10 ? cleanDigits.slice(-10) : cleanDigits;
+        if (local10 && local10 !== NAV_CONFIG.phone) {
+          NAV_CONFIG.phone = local10;
+          NAV_CONFIG.phoneFormatted = v.phone;
+          changed = true;
+        }
+      }
+      if (v.whatsapp) {
+        const waDigits = String(v.whatsapp).replace(/[^0-9]/g, '');
+        if (waDigits && waDigits !== NAV_CONFIG.whatsapp) {
+          NAV_CONFIG.whatsapp = waDigits;
+          changed = true;
+        }
+      }
+      if (v.email && v.email !== NAV_CONFIG.email) {
+        NAV_CONFIG.email = v.email;
+        changed = true;
+      }
+      if (v.address && v.address !== NAV_CONFIG.location) {
+        NAV_CONFIG.location = v.address;
+        changed = true;
+      }
+      if (changed) {
+        const topBarTarget = document.getElementById('topBar');
+        const footerTarget = document.getElementById('siteFooter');
+        if (topBarTarget) topBarTarget.innerHTML = getTopBarHTML();
+        if (footerTarget) {
+          footerTarget.innerHTML = getFooterHTML();
+          initBackToTop();
+          initBubbleEffect();
+        }
+      }
+    })
+    .catch(() => {});
 }
 
 /**

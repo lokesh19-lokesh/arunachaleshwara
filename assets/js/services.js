@@ -196,8 +196,8 @@ function renderServiceCard(service, index) {
       <div class="service-card-body">
         <h5>${service.title}</h5>
         <p>${service.shortDesc}</p>
-        <a href="service-details.html?id=${service.id}" class="btn btn-outline-maroon btn-sm">
-          View Details <i class="bi bi-arrow-right"></i>
+        <a href="${service.id === 'accommodation' ? 'accommodation.html' : 'service-details.html?id=' + service.id}" class="btn btn-outline-maroon btn-sm">
+          ${service.id === 'accommodation' ? 'Browse Rooms' : 'View Details'} <i class="bi bi-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -308,6 +308,10 @@ function populateServiceDetailsDOM(service, container) {
           <h5>Interested in this Service?</h5>
           <p>Send us an enquiry and we will get back to you with details.</p>
           <div class="d-grid gap-2">
+            ${service.id === 'accommodation' ? `
+            <a href="accommodation.html" class="btn justify-content-center fw-bold" style="background:#FFC908;color:#45120E;border:none;">
+              <i class="bi bi-door-open-fill"></i> Browse All 17 Rooms &amp; Book
+            </a>` : ''}
             <a href="enquiry.html?service=${encodeURIComponent(service.title)}" class="btn btn-primary-custom justify-content-center">
               <i class="bi bi-pencil-square"></i> Send Enquiry
             </a>

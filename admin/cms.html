@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website CMS – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="row g-4">
+          <!-- Site Info & Contact Settings -->
+          <div class="col-lg-6">
+            <div class="admin-card h-100">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-building text-warning"></i> Business & Contact Information</h6>
+              </div>
+              <div class="admin-card-body">
+                <form id="siteInfoForm">
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Website / Brand Name</label>
+                    <input type="text" id="cmsName" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Tagline</label>
+                    <input type="text" id="cmsTagline" class="form-control">
+                  </div>
+                  <div class="row g-2 mb-3">
+                    <div class="col-6">
+                      <label class="form-label small fw-bold">Primary Phone</label>
+                      <input type="text" id="cmsPhone" class="form-control">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small fw-bold">WhatsApp Number</label>
+                      <input type="text" id="cmsWhatsapp" class="form-control">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Email Address</label>
+                    <input type="email" id="cmsEmail" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Office Address</label>
+                    <textarea id="cmsAddress" class="form-control" rows="2"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-admin-primary"><i class="bi bi-save me-1"></i> Save Site Details</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoice Header & Legal Terms -->
+          <div class="col-lg-6">
+            <div class="admin-card h-100">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-receipt text-warning"></i> Invoice Branding & Terms</h6>
+              </div>
+              <div class="admin-card-body">
+                <form id="invoiceSettingsForm">
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Organisation Name (on PDF)</label>
+                    <input type="text" id="invOrgName" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">GSTIN (Leave blank if not GST registered)</label>
+                    <input type="text" id="invGstin" class="form-control" placeholder="Optional verified GSTIN">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Invoice Footer Terms & Policies</label>
+                    <textarea id="invTerms" class="form-control" rows="5"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-admin-yellow"><i class="bi bi-save me-1"></i> Save Invoice Settings</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      renderAdminSidebar('cms');
+      renderAdminHeader('Website CMS & Branding', 'Live Dynamic Configuration');
+      loadCmsSettings();
+    });
+
+    async function loadCmsSettings() {
+      const sb = window.adminSupabase;
+      const { data } = await sb.from('website_settings').select('*');
+      if (!data) return;
+
+      const site = data.find(x => x.key === 'site_info')?.value || {};
+      document.getElementById('cmsName').value = site.name || '';
+      document.getElementById('cmsTagline').value = site.tagline || '';
+      document.getElementById('cmsPhone').value = site.phone || '';
+      document.getElementById('cmsWhatsapp').value = site.whatsapp || '';
+      document.getElementById('cmsEmail').value = site.email || '';
+      document.getElementById('cmsAddress').value = site.address || '';
+
+      const inv = data.find(x => x.key === 'invoice_settings')?.value || {};
+      document.getElementById('invOrgName').value = inv.org_name || '';
+      document.getElementById('invGstin').value = inv.gstin || '';
+      document.getElementById('invTerms').value = inv.terms || '';
+    }
+
+    document.getElementById('siteInfoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = {
+        name: document.getElementById('cmsName').value.trim(),
+        tagline: document.getElementById('cmsTagline').value.trim(),
+        phone: document.getElementById('cmsPhone').value.trim(),
+        whatsapp: document.getElementById('cmsWhatsapp').value.trim(),
+        email: document.getElementById('cmsEmail').value.trim(),
+        address: document.getElementById('cmsAddress').value.trim()
+      };
+      await window.adminSupabase.from('website_settings').upsert({ key: 'site_info', value: val, updated_by: window.CURRENT_ADMIN_USER.id, updated_at: new Date().toISOString() });
+      await logAdminActivity('UPDATE_CMS_SITE_INFO', 'website_settings', 'site_info');
+      showAdminToast('Site contact details saved dynamically!', 'success');
+    });
+
+    document.getElementById('invoiceSettingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = {
+        org_name: document.getElementById('invOrgName').value.trim(),
+        tagline: 'Divine Pilgrimage & Hospitality Services',
+        address: document.getElementById('cmsAddress').value.trim(),
+        phone: '+91 ' + document.getElementById('cmsPhone').value.trim(),
+        email: document.getElementById('cmsEmail').value.trim(),
+        gstin: document.getElementById('invGstin').value.trim(),
+        terms: document.getElementById('invTerms').value.trim()
+      };
+      await window.adminSupabase.from('website_settings').upsert({ key: 'invoice_settings', value: val, updated_by: window.CURRENT_ADMIN_USER.id, updated_at: new Date().toISOString() });
+      await logAdminActivity('UPDATE_INVOICE_SETTINGS', 'website_settings', 'invoice_settings');
+      showAdminToast('Invoice settings saved!', 'success');
+    });
+  </script>
+</body>
+</html>
+

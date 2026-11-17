@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sub-Admins & RBAC – Arunachaleshwara Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-wrapper">
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header" id="adminHeader"></header>
+      <div class="admin-content">
+        <div class="admin-card mb-4">
+          <div class="admin-card-header">
+            <h6 class="admin-card-title"><i class="bi bi-shield-lock-fill text-warning"></i> Authorised Sub-Admins</h6>
+            <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#createSubAdminModal">
+              <i class="bi bi-person-plus-fill me-1"></i> Create Sub-Admin
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table admin-table">
+              <thead>
+                <tr>
+                  <th>Sub-Admin ID</th>
+                  <th>Full Name & Email</th>
+                  <th>Assigned Role</th>
+                  <th>Permitted Modules</th>
+                  <th>Last Login</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subAdminsBody"><tr><td colspan="7" class="text-center py-4 text-muted">Loading Sub-Admins...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- System Roles Reference -->
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h6 class="admin-card-title"><i class="bi bi-diagram-3-fill text-warning"></i> Predefined System Roles & Granular Permissions</h6>
+          </div>
+          <div class="admin-card-body">
+            <div class="row g-3" id="rolesGrid"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Sub-Admin Modal -->
+  <div class="modal fade" id="createSubAdminModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2 text-warning"></i>Provision New Sub-Admin Account</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="subAdminForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Full Name *</label>
+                <input type="text" id="saName" class="form-control" required placeholder="e.g. Karthik Sundaram">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Sub-Admin ID *</label>
+                <input type="text" id="saId" class="form-control text-uppercase" required placeholder="e.g. SUBADMIN002">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Email Address *</label>
+                <input type="email" id="saEmail" class="form-control" required placeholder="karthik@arunachaleswara.local">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Temporary Password *</label>
+                <input type="password" id="saPass" class="form-control" required minlength="8" placeholder="Min 8 characters">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Phone / WhatsApp</label>
+                <input type="tel" id="saPhone" class="form-control" placeholder="10-digit mobile">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Assigned Role *</label>
+                <select id="saRole" class="form-select" required></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold d-block">Granular Module Access Permissions:</label>
+                <div class="d-flex flex-wrap gap-3 p-3 bg-light rounded border">
+                  <label class="small"><input type="checkbox" class="sa-mod" value="bookings" checked> Bookings</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="accommodation" checked> Accommodation & Rooms</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="services"> Services & Tours</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="payments"> Manual Payments</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="invoices"> Invoices & PDFs</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="customers" checked> Customers</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="cms"> Website CMS</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="whatsapp"> WhatsApp Settings</label>
+                  <label class="small"><input type="checkbox" class="sa-mod" value="reports"> Financial Reports</label>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary" id="saSubmitBtn">Create Sub-Admin Account</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await requireAdminAuth();
+      if (!user) return;
+      if (!user.isMainAdmin) {
+        alert('Only the Main Admin can manage Sub-Admin accounts.');
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      renderAdminSidebar('sub-admins');
+      renderAdminHeader('Sub-Admins & RBAC', 'Role-Based Access Control');
+      await loadSubAdminsAndRoles();
+    });
+
+    async function loadSubAdminsAndRoles() {
+      const sb = window.adminSupabase;
+      const [{ data: subs }, { data: roles }] = await Promise.all([
+        sb.from('sub_admins').select('*, roles(name)').order('created_at', { ascending: false }),
+        sb.from('roles').select('*').order('name')
+      ]);
+
+      document.getElementById('saRole').innerHTML = (roles || []).filter(r => r.name !== 'Super Admin').map(r =>
+        `<option value="${r.id}">${r.name}</option>`
+      ).join('');
+
+      document.getElementById('rolesGrid').innerHTML = (roles || []).map(r => `
+        <div class="col-md-4">
+          <div class="p-3 border rounded-3 bg-light h-100">
+            <h6 class="fw-bold text-maroon mb-1">${r.name}</h6>
+            <p class="small text-muted mb-0">${r.description || ''}</p>
+          </div>
+        </div>
+      `).join('');
+
+      const tbody = document.getElementById('subAdminsBody');
+      if (!subs || subs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No Sub-Admins configured yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = subs.map(s => `
+        <tr>
+          <td><span class="badge bg-dark px-3 py-2">${s.subadmin_id}</span></td>
+          <td><div class="fw-bold">${s.full_name}</div><small class="text-muted">${s.email}</small></td>
+          <td class="fw-semibold text-maroon">${(s.roles && s.roles.name) || 'Sub-Admin'}</td>
+          <td>${(s.assigned_modules || []).map(m => `<span class="badge bg-light text-dark border me-1">${m}</span>`).join('')}</td>
+          <td class="small text-muted">${s.last_login ? formatDate(s.last_login) : 'Never logged in'}</td>
+          <td>${getStatusBadge(s.is_active ? 'Active' : 'Deactivated')}</td>
+          <td class="text-end">
+            <button class="btn btn-sm ${s.is_active ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleSubAdmin('${s.id}', ${!s.is_active}, '${s.subadmin_id}')">
+              ${s.is_active ? 'Deactivate' : 'Activate'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function toggleSubAdmin(id, newState, code) {
+      const { error: fnErr } = await window.adminSupabase.functions.invoke('manage-subadmin', {
+        body: { action: 'toggle_status', subadmin_record_id: id, is_active: newState }
+      });
+      if (fnErr) {
+        await window.adminSupabase.from('sub_admins').update({ is_active: newState }).eq('id', id);
+        await logAdminActivity(newState ? 'ACTIVATE_SUBADMIN' : 'DEACTIVATE_SUBADMIN', 'sub_admins', code);
+      }
+      showAdminToast(`Sub-Admin ${code} ${newState ? 'activated' : 'deactivated'}.`, 'success');
+      loadSubAdminsAndRoles();
+    }
+
+    document.getElementById('subAdminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('saSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Provisioning...';
+
+      try {
+        const email = document.getElementById('saEmail').value.trim();
+        const password = document.getElementById('saPass').value;
+        const name = document.getElementById('saName').value.trim();
+        const subId = document.getElementById('saId').value.trim().toUpperCase();
+        const phone = document.getElementById('saPhone').value.trim();
+        const roleId = document.getElementById('saRole').value;
+        const mods = Array.from(document.querySelectorAll('.sa-mod:checked')).map(cb => cb.value);
+
+        // Prefer server-side Supabase Edge Function (creates auto-confirmed Auth user securely)
+        const { data: fnData, error: fnErr } = await window.adminSupabase.functions.invoke('manage-subadmin', {
+          body: {
+            action: 'create',
+            full_name: name,
+            email: email,
+            phone: phone,
+            password: password,
+            role_id: roleId,
+            assigned_modules: mods
+          }
+        });
+
+        if (fnErr || !fnData?.success) {
+          // Graceful fallback if Edge Function is unavailable
+          const tempClient = window.supabase.createClient(ADMIN_SUPABASE_URL, ADMIN_SUPABASE_ANON_KEY, {
+            auth: { persistSession: false, autoRefreshToken: false }
+          });
+
+          const { data: authRes, error: authErr } = await tempClient.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { full_name: name, subadmin_id: subId } }
+          });
+
+          if (authErr || !authRes.user) {
+            throw new Error((fnData && fnData.error) || (authErr && authErr.message) || 'Failed to create Auth account');
+          }
+
+          const { error: dbErr } = await window.adminSupabase.from('sub_admins').insert([{
+            user_id: authRes.user.id,
+            subadmin_id: subId,
+            full_name: name,
+            email: email,
+            phone: phone,
+            role_id: roleId,
+            is_active: true,
+            assigned_modules: mods
+          }]);
+
+          if (dbErr) throw dbErr;
+          await logAdminActivity('CREATE_SUBADMIN', 'sub_admins', subId, { email, mods });
+          showAdminToast(`Sub-Admin ${subId} created successfully!`, 'success');
+        } else {
+          const createdId = fnData.subadmin?.subadmin_id || subId;
+          showAdminToast(`Sub-Admin ${createdId} provisioned via Edge Function!`, 'success');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('createSubAdminModal')).hide();
+        e.target.reset();
+        await loadSubAdminsAndRoles();
+      } catch (err) {
+        showAdminToast(err.message || 'Error creating Sub-Admin', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Sub-Admin Account';
+      }
+    });
+  </script>
+</body>
+</html>
+
