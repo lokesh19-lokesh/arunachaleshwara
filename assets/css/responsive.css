@@ -826,53 +826,63 @@
   }
 }
 
-/* ---------- Homepage Yellow (#FFC908) Mobile Hero Overrides ---------- */
+/* ---------- Yellow (#FFC908) Mobile Hero Overrides ---------- */
 @media (max-width: 991.98px) {
+  .hero-section,
   body.page-home .hero-section {
     background: #FFC908;
   }
 
+  .hero-video-container,
   body.page-home .hero-video-container {
     border-bottom: 2px solid #E5B400;
   }
 
+  .hero-welcome,
   body.page-home .hero-welcome {
     color: #681D17;
     font-weight: 700;
     text-shadow: none;
   }
 
+  .hero-welcome i,
   body.page-home .hero-welcome i {
     color: #681D17;
   }
 
+  .hero-title,
   body.page-home .hero-title {
     color: #45120E;
     font-weight: 800;
     text-shadow: none;
   }
 
+  .hero-title .text-gold,
   body.page-home .hero-title .text-gold {
     color: #8B2E26 !important;
   }
 
+  .hero-subtitle,
   body.page-home .hero-subtitle {
     color: #681D17;
     font-weight: 700;
     text-shadow: none;
   }
 
+  .hero-tagline,
   body.page-home .hero-tagline {
     color: #45120E;
     font-weight: 700;
     text-shadow: none;
   }
 
+  .hero-description,
   body.page-home .hero-description {
     color: #3A0E0B;
     text-shadow: none;
   }
 
+  .hero-buttons .btn-outline-gold,
   body.page-home .hero-buttons .btn-outline-gold {
     background-color: #45120E;
     color: #FFFFFF;
@@ -880,6 +890,7 @@
     font-weight: 600;
   }
 
+  .hero-buttons .btn-outline-gold:hover,
   body.page-home .hero-buttons .btn-outline-gold:hover {
     background-color: #681D17;
     border-color: #681D17;
