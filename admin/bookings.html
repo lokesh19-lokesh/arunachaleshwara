@@ -52,14 +52,14 @@
               </div>
               <div class="col-md-2">
                 <label class="form-label small fw-bold text-muted">Category</label>
-                <select id="filterType" class="form-select form-select-sm">
+                <select id="filterType" class="form-select form-select-sm" onchange="loadBookings()">
                   <option value="accommodation">Accommodation</option>
                   <option value="service">Services & Tours</option>
                 </select>
               </div>
               <div class="col-md-3 d-flex gap-2">
                 <button class="btn btn-sm btn-admin-primary flex-grow-1" onclick="loadBookings()"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
-                <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#newBookingModal"><i class="bi bi-plus-lg"></i> Walk-in</button>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openWalkinModal()"><i class="bi bi-plus-lg"></i> Walk-in</button>
               </div>
             </div>
           </div>
@@ -114,12 +114,19 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content border-0 shadow-lg">
         <div class="modal-header modal-header-admin">
-          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2 text-warning"></i>Create Walk-In / Phone Booking</h5>
+          <h5 class="modal-title fw-bold" id="walkinModalTitle"><i class="bi bi-plus-circle me-2"></i>Create Walk-In / Phone Booking</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
           <form id="walkinBookingForm">
             <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Booking Type *</label>
+                <select id="wBookingType" class="form-select" onchange="toggleWalkinBookingType()">
+                  <option value="accommodation">Accommodation (Room Booking)</option>
+                  <option value="service">Services &amp; Tours (Darshan / Taxi / Packages / Tickets)</option>
+                </select>
+              </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Customer Full Name *</label>
                 <input type="text" id="wName" class="form-control" required>
@@ -132,11 +139,13 @@
                 <label class="form-label small fw-bold">Email Address</label>
                 <input type="email" id="wEmail" class="form-control">
               </div>
-              <div class="col-md-6">
+
+              <!-- Accommodation-specific fields -->
+              <div class="col-md-6 walkin-acc-field">
                 <label class="form-label small fw-bold">Room Category *</label>
                 <select id="wCategory" class="form-select" onchange="toggleWalkinCustomCategory()" required></select>
               </div>
-              <div class="col-12 d-none" id="wCustomCategoryBox">
+              <div class="col-12 d-none walkin-acc-field" id="wCustomCategoryBox">
                 <div class="p-3 rounded-3 border bg-light">
                   <div class="row g-2 align-items-end">
                     <div class="col-md-6">
@@ -156,18 +165,59 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4 walkin-acc-field">
                 <label class="form-label small fw-bold">Check-in Date *</label>
                 <input type="date" id="wCheckIn" class="form-control" required>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4 walkin-acc-field">
                 <label class="form-label small fw-bold">Check-out Date *</label>
                 <input type="date" id="wCheckOut" class="form-control" required>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4 walkin-acc-field">
                 <label class="form-label small fw-bold">Number of Guests *</label>
-                <input type="number" id="wGuests" class="form-control" value="2" min="1" max="10" required>
+                <input type="number" id="wGuests" class="form-control" value="2" min="1" max="50" required>
               </div>
+
+              <!-- Services & Tours-specific fields -->
+              <div class="col-md-6 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Service / Tour Package *</label>
+                <select id="wServiceSelect" class="form-select" onchange="toggleWalkinCustomService()"></select>
+              </div>
+              <div class="col-12 d-none walkin-srv-field" id="wCustomServiceBox">
+                <div class="p-3 rounded-3 border bg-light">
+                  <label class="form-label small fw-bold mb-1">Custom Service / Tour Name *</label>
+                  <input type="text" id="wCustomSrvName" class="form-control form-control-sm" placeholder="e.g. Special Girivalam Guided Tour / Airport Pickup">
+                </div>
+              </div>
+              <div class="col-md-4 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Travel / Service Date *</label>
+                <input type="date" id="wTravelDate" class="form-control">
+              </div>
+              <div class="col-md-4 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Passengers / Devotees *</label>
+                <input type="number" id="wPassengers" class="form-control" value="2" min="1" max="100">
+              </div>
+              <div class="col-md-4 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Estimated Amount (₹) *</label>
+                <input type="number" id="wServiceAmount" class="form-control" placeholder="e.g. 3500" min="0" step="50">
+              </div>
+              <div class="col-md-6 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Pickup Location</label>
+                <input type="text" id="wPickupLocation" class="form-control" placeholder="e.g. Tiruvannamalai Temple / Bus Stand">
+              </div>
+              <div class="col-md-6 walkin-srv-field d-none">
+                <label class="form-label small fw-bold">Vehicle Type</label>
+                <select id="wVehicleType" class="form-select">
+                  <option value="Not Applicable">Not Applicable / Darshan / Ticket</option>
+                  <option value="Sedan (Dzire / Etios)">Sedan (Dzire / Etios)</option>
+                  <option value="SUV (Ertiga / Innova)">SUV (Ertiga / Innova)</option>
+                  <option value="Tempo Traveller">Tempo Traveller (12–17 Seater)</option>
+                  <option value="Mini Bus / Coach">Mini Bus / Tourist Coach</option>
+                  <option value="Auto Rickshaw">Auto Rickshaw</option>
+                  <option value="Two-Wheeler / Bike">Two-Wheeler / Bike Rental</option>
+                </select>
+              </div>
+
               <div class="col-12">
                 <label class="form-label small fw-bold">Special Requirements / Notes</label>
                 <textarea id="wNotes" class="form-control" rows="2"></textarea>
@@ -221,10 +271,12 @@
 
     async function loadReferenceData() {
       const sb = window.adminSupabase;
-      const [{ data: rooms }, { data: cats }, { data: wa }] = await Promise.all([
+      const [{ data: rooms }, { data: cats }, { data: wa }, { data: srvs }, { data: pkgs }] = await Promise.all([
         sb.from('accommodation_rooms').select('*').order('room_number'),
         sb.from('accommodation_categories').select('*').order('order_num'),
-        sb.from('whatsapp_settings').select('*').maybeSingle()
+        sb.from('whatsapp_settings').select('*').maybeSingle(),
+        sb.from('services').select('id, title').order('order_num'),
+        sb.from('tour_packages').select('id, title').order('order_num')
       ]);
       allRooms = rooms || [];
       allCategories = cats || [];
@@ -234,6 +286,85 @@
       catSelect.innerHTML = allCategories.map(c => `<option value="${c.id}" data-price="${c.base_price}" data-name="${c.name}">${c.name} (${formatINR(c.base_price)}/night)</option>`).join('') +
         `<option value="__custom__">+ Custom Category / Price...</option>`;
       toggleWalkinCustomCategory();
+
+      // Populate Services & Tour Packages dropdown
+      const srvOpts = (srvs || []).filter(s => s.id !== 'accommodation').map(s =>
+        `<option value="srv:${s.id}" data-title="${s.title}">${s.title} (Service)</option>`
+      );
+      const pkgOpts = (pkgs || []).map(p =>
+        `<option value="pkg:${p.id}" data-title="${p.title}">${p.title} (Tour Package)</option>`
+      );
+      const fallbackOpts = srvOpts.length === 0 && pkgOpts.length === 0 ? [
+        `<option value="temple-darshan" data-title="Temple Darshan Services">Temple Darshan Services</option>`,
+        `<option value="taxi-car-rentals" data-title="Taxi & Car Rentals">Taxi &amp; Car Rentals</option>`,
+        `<option value="bus-ticket-booking" data-title="Bus Ticket Booking">Bus Ticket Booking</option>`,
+        `<option value="train-ticket-booking" data-title="Train Ticket Booking">Train Ticket Booking</option>`,
+        `<option value="auto-services" data-title="Auto Services">Auto Services</option>`,
+        `<option value="bike-rentals" data-title="Bike Rentals">Bike Rentals</option>`,
+        `<option value="sapta-shiva-yatra" data-title="1 Day Sapta Shiva Kshetra Yatra">1 Day Sapta Shiva Kshetra Yatra (Tour)</option>`
+      ] : [];
+
+      const srvSelect = document.getElementById('wServiceSelect');
+      if (srvSelect) {
+        srvSelect.innerHTML = [...srvOpts, ...pkgOpts, ...fallbackOpts].join('') +
+          `<option value="__custom__">+ Custom Service / Tour...</option>`;
+      }
+    }
+
+    function openWalkinModal() {
+      const currentFilter = document.getElementById('filterType').value;
+      document.getElementById('wBookingType').value = currentFilter === 'service' ? 'service' : 'accommodation';
+      toggleWalkinBookingType();
+      new bootstrap.Modal(document.getElementById('newBookingModal')).show();
+    }
+
+    function toggleWalkinBookingType() {
+      const type = document.getElementById('wBookingType').value;
+      const isAcc = type === 'accommodation';
+
+      document.getElementById('walkinModalTitle').innerHTML = isAcc
+        ? '<i class="bi bi-building-add me-2"></i>Create Walk-In / Phone Room Booking'
+        : '<i class="bi bi-compass me-2"></i>Create Service / Tour Package Booking';
+
+      document.querySelectorAll('.walkin-acc-field').forEach(el => {
+        if (el.id === 'wCustomCategoryBox') return;
+        el.classList.toggle('d-none', !isAcc);
+      });
+      document.querySelectorAll('.walkin-srv-field').forEach(el => {
+        if (el.id === 'wCustomServiceBox') return;
+        el.classList.toggle('d-none', isAcc);
+      });
+
+      // Toggle required attributes appropriately
+      document.getElementById('wCategory').required = isAcc;
+      document.getElementById('wCheckIn').required = isAcc;
+      document.getElementById('wCheckOut').required = isAcc;
+      document.getElementById('wGuests').required = isAcc;
+
+      document.getElementById('wServiceSelect').required = !isAcc;
+      document.getElementById('wTravelDate').required = !isAcc;
+      document.getElementById('wPassengers').required = !isAcc;
+      document.getElementById('wServiceAmount').required = !isAcc;
+
+      if (isAcc) {
+        document.getElementById('wCustomServiceBox').classList.add('d-none');
+        document.getElementById('wCustomSrvName').required = false;
+        toggleWalkinCustomCategory();
+      } else {
+        document.getElementById('wCustomCategoryBox').classList.add('d-none');
+        document.getElementById('wCustomCatName').required = false;
+        document.getElementById('wCustomCatPrice').required = false;
+        toggleWalkinCustomService();
+      }
+    }
+
+    function toggleWalkinCustomService() {
+      const srvSel = document.getElementById('wServiceSelect');
+      const box = document.getElementById('wCustomServiceBox');
+      const inp = document.getElementById('wCustomSrvName');
+      const isCustom = srvSel && srvSel.value === '__custom__' && document.getElementById('wBookingType').value === 'service';
+      box.classList.toggle('d-none', !isCustom);
+      inp.required = isCustom;
     }
 
     function toggleWalkinCustomCategory() {
@@ -241,7 +372,7 @@
       const box = document.getElementById('wCustomCategoryBox');
       const nameInput = document.getElementById('wCustomCatName');
       const priceInput = document.getElementById('wCustomCatPrice');
-      const isCustom = catSelect.value === '__custom__';
+      const isCustom = catSelect.value === '__custom__' && document.getElementById('wBookingType').value === 'accommodation';
       box.classList.toggle('d-none', !isCustom);
       nameInput.required = isCustom;
       priceInput.required = isCustom;
@@ -1017,10 +1148,65 @@
       await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
     }
 
-    // Walk-in Booking Submission
+    // Walk-in Booking Submission (Handles both Accommodation & Services/Tours)
     document.getElementById('walkinBookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const sb = window.adminSupabase;
+      const bookingType = document.getElementById('wBookingType').value;
+
+      if (bookingType === 'service') {
+        const srvSel = document.getElementById('wServiceSelect');
+        const srvOpt = srvSel.options[srvSel.selectedIndex];
+        let serviceId = srvSel.value;
+        let serviceTitle = (srvOpt && srvOpt.dataset.title) || 'Travel Service';
+
+        if (serviceId === '__custom__') {
+          serviceTitle = document.getElementById('wCustomSrvName').value.trim();
+          serviceId = 'custom';
+          if (!serviceTitle) {
+            showAdminToast('Please enter a custom service or tour name.', 'error');
+            return;
+          }
+        }
+
+        const estAmount = parseFloat(document.getElementById('wServiceAmount').value) || 0;
+        const { data, error } = await sb.from('service_bookings').insert([{
+          service_id: serviceId,
+          service_title: serviceTitle,
+          customer_name: document.getElementById('wName').value.trim(),
+          mobile: document.getElementById('wMobile').value.trim(),
+          whatsapp_number: document.getElementById('wMobile').value.trim(),
+          email: document.getElementById('wEmail').value.trim() || null,
+          travel_date: document.getElementById('wTravelDate').value || null,
+          pickup_location: document.getElementById('wPickupLocation').value.trim() || 'Tiruvannamalai',
+          passengers: parseInt(document.getElementById('wPassengers').value) || 1,
+          vehicle_type: document.getElementById('wVehicleType').value,
+          estimated_amount: estAmount,
+          balance_amount: estAmount,
+          special_requests: document.getElementById('wNotes').value.trim()
+        }]).select().single();
+
+        if (error) {
+          showAdminToast('Error creating service booking: ' + error.message, 'error');
+          return;
+        }
+
+        await sb.from('customers').upsert({
+          full_name: data.customer_name,
+          mobile: data.mobile,
+          whatsapp_number: data.whatsapp_number,
+          email: data.email
+        }, { onConflict: 'mobile' });
+
+        await logAdminActivity('CREATE_SERVICE_BOOKING', 'service_bookings', data.booking_id, { service: serviceTitle });
+        showAdminToast(`Service Booking ${data.booking_id} created!`, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
+        e.target.reset();
+        document.getElementById('filterType').value = 'service';
+        await loadBookings();
+        return;
+      }
+
       const catSelect = document.getElementById('wCategory');
       const opt = catSelect.options[catSelect.selectedIndex];
       const checkIn = document.getElementById('wCheckIn').value;
