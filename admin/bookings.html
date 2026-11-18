@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <title>Bookings Management – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -257,8 +261,8 @@
       renderAdminSidebar('bookings');
       renderAdminHeader('Booking Management', 'Manual Verification Workflow');
 
-      await loadReferenceData();
-      await loadBookings();
+      // Load reference data & bookings in PARALLEL for maximum speed
+      await Promise.all([loadReferenceData(), loadBookings()]);
 
       // Auto-open specific booking if ?id= in URL
       const urlParams = new URLSearchParams(window.location.search);

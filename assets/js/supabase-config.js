@@ -19,11 +19,27 @@ if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.c
   }
 }
 
+const PUBLIC_CACHE_TTL_MS = 5 * 60 * 1000;
+function getPublicCache(key) {
+  try {
+    const raw = sessionStorage.getItem('arn_pub_' + key);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && (Date.now() - (p._ts || 0)) < PUBLIC_CACHE_TTL_MS) return p.data;
+  } catch (e) {}
+  return null;
+}
+function setPublicCache(key, data) {
+  try { sessionStorage.setItem('arn_pub_' + key, JSON.stringify({ data, _ts: Date.now() })); } catch (e) {}
+}
+
 /**
- * Fetch dynamic services from Supabase
+ * Fetch dynamic services from Supabase (with 5-min sessionStorage cache)
  * @returns {Promise<Array|null>}
  */
 async function fetchServicesFromSupabase() {
+  const cached = getPublicCache('services');
+  if (cached) return cached;
   if (!supabaseClient) return null;
   try {
     const { data, error } = await supabaseClient
@@ -39,7 +55,7 @@ async function fetchServicesFromSupabase() {
 
     if (data && data.length > 0) {
       // Map DB snake_case columns to camelCase expected by frontend
-      return data.map(item => ({
+      const mapped = data.map(item => ({
         id: item.id,
         title: item.title,
         category: item.category || 'Services',
@@ -53,6 +69,8 @@ async function fetchServicesFromSupabase() {
         image: item.image || '',
         gallery: [item.image].filter(Boolean)
       }));
+      setPublicCache('services', mapped);
+      return mapped;
     }
     return null;
   } catch (err) {
@@ -62,10 +80,12 @@ async function fetchServicesFromSupabase() {
 }
 
 /**
- * Fetch dynamic tour packages from Supabase
+ * Fetch dynamic tour packages from Supabase (with 5-min sessionStorage cache)
  * @returns {Promise<Array|null>}
  */
 async function fetchPackagesFromSupabase() {
+  const cached = getPublicCache('packages');
+  if (cached) return cached;
   if (!supabaseClient) return null;
   try {
     const { data, error } = await supabaseClient
@@ -81,7 +101,7 @@ async function fetchPackagesFromSupabase() {
 
     if (data && data.length > 0) {
       // Map DB snake_case columns to camelCase expected by frontend
-      return data.map(item => ({
+      const mapped = data.map(item => ({
         id: item.id,
         title: item.title,
         teluguTitle: item.telugu_title || '',
@@ -103,6 +123,8 @@ async function fetchPackagesFromSupabase() {
         importantInfo: Array.isArray(item.important_info) ? item.important_info : [],
         featured: !!item.featured
       }));
+      setPublicCache('packages', mapped);
+      return mapped;
     }
     return null;
   } catch (err) {

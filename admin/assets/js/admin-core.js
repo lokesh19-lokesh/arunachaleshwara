@@ -225,6 +225,28 @@ async function openWhatsAppShare(phone, message, bookingCode = null, messageType
   window.open(url, '_blank', 'noopener');
 }
 
+/**
+ * Fast Stale-While-Revalidate Cache Helpers (sessionStorage)
+ * Enables instant 0ms UI rendering while fresh Supabase data loads in background
+ */
+function adminCacheGet(key, maxAgeMs = 5 * 60 * 1000) {
+  try {
+    const raw = sessionStorage.getItem('arn_cache_' + key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && (Date.now() - (parsed._ts || 0)) < maxAgeMs) {
+      return parsed.data;
+    }
+  } catch (e) {}
+  return null;
+}
+
+function adminCacheSet(key, data) {
+  try {
+    sessionStorage.setItem('arn_cache_' + key, JSON.stringify({ data, _ts: Date.now() }));
+  } catch (e) {}
+}
+
 window.renderAdminSidebar = renderAdminSidebar;
 window.renderAdminHeader = renderAdminHeader;
 window.showAdminToast = showAdminToast;
@@ -232,4 +254,6 @@ window.formatINR = formatINR;
 window.formatDate = formatDate;
 window.getStatusBadge = getStatusBadge;
 window.openWhatsAppShare = openWhatsAppShare;
+window.adminCacheGet = adminCacheGet;
+window.adminCacheSet = adminCacheSet;
 

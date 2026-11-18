@@ -141,8 +141,74 @@ async function loginSubAdmin(subadminId, password) {
   return data.user;
 }
 
+const ADMIN_PROFILE_CACHE_KEY = 'arn_admin_profile_v1';
+const ADMIN_PROFILE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+function getCachedAdminProfile(userId) {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_PROFILE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.id === userId && (Date.now() - (parsed._ts || 0)) < ADMIN_PROFILE_TTL_MS) {
+      return parsed;
+    }
+  } catch (e) {}
+  return null;
+}
+
+function setCachedAdminProfile(profile) {
+  try {
+    sessionStorage.setItem(ADMIN_PROFILE_CACHE_KEY, JSON.stringify({ ...profile, _ts: Date.now() }));
+  } catch (e) {}
+}
+
+function clearCachedAdminProfile() {
+  try { sessionStorage.removeItem(ADMIN_PROFILE_CACHE_KEY); } catch (e) {}
+}
+
 /**
- * Verify Active Session & Load RBAC Profile
+ * Fetch fresh RBAC profile from Supabase in ONE parallel round-trip
+ */
+async function fetchFreshAdminProfile(user) {
+  const [{ data: adminData }, { data: prof }, { data: subData }] = await Promise.all([
+    adminSupabase.from('admin_users').select('*, roles(name)').eq('user_id', user.id).maybeSingle(),
+    adminSupabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle(),
+    adminSupabase.from('sub_admins').select('*, roles(name)').eq('user_id', user.id).maybeSingle()
+  ]);
+
+  if (adminData) {
+    const profile = {
+      id: user.id,
+      email: user.email,
+      fullName: (prof && prof.full_name) || 'Main Admin',
+      role: (adminData.roles && adminData.roles.name) || 'Super Admin',
+      isMainAdmin: true,
+      subadminId: 'ADMIN',
+      assignedModules: ['all']
+    };
+    setCachedAdminProfile(profile);
+    return profile;
+  }
+
+  if (subData && subData.is_active) {
+    const profile = {
+      id: user.id,
+      email: user.email,
+      fullName: subData.full_name,
+      role: (subData.roles && subData.roles.name) || 'Sub-Admin',
+      isMainAdmin: false,
+      subadminId: subData.subadmin_id,
+      assignedModules: Array.isArray(subData.assigned_modules) ? subData.assigned_modules : []
+    };
+    setCachedAdminProfile(profile);
+    return profile;
+  }
+
+  return null;
+}
+
+/**
+ * Verify Active Session & Load RBAC Profile (Instant via sessionStorage + background revalidation)
  * Must be called at the top of every protected admin page
  */
 async function requireAdminAuth() {
@@ -154,54 +220,37 @@ async function requireAdminAuth() {
   const { data: { session }, error } = await adminSupabase.auth.getSession();
 
   if (error || !session || !session.user) {
+    clearCachedAdminProfile();
     window.location.href = 'login.html';
     return null;
   }
 
   const user = session.user;
 
-  // Check if Main Admin
-  const { data: adminData } = await adminSupabase
-    .from('admin_users')
-    .select('*, roles(name)')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (adminData) {
-    const { data: prof } = await adminSupabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
-    window.CURRENT_ADMIN_USER = {
-      id: user.id,
-      email: user.email,
-      fullName: (prof && prof.full_name) || 'Main Admin',
-      role: (adminData.roles && adminData.roles.name) || 'Super Admin',
-      isMainAdmin: true,
-      subadminId: 'ADMIN',
-      assignedModules: ['all']
-    };
-    return window.CURRENT_ADMIN_USER;
+  // Fast path: return cached RBAC profile in < 2ms & revalidate silently in background
+  const cached = getCachedAdminProfile(user.id);
+  if (cached) {
+    window.CURRENT_ADMIN_USER = cached;
+    fetchFreshAdminProfile(user).then(fresh => {
+      if (!fresh) {
+        clearCachedAdminProfile();
+        adminSupabase.auth.signOut().finally(() => { window.location.href = 'login.html'; });
+      } else {
+        window.CURRENT_ADMIN_USER = fresh;
+      }
+    }).catch(() => {});
+    return cached;
   }
 
-  // Check if Sub-Admin
-  const { data: subData } = await adminSupabase
-    .from('sub_admins')
-    .select('*, roles(name)')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (subData && subData.is_active) {
-    window.CURRENT_ADMIN_USER = {
-      id: user.id,
-      email: user.email,
-      fullName: subData.full_name,
-      role: (subData.roles && subData.roles.name) || 'Sub-Admin',
-      isMainAdmin: false,
-      subadminId: subData.subadmin_id,
-      assignedModules: Array.isArray(subData.assigned_modules) ? subData.assigned_modules : []
-    };
-    return window.CURRENT_ADMIN_USER;
+  // Cold path: single parallel round-trip
+  const fresh = await fetchFreshAdminProfile(user);
+  if (fresh) {
+    window.CURRENT_ADMIN_USER = fresh;
+    return fresh;
   }
 
   // Not authorised
+  clearCachedAdminProfile();
   await adminSupabase.auth.signOut();
   window.location.href = 'login.html';
   return null;
@@ -221,8 +270,14 @@ function canAccessModule(moduleName) {
  * Logout Admin
  */
 async function logoutAdmin() {
+  clearCachedAdminProfile();
+  try {
+    Object.keys(sessionStorage).forEach(k => {
+      if (k.startsWith('arn_cache_')) sessionStorage.removeItem(k);
+    });
+  } catch (e) {}
   if (adminSupabase) {
-    await logAdminActivity('LOGOUT', 'auth', window.CURRENT_ADMIN_USER?.id || '');
+    logAdminActivity('LOGOUT', 'auth', window.CURRENT_ADMIN_USER?.id || '');
     await adminSupabase.auth.signOut();
   }
   window.CURRENT_ADMIN_USER = null;

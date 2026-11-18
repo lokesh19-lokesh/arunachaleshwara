@@ -281,8 +281,59 @@ function initNavigation() {
 
 /**
  * Dynamically hydrate top bar and footer from Supabase website_settings (key = 'site_info')
+ * Uses sessionStorage cache for 0ms flicker-free rendering across pages
  */
+function applySiteInfoToNav(v) {
+  if (!v) return;
+  let changed = false;
+  if (v.phone) {
+    const cleanDigits = String(v.phone).replace(/[^0-9]/g, '');
+    const local10 = cleanDigits.length > 10 ? cleanDigits.slice(-10) : cleanDigits;
+    if (local10 && local10 !== NAV_CONFIG.phone) {
+      NAV_CONFIG.phone = local10;
+      NAV_CONFIG.phoneFormatted = v.phone;
+      changed = true;
+    }
+  }
+  if (v.whatsapp) {
+    const waDigits = String(v.whatsapp).replace(/[^0-9]/g, '');
+    if (waDigits && waDigits !== NAV_CONFIG.whatsapp) {
+      NAV_CONFIG.whatsapp = waDigits;
+      changed = true;
+    }
+  }
+  if (v.email && v.email !== NAV_CONFIG.email) {
+    NAV_CONFIG.email = v.email;
+    changed = true;
+  }
+  if (v.address && v.address !== NAV_CONFIG.location) {
+    NAV_CONFIG.location = v.address;
+    changed = true;
+  }
+  if (changed) {
+    const topBarTarget = document.getElementById('topBar');
+    const footerTarget = document.getElementById('siteFooter');
+    if (topBarTarget) topBarTarget.innerHTML = getTopBarHTML();
+    if (footerTarget) {
+      footerTarget.innerHTML = getFooterHTML();
+      initBackToTop();
+      initBubbleEffect();
+    }
+  }
+}
+
 function hydrateNavigationFromCMS() {
+  try {
+    const raw = sessionStorage.getItem('arn_pub_site_info');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (Date.now() - (parsed._ts || 0)) < 10 * 60 * 1000) {
+        applySiteInfoToNav(parsed.data);
+        return;
+      }
+    }
+  } catch (e) {}
+
   if (!window.supabaseClient) return;
   window.supabaseClient
     .from('website_settings')
@@ -291,42 +342,10 @@ function hydrateNavigationFromCMS() {
     .maybeSingle()
     .then(({ data }) => {
       if (!data || !data.value) return;
-      const v = data.value;
-      let changed = false;
-      if (v.phone) {
-        const cleanDigits = String(v.phone).replace(/[^0-9]/g, '');
-        const local10 = cleanDigits.length > 10 ? cleanDigits.slice(-10) : cleanDigits;
-        if (local10 && local10 !== NAV_CONFIG.phone) {
-          NAV_CONFIG.phone = local10;
-          NAV_CONFIG.phoneFormatted = v.phone;
-          changed = true;
-        }
-      }
-      if (v.whatsapp) {
-        const waDigits = String(v.whatsapp).replace(/[^0-9]/g, '');
-        if (waDigits && waDigits !== NAV_CONFIG.whatsapp) {
-          NAV_CONFIG.whatsapp = waDigits;
-          changed = true;
-        }
-      }
-      if (v.email && v.email !== NAV_CONFIG.email) {
-        NAV_CONFIG.email = v.email;
-        changed = true;
-      }
-      if (v.address && v.address !== NAV_CONFIG.location) {
-        NAV_CONFIG.location = v.address;
-        changed = true;
-      }
-      if (changed) {
-        const topBarTarget = document.getElementById('topBar');
-        const footerTarget = document.getElementById('siteFooter');
-        if (topBarTarget) topBarTarget.innerHTML = getTopBarHTML();
-        if (footerTarget) {
-          footerTarget.innerHTML = getFooterHTML();
-          initBackToTop();
-          initBubbleEffect();
-        }
-      }
+      try {
+        sessionStorage.setItem('arn_pub_site_info', JSON.stringify({ data: data.value, _ts: Date.now() }));
+      } catch (e) {}
+      applySiteInfoToNav(data.value);
     })
     .catch(() => {});
 }
