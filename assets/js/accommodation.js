@@ -85,6 +85,16 @@ async function initAccommodationPage() {
           roomNumbers: ACC_ROOMS.filter(r => r.category_id === c.id).map(r => r.room_number),
           availableCount: ACC_ROOMS.filter(r => r.category_id === c.id && r.status === 'Available').length
         }));
+        // Keep public filterCategory dropdown synced with dynamic Admin categories
+        const catFilterEl = document.getElementById('filterCategory');
+        if (catFilterEl) {
+          const prev = catFilterEl.value;
+          catFilterEl.innerHTML = `<option value="all">All Rooms</option>` +
+            ACC_CATEGORIES.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+          if (Array.from(catFilterEl.options).some(o => o.value === prev)) {
+            catFilterEl.value = prev;
+          }
+        }
         renderAccommodationCards();
       }
     } catch (err) {

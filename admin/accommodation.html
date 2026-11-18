@@ -114,9 +114,12 @@
 
           <!-- Tab 2: Room Categories -->
           <div class="tab-pane fade" id="categoriesTab">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold text-maroon mb-0">Manage Room Categories &amp; Nightly Pricing</h6>
-              <button class="btn btn-sm btn-admin-yellow" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <div>
+                <h6 class="fw-bold text-maroon mb-0">Website Accommodation Cards, Pricing &amp; Amenities</h6>
+                <small class="text-muted">Edits here directly update the room cards shown on the public <strong>Accommodation</strong> page.</small>
+              </div>
+              <button class="btn btn-sm btn-admin-yellow" onclick="openAddCategoryModal()">
                 <i class="bi bi-plus-lg me-1"></i> Add Custom Category
               </button>
             </div>
@@ -237,22 +240,38 @@
               <input type="text" id="catName" class="form-control" placeholder="e.g. AC Family Suite" required>
             </div>
             <div class="row g-2 mb-3">
-              <div class="col-6">
-                <label class="form-label small fw-bold">Base Price / Night (₹) *</label>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Price / Night (₹) *</label>
                 <input type="number" id="catPrice" class="form-control" value="2000" min="100" required>
               </div>
-              <div class="col-6">
+              <div class="col-4">
                 <label class="form-label small fw-bold">Max Guests *</label>
                 <input type="number" id="catGuests" class="form-control" value="3" min="1" required>
               </div>
+              <div class="col-4">
+                <label class="form-label small fw-bold">Display Order</label>
+                <input type="number" id="catOrder" class="form-control" value="1" min="1">
+              </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label small fw-bold">Default Bed Type</label>
-              <input type="text" id="catBeds" class="form-control" value="1 King Bed">
+            <div class="row g-2 mb-3 align-items-end">
+              <div class="col-8">
+                <label class="form-label small fw-bold">Bed Label (shown on card)</label>
+                <input type="text" id="catBeds" class="form-control" value="1 King Bed" placeholder="e.g. 2 Double Beds">
+              </div>
+              <div class="col-4">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="catActive" checked>
+                  <label class="form-check-label small fw-bold" for="catActive">Show on Site</label>
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-bold">Short Description</label>
               <textarea id="catDesc" class="form-control" rows="2" placeholder="Comfortable custom room category near Arunachaleswarar Temple."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Facilities / Amenity Tags (one per line)</label>
+              <textarea id="catFacilities" class="form-control" rows="4" placeholder="Air Conditioning&#10;Attached Western Bathroom&#10;24/7 Hot Water&#10;Free High-Speed Wi-Fi&#10;Daily Housekeeping"></textarea>
             </div>
             <div class="d-flex justify-content-end gap-2">
               <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -400,10 +419,19 @@
             <img src="${resolveAdminImgSrc(c.image || 'assets/images/services/Accommodation.png')}" loading="lazy" decoding="async" style="height: 180px; width: 100%; object-fit: cover;">
             <div class="admin-card-body">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="fw-bold text-maroon mb-0">${c.name}</h6>
-                <span class="badge bg-warning text-dark">${count} Rooms</span>
+                <div>
+                  <h6 class="fw-bold text-maroon mb-0">${c.name}</h6>
+                  <small class="text-muted">Max ${c.max_guests || 2} Guests • ${c.default_beds || '1 Double Bed'}</small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-warning text-dark">${count} Rooms</span>
+                  ${c.is_active === false ? '<span class="badge bg-secondary ms-1">Hidden</span>' : ''}
+                </div>
               </div>
-              <p class="small text-muted mb-3">${c.short_desc}</p>
+              <p class="small text-muted mb-2">${c.short_desc || ''}</p>
+              <div class="mb-3">
+                ${(Array.isArray(c.facilities) ? c.facilities : []).slice(0, 6).map(f => `<span class="badge bg-light text-dark border me-1 mb-1 fw-normal" style="font-size:0.7rem;">✓ ${f}</span>`).join('')}
+              </div>
               <div class="d-flex justify-content-between align-items-center pt-2 border-top gap-2">
                 <span class="fs-5 fw-bold text-success">${formatINR(c.base_price)} <small class="text-muted fs-6">/night</small></span>
                 <div class="btn-group btn-group-sm">
@@ -478,16 +506,32 @@
       inp.required = isCustom;
     }
 
+    function openAddCategoryModal() {
+      document.getElementById('categoryForm').reset();
+      document.getElementById('editCatId').value = '';
+      document.getElementById('catModalTitle').textContent = 'Add Custom Room Category';
+      document.getElementById('catOrder').value = categoriesList.length + 1;
+      document.getElementById('catActive').checked = true;
+      document.getElementById('catImage').value = '';
+      document.getElementById('catImagePreview').src = '../assets/images/services/Accommodation.png';
+      document.getElementById('catFacilities').value = 'Air Conditioning\nAttached Western Bathroom\n24/7 Hot Water\nFree Wi-Fi';
+      document.getElementById('catUploadStatus').textContent = '';
+      new bootstrap.Modal(document.getElementById('addCategoryModal')).show();
+    }
+
     function openEditCategory(id) {
       const c = categoriesList.find(x => x.id === id);
       if (!c) return;
-      document.getElementById('catModalTitle').textContent = 'Edit Category: ' + c.name;
+      document.getElementById('catModalTitle').textContent = 'Edit Website Card: ' + c.name;
       document.getElementById('editCatId').value = c.id;
       document.getElementById('catName').value = c.name || '';
       document.getElementById('catPrice').value = c.base_price || 1500;
       document.getElementById('catGuests').value = c.max_guests || 2;
+      document.getElementById('catOrder').value = c.order_num || 1;
       document.getElementById('catBeds').value = c.default_beds || '1 Double Bed';
+      document.getElementById('catActive').checked = c.is_active !== false;
       document.getElementById('catDesc').value = c.short_desc || '';
+      document.getElementById('catFacilities').value = Array.isArray(c.facilities) ? c.facilities.join('\n') : '';
       document.getElementById('catImage').value = c.image || '';
       document.getElementById('catImagePreview').src = resolveAdminImgSrc(c.image || 'assets/images/services/Accommodation.png');
       document.getElementById('catUploadStatus').textContent = '';
@@ -533,14 +577,18 @@
       const name = document.getElementById('catName').value.trim();
       const price = parseFloat(document.getElementById('catPrice').value) || 1500;
       const guests = parseInt(document.getElementById('catGuests').value) || 2;
+      const orderNum = parseInt(document.getElementById('catOrder').value) || (categoriesList.length + 1);
       const beds = document.getElementById('catBeds').value.trim() || '1 Double Bed';
+      const isActive = document.getElementById('catActive').checked;
       const desc = document.getElementById('catDesc').value.trim() || `${name} accommodation near Arunachaleswarar Temple.`;
+      const facilities = document.getElementById('catFacilities').value.split('\n').map(f => f.trim()).filter(Boolean);
       const image = document.getElementById('catImage').value.trim() || 'assets/images/services/Accommodation.png';
 
       let error;
       if (editCatId) {
         ({ error } = await sb.from('accommodation_categories').update({
-          name, short_desc: desc, description: desc, base_price: price, max_guests: guests, default_beds: beds, image
+          name, short_desc: desc, description: desc, base_price: price, max_guests: guests,
+          default_beds: beds, facilities, image, order_num: orderNum, is_active: isActive
         }).eq('id', editCatId));
         if (!error) {
           await sb.from('accommodation_rooms').update({ category_name: name, base_price: price }).eq('category_id', editCatId);
@@ -548,7 +596,8 @@
       } else {
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString().slice(-4);
         ({ error } = await sb.from('accommodation_categories').insert([{
-          slug, name, short_desc: desc, description: desc, base_price: price, max_guests: guests, default_beds: beds, image, order_num: categoriesList.length + 1, is_active: true
+          slug, name, short_desc: desc, description: desc, base_price: price, max_guests: guests,
+          default_beds: beds, facilities, image, order_num: orderNum, is_active: isActive
         }]));
       }
 
