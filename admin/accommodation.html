@@ -213,9 +213,12 @@
           <form id="categoryForm">
             <input type="hidden" id="editCatId">
             <div class="mb-3">
-              <label class="form-label small fw-bold">Category Image (Upload or URL)</label>
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                <label class="form-label small fw-bold mb-0">Category Image (Upload or URL)</label>
+                <span class="badge bg-light text-dark border" style="font-size:0.7rem;"><i class="bi bi-aspect-ratio me-1 text-warning"></i>3:2 Landscape (1200 × 800 px)</span>
+              </div>
               <div class="p-2 rounded-3 border bg-light d-flex align-items-center gap-3">
-                <img id="catImagePreview" src="../assets/images/services/Accommodation.png" alt="Preview" style="width: 90px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
+                <img id="catImagePreview" src="../assets/images/services/Accommodation.png" alt="Preview" style="width: 96px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
                 <div class="flex-grow-1">
                   <div class="d-flex gap-2 mb-1">
                     <label class="btn btn-sm btn-admin-yellow mb-0" style="cursor:pointer;">
@@ -225,6 +228,7 @@
                     <span id="catUploadStatus" class="small text-muted align-self-center"></span>
                   </div>
                   <input type="text" id="catImage" class="form-control form-control-sm" placeholder="assets/images/services/Accommodation.png or https://..." oninput="document.getElementById('catImagePreview').src = resolveAdminImgSrc(this.value)">
+                  <div class="form-text mt-1" style="font-size:0.72rem;">Recommended: <strong>1200 × 800 px (3:2)</strong> • JPG / WebP • Under 500 KB.</div>
                 </div>
               </div>
             </div>

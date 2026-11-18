@@ -168,6 +168,46 @@ Deno.serve(async (req) => {
       return jsonResponse({ success: true });
     }
 
+    if (action === 'delete') {
+      const { subadmin_record_id, user_id } = body;
+      if (!subadmin_record_id) {
+        return jsonResponse({ error: 'subadmin_record_id is required' }, 400);
+      }
+
+      // Fetch record before deleting for audit & auth cleanup
+      const { data: targetRow } = await adminClient
+        .from('sub_admins')
+        .select('id, user_id, subadmin_id, email')
+        .eq('id', subadmin_record_id)
+        .maybeSingle();
+
+      const targetUserId = user_id || targetRow?.user_id;
+
+      const { error: delSubErr } = await adminClient
+        .from('sub_admins')
+        .delete()
+        .eq('id', subadmin_record_id);
+
+      if (delSubErr) return jsonResponse({ error: delSubErr.message }, 400);
+
+      if (targetUserId) {
+        await adminClient.from('profiles').delete().eq('id', targetUserId);
+        await adminClient.auth.admin.deleteUser(targetUserId).catch(() => {});
+      }
+
+      await adminClient.from('admin_activity_logs').insert({
+        user_id: caller.id,
+        user_email: caller.email,
+        user_role: 'Super Admin',
+        action: 'DELETE_SUBADMIN',
+        entity_type: 'sub_admins',
+        entity_id: targetRow?.subadmin_id || subadmin_record_id,
+        metadata: { email: targetRow?.email || null },
+      });
+
+      return jsonResponse({ success: true });
+    }
+
     return jsonResponse({ error: `Unsupported action: ${action}` }, 400);
   } catch (err) {
     return jsonResponse({ error: err instanceof Error ? err.message : 'Internal server error' }, 500);

@@ -169,10 +169,15 @@
           <td>${(s.assigned_modules || []).map(m => `<span class="badge bg-light text-dark border me-1">${m}</span>`).join('')}</td>
           <td class="small text-muted">${s.last_login ? formatDate(s.last_login) : 'Never logged in'}</td>
           <td>${getStatusBadge(s.is_active ? 'Active' : 'Deactivated')}</td>
-          <td class="text-end">
-            <button class="btn btn-sm ${s.is_active ? 'btn-outline-danger' : 'btn-outline-success'}" onclick="toggleSubAdmin('${s.id}', ${!s.is_active}, '${s.subadmin_id}')">
-              ${s.is_active ? 'Deactivate' : 'Activate'}
-            </button>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button class="btn ${s.is_active ? 'btn-outline-warning text-dark' : 'btn-outline-success'}" onclick="toggleSubAdmin('${s.id}', ${!s.is_active}, '${s.subadmin_id}')">
+                ${s.is_active ? 'Deactivate' : 'Activate'}
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteSubAdmin('${s.id}', '${s.user_id || ''}', '${s.subadmin_id}', '${String(s.full_name || '').replace(/'/g, "\\'")}')" title="Delete Sub-Admin">
+                <i class="bi bi-trash"></i> Delete
+              </button>
+            </div>
           </td>
         </tr>
       `).join('');
@@ -188,6 +193,26 @@
       }
       showAdminToast(`Sub-Admin ${code} ${newState ? 'activated' : 'deactivated'}.`, 'success');
       loadSubAdminsAndRoles();
+    }
+
+    async function deleteSubAdmin(id, userId, code, fullName) {
+      if (!confirm(`Permanently delete Sub-Admin "${code}" (${fullName}) and revoke their login access?`)) return;
+
+      const { data: fnData, error: fnErr } = await window.adminSupabase.functions.invoke('manage-subadmin', {
+        body: { action: 'delete', subadmin_record_id: id, user_id: userId || null }
+      });
+
+      if (fnErr || !fnData?.success) {
+        const { error: dbErr } = await window.adminSupabase.from('sub_admins').delete().eq('id', id);
+        if (dbErr) {
+          showAdminToast('Failed to delete Sub-Admin: ' + dbErr.message, 'error');
+          return;
+        }
+        await logAdminActivity('DELETE_SUBADMIN', 'sub_admins', code, { fullName });
+      }
+
+      showAdminToast(`Sub-Admin ${code} deleted permanently.`, 'warning');
+      await loadSubAdminsAndRoles();
     }
 
     document.getElementById('subAdminForm').addEventListener('submit', async (e) => {

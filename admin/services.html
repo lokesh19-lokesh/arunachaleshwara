@@ -134,9 +134,12 @@
                 </div>
               </div>
               <div class="col-12">
-                <label class="form-label small fw-bold">Service Image (Upload New or Edit URL)</label>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                  <label class="form-label small fw-bold mb-0">Service Image (Upload New or Edit URL)</label>
+                  <span class="badge bg-light text-dark border" style="font-size:0.72rem;"><i class="bi bi-aspect-ratio me-1 text-warning"></i>Best Ratio: <strong>3:2 Landscape</strong> (1200 × 800 px)</span>
+                </div>
                 <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                  <img id="srvImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 110px; height: 74px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
+                  <img id="srvImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 120px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
                   <div class="flex-grow-1 w-100">
                     <div class="d-flex flex-wrap gap-2 mb-2">
                       <label class="btn btn-sm btn-admin-yellow mb-0" style="cursor:pointer;">
@@ -149,6 +152,7 @@
                       <span id="srvUploadStatus" class="small text-muted align-self-center"></span>
                     </div>
                     <input type="text" id="srvImage" class="form-control form-control-sm" placeholder="assets/images/services/temple-darshan.png or https://..." oninput="updatePreview('srvImage', 'srvImagePreview')">
+                    <div class="form-text mt-1" style="font-size:0.74rem;">Recommended: <strong>1200 × 800 px (3:2 landscape)</strong> • JPG, PNG, or WebP • Keep under 500 KB for fast loading.</div>
                   </div>
                 </div>
               </div>
@@ -222,9 +226,12 @@
                 <input type="text" id="pkgBadge" class="form-control" placeholder="Popular">
               </div>
               <div class="col-12">
-                <label class="form-label small fw-bold">Package Image / Poster (Upload New or Edit URL)</label>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                  <label class="form-label small fw-bold mb-0">Package Image / Poster (Upload New or Edit URL)</label>
+                  <span class="badge bg-light text-dark border" style="font-size:0.72rem;"><i class="bi bi-aspect-ratio me-1 text-warning"></i>Best Ratio: <strong>16:9 Landscape</strong> (1280 × 720 px)</span>
+                </div>
                 <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-sm-row align-items-sm-center gap-3">
-                  <img id="pkgImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
+                  <img id="pkgImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 128px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
                   <div class="flex-grow-1 w-100">
                     <div class="d-flex flex-wrap gap-2 mb-2">
                       <label class="btn btn-sm btn-admin-yellow mb-0" style="cursor:pointer;">
@@ -237,6 +244,7 @@
                       <span id="pkgUploadStatus" class="small text-muted align-self-center"></span>
                     </div>
                     <input type="text" id="pkgImage" class="form-control form-control-sm" placeholder="assets/images/packages/tour1.jpg or https://..." oninput="updatePreview('pkgImage', 'pkgImagePreview')">
+                    <div class="form-text mt-1" style="font-size:0.74rem;">Recommended: <strong>1280 × 720 px (16:9 landscape)</strong> or <strong>1200 × 800 px (3:2)</strong> • JPG, PNG, or WebP • Keep under 500 KB.</div>
                   </div>
                 </div>
               </div>
@@ -415,10 +423,17 @@
       if (statusEl) statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
 
       try {
+        // Read image dimensions for helpful feedback
+        const dimLabel = await new Promise((resolve) => {
+          const probe = new Image();
+          probe.onload = () => resolve(`${probe.naturalWidth}×${probe.naturalHeight} px`);
+          probe.onerror = () => resolve('');
+          probe.src = localUrl;
+        });
         const publicUrl = await uploadAdminImage(file, folder);
         document.getElementById(targetInputId).value = publicUrl;
         document.getElementById(previewId).src = publicUrl;
-        if (statusEl) statusEl.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Uploaded!</span>';
+        if (statusEl) statusEl.innerHTML = `<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Uploaded${dimLabel ? ' (' + dimLabel + ')' : ''}!</span>`;
         showAdminToast('Image uploaded to Supabase Storage!', 'success');
       } catch (err) {
         if (statusEl) statusEl.innerHTML = '<span class="text-danger">Upload failed</span>';
