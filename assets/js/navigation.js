@@ -324,12 +324,11 @@ function applySiteInfoToNav(v) {
 
 function hydrateNavigationFromCMS() {
   try {
-    const raw = sessionStorage.getItem('arn_pub_site_info');
+    const raw = localStorage.getItem('arn_pub_site_info');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && (Date.now() - (parsed._ts || 0)) < 10 * 60 * 1000) {
+      if (parsed && parsed.data) {
         applySiteInfoToNav(parsed.data);
-        return;
       }
     }
   } catch (e) {}
@@ -343,7 +342,7 @@ function hydrateNavigationFromCMS() {
     .then(({ data }) => {
       if (!data || !data.value) return;
       try {
-        sessionStorage.setItem('arn_pub_site_info', JSON.stringify({ data: data.value, _ts: Date.now() }));
+        localStorage.setItem('arn_pub_site_info', JSON.stringify({ data: data.value, _ts: Date.now() }));
       } catch (e) {}
       applySiteInfoToNav(data.value);
     })

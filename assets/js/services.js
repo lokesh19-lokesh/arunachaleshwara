@@ -211,10 +211,17 @@ function renderServicesGrid(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Immediate render from local cached data (zero layout shift)
+  // Immediate render from latest cached DB data (if any) or static defaults (0ms instant paint)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('services');
+    if (cached && cached.length > 0) {
+      SERVICES_DATA = cached;
+      window.SERVICES_DATA = SERVICES_DATA;
+    }
+  }
   container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
 
-  // Silently hydrate with dynamic data from Supabase if available
+  // Always fetch fresh data from Supabase in background so Admin edits reflect immediately
   if (typeof fetchServicesFromSupabase === 'function') {
     fetchServicesFromSupabase().then(dbServices => {
       if (dbServices && dbServices.length > 0) {

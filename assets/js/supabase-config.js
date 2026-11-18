@@ -19,28 +19,25 @@ if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.c
   }
 }
 
-const PUBLIC_CACHE_TTL_MS = 5 * 60 * 1000;
 function getPublicCache(key) {
   try {
-    const raw = sessionStorage.getItem('arn_pub_' + key);
+    const raw = localStorage.getItem('arn_pub_' + key);
     if (!raw) return null;
     const p = JSON.parse(raw);
-    if (p && (Date.now() - (p._ts || 0)) < PUBLIC_CACHE_TTL_MS) return p.data;
+    return p ? p.data : null;
   } catch (e) {}
   return null;
 }
 function setPublicCache(key, data) {
-  try { sessionStorage.setItem('arn_pub_' + key, JSON.stringify({ data, _ts: Date.now() })); } catch (e) {}
+  try { localStorage.setItem('arn_pub_' + key, JSON.stringify({ data, _ts: Date.now() })); } catch (e) {}
 }
 
 /**
- * Fetch dynamic services from Supabase (with 5-min sessionStorage cache)
+ * Fetch fresh dynamic services from Supabase (always fetches latest & updates localStorage cache)
  * @returns {Promise<Array|null>}
  */
 async function fetchServicesFromSupabase() {
-  const cached = getPublicCache('services');
-  if (cached) return cached;
-  if (!supabaseClient) return null;
+  if (!supabaseClient) return getPublicCache('services');
   try {
     const { data, error } = await supabaseClient
       .from('services')
@@ -50,7 +47,7 @@ async function fetchServicesFromSupabase() {
 
     if (error) {
       console.warn('Supabase services fetch error:', error.message);
-      return null;
+      return getPublicCache('services');
     }
 
     if (data && data.length > 0) {
@@ -75,18 +72,16 @@ async function fetchServicesFromSupabase() {
     return null;
   } catch (err) {
     console.warn('Error connecting to Supabase services:', err);
-    return null;
+    return getPublicCache('services');
   }
 }
 
 /**
- * Fetch dynamic tour packages from Supabase (with 5-min sessionStorage cache)
+ * Fetch fresh dynamic tour packages from Supabase (always fetches latest & updates localStorage cache)
  * @returns {Promise<Array|null>}
  */
 async function fetchPackagesFromSupabase() {
-  const cached = getPublicCache('packages');
-  if (cached) return cached;
-  if (!supabaseClient) return null;
+  if (!supabaseClient) return getPublicCache('packages');
   try {
     const { data, error } = await supabaseClient
       .from('tour_packages')
@@ -96,7 +91,7 @@ async function fetchPackagesFromSupabase() {
 
     if (error) {
       console.warn('Supabase packages fetch error:', error.message);
-      return null;
+      return getPublicCache('packages');
     }
 
     if (data && data.length > 0) {
@@ -129,7 +124,7 @@ async function fetchPackagesFromSupabase() {
     return null;
   } catch (err) {
     console.warn('Error connecting to Supabase packages:', err);
-    return null;
+    return getPublicCache('packages');
   }
 }
 
@@ -213,6 +208,7 @@ async function submitContactMessageToSupabase(contact) {
 // Expose globally
 if (typeof window !== 'undefined') {
   window.SUPABASE_CONFIG = SUPABASE_CONFIG;
+  window.getPublicCache = getPublicCache;
   window.fetchServicesFromSupabase = fetchServicesFromSupabase;
   window.fetchPackagesFromSupabase = fetchPackagesFromSupabase;
   window.submitEnquiryToSupabase = submitEnquiryToSupabase;

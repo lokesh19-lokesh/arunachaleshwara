@@ -300,6 +300,8 @@
 
     function invalidatePublicCatalogCache() {
       try {
+        localStorage.removeItem('arn_pub_services');
+        localStorage.removeItem('arn_pub_packages');
         sessionStorage.removeItem('arn_pub_services');
         sessionStorage.removeItem('arn_pub_packages');
       } catch (e) {}
