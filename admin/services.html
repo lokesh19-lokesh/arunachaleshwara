@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <title>Services & Tours – Arunachaleshwara Admin</title>
+  <title>Services &amp; Tours – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,40 +20,66 @@
       <header class="admin-header" id="adminHeader"></header>
       <div class="admin-content">
         <ul class="nav nav-tabs mb-4">
-          <li class="nav-item"><button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#servicesTab">Dynamic Services (8)</button></li>
-          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packagesTab">Tour Packages (10)</button></li>
-          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#enquiriesTab">Website Enquiries</button></li>
+          <li class="nav-item"><button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#servicesTab">Dynamic Services (<span id="srvCountTab">0</span>)</button></li>
+          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packagesTab">Tour Packages (<span id="pkgCountTab">0</span>)</button></li>
+          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#enquiriesTab">Website Enquiries (<span id="enqCountTab">0</span>)</button></li>
         </ul>
 
         <div class="tab-content">
+          <!-- Tab 1: Dynamic Services -->
           <div class="tab-pane fade show active" id="servicesTab">
             <div class="admin-card">
               <div class="admin-card-header">
                 <h6 class="admin-card-title"><i class="bi bi-gear-fill text-warning"></i> Active Website Services</h6>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openServiceModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add New Service
+                </button>
               </div>
               <div class="table-responsive">
                 <table class="table admin-table">
-                  <thead><tr><th>Order</th><th>Service Title</th><th>Short Description</th><th>Status</th><th class="text-end">Action</th></tr></thead>
-                  <tbody id="servicesBody"><tr><td colspan="5" class="text-center py-4">Loading...</td></tr></tbody>
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Service Title</th>
+                      <th>Short Description</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="servicesBody"><tr><td colspan="5" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
                 </table>
               </div>
             </div>
           </div>
 
+          <!-- Tab 2: Tour Packages -->
           <div class="tab-pane fade" id="packagesTab">
             <div class="admin-card">
               <div class="admin-card-header">
                 <h6 class="admin-card-title"><i class="bi bi-compass-fill text-warning"></i> Dynamic Temple Tour Packages</h6>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openPackageModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add New Package
+                </button>
               </div>
               <div class="table-responsive">
                 <table class="table admin-table">
-                  <thead><tr><th>Package Title</th><th>Category</th><th>Duration</th><th>Featured</th><th>Status</th><th class="text-end">Action</th></tr></thead>
-                  <tbody id="packagesBody"><tr><td colspan="6" class="text-center py-4">Loading...</td></tr></tbody>
+                  <thead>
+                    <tr>
+                      <th>Package Title</th>
+                      <th>Category</th>
+                      <th>Duration</th>
+                      <th>Featured</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="packagesBody"><tr><td colspan="6" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
                 </table>
               </div>
             </div>
           </div>
 
+          <!-- Tab 3: Website Enquiries -->
           <div class="tab-pane fade" id="enquiriesTab">
             <div class="admin-card">
               <div class="admin-card-header">
@@ -61,8 +87,17 @@
               </div>
               <div class="table-responsive">
                 <table class="table admin-table">
-                  <thead><tr><th>Date</th><th>Customer</th><th>Service / Destination</th><th>Travel Date</th><th>Status</th><th class="text-end">WhatsApp</th></tr></thead>
-                  <tbody id="enquiriesBody"><tr><td colspan="6" class="text-center py-4">Loading...</td></tr></tbody>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Customer</th>
+                      <th>Service / Destination</th>
+                      <th>Travel Date</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="enquiriesBody"><tr><td colspan="6" class="text-center py-4 text-muted">Loading...</td></tr></tbody>
                 </table>
               </div>
             </div>
@@ -72,11 +107,153 @@
     </main>
   </div>
 
+  <!-- Add / Edit Service Modal -->
+  <div class="modal fade" id="serviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="serviceModalTitle">Add New Service</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="serviceForm">
+            <input type="hidden" id="editServiceId">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label small fw-bold">Service Title *</label>
+                <input type="text" id="srvTitle" class="form-control" placeholder="e.g. Temple Darshan Services" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Display Order</label>
+                <input type="number" id="srvOrder" class="form-control" value="1" min="1">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="srvActive" checked>
+                  <label class="form-check-label small fw-bold" for="srvActive">Active</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Image Path or URL</label>
+                <input type="text" id="srvImage" class="form-control" placeholder="assets/images/services/temple-darshan.png">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Bootstrap Icon Class</label>
+                <input type="text" id="srvIcon" class="form-control" value="bi-gear-fill" placeholder="e.g. bi-car-front-fill">
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Short Description *</label>
+                <textarea id="srvShortDesc" class="form-control" rows="2" required></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Full Overview / Details</label>
+                <textarea id="srvOverview" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Key Features (one per line)</label>
+                <textarea id="srvFeatures" class="form-control" rows="3" placeholder="Experienced Drivers&#10;24/7 Support&#10;Clean Vehicles"></textarea>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Service</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Tour Package Modal -->
+  <div class="modal fade" id="packageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="packageModalTitle">Add New Tour Package</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="packageForm">
+            <input type="hidden" id="editPackageId">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Package Title *</label>
+                <input type="text" id="pkgTitle" class="form-control" placeholder="e.g. 1 Day Sapta Shiva Kshetra Yatra" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Telugu Subtitle (Optional)</label>
+                <input type="text" id="pkgTelugu" class="form-control" placeholder="సప్త శివక్షేత్ర యాత్ర">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Category *</label>
+                <select id="pkgCategory" class="form-select">
+                  <option value="Local Temple Tours">Local Temple Tours</option>
+                  <option value="Tamil Nadu Temple Tours">Tamil Nadu Temple Tours</option>
+                  <option value="Pancha Bhootha Linga Yatra">Pancha Bhootha Linga Yatra</option>
+                  <option value="Weekend Pilgrimage">Weekend Pilgrimage</option>
+                  <option value="Customized Pilgrimage">Customized Pilgrimage</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Duration *</label>
+                <input type="text" id="pkgDuration" class="form-control" placeholder="e.g. 1 Day (04:00 AM - Night)" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold">Order</label>
+                <input type="number" id="pkgOrder" class="form-control" value="1" min="1">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold">Badge</label>
+                <input type="text" id="pkgBadge" class="form-control" placeholder="Popular">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Image Path or URL</label>
+                <input type="text" id="pkgImage" class="form-control" placeholder="assets/images/packages/tour1.jpg">
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="pkgFeatured" checked>
+                  <label class="form-check-label small fw-bold" for="pkgFeatured">Featured on Home</label>
+                </div>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="pkgActive" checked>
+                  <label class="form-check-label small fw-bold" for="pkgActive">Active</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Short Description *</label>
+                <textarea id="pkgShortDesc" class="form-control" rows="2" required></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Full Overview</label>
+                <textarea id="pkgOverview" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Places Covered (one per line)</label>
+                <textarea id="pkgPlaces" class="form-control" rows="3" placeholder="Chidambaram&#10;Vaitheeswaran Koil&#10;Kumbakonam"></textarea>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Package</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script>
+    let servicesList = [];
+    let packagesList = [];
+    let enquiriesList = [];
+
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await requireAdminAuth();
       if (!user) return;
@@ -85,7 +262,22 @@
       loadCatalog();
     });
 
+    function invalidatePublicCatalogCache() {
+      try {
+        sessionStorage.removeItem('arn_pub_services');
+        sessionStorage.removeItem('arn_pub_packages');
+      } catch (e) {}
+    }
+
     async function loadCatalog() {
+      const cached = adminCacheGet('services_catalog', 3 * 60 * 1000);
+      if (cached) {
+        servicesList = cached.srvs || [];
+        packagesList = cached.pkgs || [];
+        enquiriesList = cached.enqs || [];
+        renderCatalogUI();
+      }
+
       const sb = window.adminSupabase;
       const [{ data: srvs }, { data: pkgs }, { data: enqs }] = await Promise.all([
         sb.from('services').select('*').order('order_num'),
@@ -93,60 +285,253 @@
         sb.from('enquiries').select('*').order('created_at', { ascending: false })
       ]);
 
-      document.getElementById('servicesBody').innerHTML = (srvs || []).map(s => `
+      servicesList = srvs || [];
+      packagesList = pkgs || [];
+      enquiriesList = enqs || [];
+      adminCacheSet('services_catalog', { srvs: servicesList, pkgs: packagesList, enqs: enquiriesList });
+      renderCatalogUI();
+    }
+
+    function renderCatalogUI() {
+      document.getElementById('srvCountTab').textContent = servicesList.length;
+      document.getElementById('pkgCountTab').textContent = packagesList.length;
+      document.getElementById('enqCountTab').textContent = enquiriesList.length;
+
+      document.getElementById('servicesBody').innerHTML = servicesList.length === 0
+        ? '<tr><td colspan="5" class="text-center py-4 text-muted">No services configured.</td></tr>'
+        : servicesList.map(s => `
         <tr>
-          <td>#${s.order_num}</td>
+          <td>#${s.order_num || 1}</td>
           <td class="fw-bold text-maroon">${s.title}</td>
-          <td class="small text-muted">${s.short_desc}</td>
+          <td class="small text-muted">${s.short_desc || ''}</td>
           <td>${getStatusBadge(s.is_active ? 'Active' : 'Inactive')}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-outline-secondary" onclick="toggleActive('services', '${s.id}', ${!s.is_active})">
-              ${s.is_active ? 'Disable' : 'Enable'}
-            </button>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="openServiceModal('${s.id}')" title="Edit Service">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-secondary" onclick="toggleActive('services', '${s.id}', ${!s.is_active})" title="Toggle Visibility">
+                ${s.is_active ? 'Disable' : 'Enable'}
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteCatalogItem('services', '${s.id}', '${String(s.title).replace(/'/g, "\\'")}')" title="Delete Service">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>
       `).join('');
 
-      document.getElementById('packagesBody').innerHTML = (pkgs || []).map(p => `
+      document.getElementById('packagesBody').innerHTML = packagesList.length === 0
+        ? '<tr><td colspan="6" class="text-center py-4 text-muted">No tour packages configured.</td></tr>'
+        : packagesList.map(p => `
         <tr>
           <td class="fw-bold text-maroon">${p.title}<div class="small text-muted">${p.telugu_title || ''}</div></td>
-          <td class="small">${p.category}</td>
-          <td class="small">${p.duration}</td>
+          <td class="small">${p.category || ''}</td>
+          <td class="small">${p.duration || ''}</td>
           <td>${p.featured ? '<span class="badge bg-warning text-dark">Featured</span>' : '—'}</td>
           <td>${getStatusBadge(p.is_active ? 'Active' : 'Inactive')}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-outline-secondary" onclick="toggleActive('tour_packages', '${p.id}', ${!p.is_active})">
-              ${p.is_active ? 'Hide' : 'Show'}
-            </button>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="openPackageModal('${p.id}')" title="Edit Package">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-secondary" onclick="toggleActive('tour_packages', '${p.id}', ${!p.is_active})" title="Toggle Visibility">
+                ${p.is_active ? 'Hide' : 'Show'}
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteCatalogItem('tour_packages', '${p.id}', '${String(p.title).replace(/'/g, "\\'")}')" title="Delete Package">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>
       `).join('');
 
-      document.getElementById('enquiriesBody').innerHTML = (enqs || []).length === 0
+      document.getElementById('enquiriesBody').innerHTML = enquiriesList.length === 0
         ? '<tr><td colspan="6" class="text-center py-4 text-muted">No enquiries submitted yet.</td></tr>'
-        : (enqs || []).map(e => `
+        : enquiriesList.map(e => `
         <tr>
           <td class="small">${formatDate(e.created_at)}</td>
           <td><div class="fw-semibold">${e.customer_name}</div><small class="text-muted">${e.phone}</small></td>
           <td class="small"><strong>${e.service_type || 'General'}</strong><br>${e.destination || ''}</td>
           <td class="small">${formatDate(e.travel_date)}</td>
           <td>${getStatusBadge(e.status || 'New')}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-admin-whatsapp" onclick="openWhatsAppShare('${e.phone}', 'Namaste ${e.customer_name}! Thank you for enquiring about ${e.service_type || e.destination || 'our services'} at Arunachaleshwara Tours & Travels. How can we help you?', null, 'Enquiry Reply')">
+          <td class="text-end text-nowrap">
+            <button class="btn btn-sm btn-admin-whatsapp me-1" onclick="openWhatsAppShare('${e.phone}', 'Namaste ${String(e.customer_name || '').replace(/'/g, "\\'")}! Thank you for enquiring about ${String(e.service_type || e.destination || 'our services').replace(/'/g, "\\'")} at Arunachaleshwara Tours & Travels. How can we help you?', null, 'Enquiry Reply')">
               <i class="bi bi-whatsapp"></i> Reply
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteCatalogItem('enquiries', '${e.id}', 'Enquiry from ${String(e.customer_name || '').replace(/'/g, "\\'")}')" title="Delete Enquiry">
+              <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>
       `).join('');
     }
 
+    function openServiceModal(id = '') {
+      const form = document.getElementById('serviceForm');
+      form.reset();
+      document.getElementById('editServiceId').value = id || '';
+
+      if (id) {
+        const s = servicesList.find(x => String(x.id) === String(id));
+        if (!s) return;
+        document.getElementById('serviceModalTitle').textContent = 'Edit Service: ' + s.title;
+        document.getElementById('srvTitle').value = s.title || '';
+        document.getElementById('srvOrder').value = s.order_num || 1;
+        document.getElementById('srvActive').checked = s.is_active !== false;
+        document.getElementById('srvImage').value = s.image || '';
+        document.getElementById('srvIcon').value = s.icon || 'bi-gear-fill';
+        document.getElementById('srvShortDesc').value = s.short_desc || '';
+        document.getElementById('srvOverview').value = s.overview || '';
+        document.getElementById('srvFeatures').value = Array.isArray(s.features) ? s.features.join('\n') : '';
+      } else {
+        document.getElementById('serviceModalTitle').textContent = 'Add New Service';
+        document.getElementById('srvOrder').value = servicesList.length + 1;
+        document.getElementById('srvActive').checked = true;
+      }
+
+      new bootstrap.Modal(document.getElementById('serviceModal')).show();
+    }
+
+    function openPackageModal(id = '') {
+      const form = document.getElementById('packageForm');
+      form.reset();
+      document.getElementById('editPackageId').value = id || '';
+
+      if (id) {
+        const p = packagesList.find(x => String(x.id) === String(id));
+        if (!p) return;
+        document.getElementById('packageModalTitle').textContent = 'Edit Package: ' + p.title;
+        document.getElementById('pkgTitle').value = p.title || '';
+        document.getElementById('pkgTelugu').value = p.telugu_title || '';
+        document.getElementById('pkgCategory').value = p.category || 'Tamil Nadu Temple Tours';
+        document.getElementById('pkgDuration').value = p.duration || '1 Day';
+        document.getElementById('pkgOrder').value = p.order_num || 1;
+        document.getElementById('pkgBadge').value = p.badge || '';
+        document.getElementById('pkgImage').value = p.image || '';
+        document.getElementById('pkgFeatured').checked = Boolean(p.featured);
+        document.getElementById('pkgActive').checked = p.is_active !== false;
+        document.getElementById('pkgShortDesc').value = p.short_desc || '';
+        document.getElementById('pkgOverview').value = p.overview || '';
+        document.getElementById('pkgPlaces').value = Array.isArray(p.places) ? p.places.join('\n') : '';
+      } else {
+        document.getElementById('packageModalTitle').textContent = 'Add New Tour Package';
+        document.getElementById('pkgOrder').value = packagesList.length + 1;
+        document.getElementById('pkgFeatured').checked = true;
+        document.getElementById('pkgActive').checked = true;
+      }
+
+      new bootstrap.Modal(document.getElementById('packageModal')).show();
+    }
+
+    document.getElementById('serviceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const editId = document.getElementById('editServiceId').value.trim();
+      const title = document.getElementById('srvTitle').value.trim();
+      const features = document.getElementById('srvFeatures').value
+        .split('\n').map(l => l.trim()).filter(Boolean);
+
+      const payload = {
+        title,
+        order_num: parseInt(document.getElementById('srvOrder').value) || 1,
+        is_active: document.getElementById('srvActive').checked,
+        image: document.getElementById('srvImage').value.trim() || null,
+        icon: document.getElementById('srvIcon').value.trim() || 'bi-gear-fill',
+        short_desc: document.getElementById('srvShortDesc').value.trim(),
+        overview: document.getElementById('srvOverview').value.trim() || document.getElementById('srvShortDesc').value.trim(),
+        features
+      };
+
+      let err;
+      if (editId) {
+        ({ error: err } = await sb.from('services').update(payload).eq('id', editId));
+      } else {
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('service-' + Date.now());
+        payload.id = slug;
+        ({ error: err } = await sb.from('services').insert([payload]));
+      }
+
+      if (err) {
+        showAdminToast('Error saving service: ' + err.message, 'error');
+        return;
+      }
+
+      invalidatePublicCatalogCache();
+      await logAdminActivity(editId ? 'EDIT_SERVICE' : 'ADD_SERVICE', 'services', editId || payload.id, { title });
+      showAdminToast(`Service "${title}" saved!`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
+      await loadCatalog();
+    });
+
+    document.getElementById('packageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sb = window.adminSupabase;
+      const editId = document.getElementById('editPackageId').value.trim();
+      const title = document.getElementById('pkgTitle').value.trim();
+      const places = document.getElementById('pkgPlaces').value
+        .split('\n').map(l => l.trim()).filter(Boolean);
+
+      const payload = {
+        title,
+        telugu_title: document.getElementById('pkgTelugu').value.trim() || null,
+        category: document.getElementById('pkgCategory').value,
+        duration: document.getElementById('pkgDuration').value.trim(),
+        order_num: parseInt(document.getElementById('pkgOrder').value) || 1,
+        badge: document.getElementById('pkgBadge').value.trim() || null,
+        image: document.getElementById('pkgImage').value.trim() || null,
+        featured: document.getElementById('pkgFeatured').checked,
+        is_active: document.getElementById('pkgActive').checked,
+        short_desc: document.getElementById('pkgShortDesc').value.trim(),
+        overview: document.getElementById('pkgOverview').value.trim() || document.getElementById('pkgShortDesc').value.trim(),
+        places
+      };
+
+      let err;
+      if (editId) {
+        ({ error: err } = await sb.from('tour_packages').update(payload).eq('id', editId));
+      } else {
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('package-' + Date.now());
+        payload.id = slug;
+        ({ error: err } = await sb.from('tour_packages').insert([payload]));
+      }
+
+      if (err) {
+        showAdminToast('Error saving package: ' + err.message, 'error');
+        return;
+      }
+
+      invalidatePublicCatalogCache();
+      await logAdminActivity(editId ? 'EDIT_PACKAGE' : 'ADD_PACKAGE', 'tour_packages', editId || payload.id, { title });
+      showAdminToast(`Tour Package "${title}" saved!`, 'success');
+      bootstrap.Modal.getInstance(document.getElementById('packageModal')).hide();
+      await loadCatalog();
+    });
+
     async function toggleActive(table, id, newState) {
-      await window.adminSupabase.from(table).update({ is_active: newState }).eq('id', id);
+      const { error } = await window.adminSupabase.from(table).update({ is_active: newState }).eq('id', id);
+      if (error) {
+        showAdminToast('Error updating status: ' + error.message, 'error');
+        return;
+      }
+      invalidatePublicCatalogCache();
       await logAdminActivity('TOGGLE_CATALOG_ACTIVE', table, id, { is_active: newState });
       showAdminToast('Updated visibility successfully! Website reflects change immediately.', 'success');
-      loadCatalog();
+      await loadCatalog();
+    }
+
+    async function deleteCatalogItem(table, id, label) {
+      if (!confirm(`Are you sure you want to permanently delete "${label}"? This action cannot be undone.`)) return;
+      const { error } = await window.adminSupabase.from(table).delete().eq('id', id);
+      if (error) {
+        showAdminToast('Delete failed: ' + error.message, 'error');
+        return;
+      }
+      invalidatePublicCatalogCache();
+      await logAdminActivity('DELETE_CATALOG_ITEM', table, id, { label });
+      showAdminToast(`Deleted "${label}" successfully.`, 'warning');
+      await loadCatalog();
     }
   </script>
 </body>
 </html>
-
