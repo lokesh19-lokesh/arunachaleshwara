@@ -247,6 +247,51 @@ function adminCacheSet(key, data) {
   } catch (e) {}
 }
 
+/**
+ * Resolve image URL for preview inside /admin/ pages
+ */
+function resolveAdminImgSrc(src) {
+  if (!src) return '../assets/images/popup.png';
+  const s = String(src).trim();
+  if (/^(https?:|data:|blob:|\.\.\/|\/)/i.test(s)) return s;
+  return '../' + s;
+}
+
+/**
+ * Upload an image file to Supabase Storage (public 'media' bucket)
+ * Also logs into media_library and returns the permanent public URL.
+ */
+async function uploadAdminImage(file, folder = 'general') {
+  if (!window.adminSupabase) throw new Error('Supabase client not initialized');
+  if (!file) throw new Error('No file selected');
+  if (file.size > 10 * 1024 * 1024) throw new Error('Image must be smaller than 10 MB');
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const storagePath = `${folder}/${Date.now()}-${safeName}`;
+
+  const { error: uploadErr } = await window.adminSupabase.storage
+    .from('media')
+    .upload(storagePath, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+
+  if (uploadErr) throw uploadErr;
+
+  const { data: pubData } = window.adminSupabase.storage.from('media').getPublicUrl(storagePath);
+  const publicUrl = pubData && pubData.publicUrl;
+  if (!publicUrl) throw new Error('Failed to generate public image URL');
+
+  // Record in media_library (non-blocking)
+  window.adminSupabase.from('media_library').insert([{
+    title: file.name,
+    filename: safeName,
+    file_url: publicUrl,
+    file_type: 'image',
+    category: folder,
+    uploaded_by: window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.id : null
+  }]).then(() => {}).catch(() => {});
+
+  return publicUrl;
+}
+
 window.renderAdminSidebar = renderAdminSidebar;
 window.renderAdminHeader = renderAdminHeader;
 window.showAdminToast = showAdminToast;
@@ -256,4 +301,6 @@ window.getStatusBadge = getStatusBadge;
 window.openWhatsAppShare = openWhatsAppShare;
 window.adminCacheGet = adminCacheGet;
 window.adminCacheSet = adminCacheSet;
+window.resolveAdminImgSrc = resolveAdminImgSrc;
+window.uploadAdminImage = uploadAdminImage;
 

@@ -133,9 +133,24 @@
                   <label class="form-check-label small fw-bold" for="srvActive">Active</label>
                 </div>
               </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-bold">Image Path or URL</label>
-                <input type="text" id="srvImage" class="form-control" placeholder="assets/images/services/temple-darshan.png">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Service Image (Upload New or Edit URL)</label>
+                <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                  <img id="srvImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 110px; height: 74px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
+                  <div class="flex-grow-1 w-100">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                      <label class="btn btn-sm btn-admin-yellow mb-0" style="cursor:pointer;">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Image
+                        <input type="file" id="srvImageFile" accept="image/*" class="d-none" onchange="handleImageUpload(this, 'srvImage', 'srvImagePreview', 'services', 'srvUploadStatus')">
+                      </label>
+                      <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearImageField('srvImage', 'srvImagePreview')">
+                        <i class="bi bi-x-lg me-1"></i> Clear
+                      </button>
+                      <span id="srvUploadStatus" class="small text-muted align-self-center"></span>
+                    </div>
+                    <input type="text" id="srvImage" class="form-control form-control-sm" placeholder="assets/images/services/temple-darshan.png or https://..." oninput="updatePreview('srvImage', 'srvImagePreview')">
+                  </div>
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Bootstrap Icon Class</label>
@@ -206,18 +221,31 @@
                 <label class="form-label small fw-bold">Badge</label>
                 <input type="text" id="pkgBadge" class="form-control" placeholder="Popular">
               </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-bold">Image Path or URL</label>
-                <input type="text" id="pkgImage" class="form-control" placeholder="assets/images/packages/tour1.jpg">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Package Image / Poster (Upload New or Edit URL)</label>
+                <div class="p-3 rounded-3 border bg-light d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                  <img id="pkgImagePreview" src="../assets/images/popup.png" alt="Preview" style="width: 120px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #CBD5E1; flex-shrink: 0;">
+                  <div class="flex-grow-1 w-100">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                      <label class="btn btn-sm btn-admin-yellow mb-0" style="cursor:pointer;">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Image / Poster
+                        <input type="file" id="pkgImageFile" accept="image/*" class="d-none" onchange="handleImageUpload(this, 'pkgImage', 'pkgImagePreview', 'packages', 'pkgUploadStatus')">
+                      </label>
+                      <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearImageField('pkgImage', 'pkgImagePreview')">
+                        <i class="bi bi-x-lg me-1"></i> Clear
+                      </button>
+                      <span id="pkgUploadStatus" class="small text-muted align-self-center"></span>
+                    </div>
+                    <input type="text" id="pkgImage" class="form-control form-control-sm" placeholder="assets/images/packages/tour1.jpg or https://..." oninput="updatePreview('pkgImage', 'pkgImagePreview')">
+                  </div>
+                </div>
               </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <div class="form-check mb-2">
+              <div class="col-md-6 d-flex align-items-center gap-4">
+                <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="pkgFeatured" checked>
                   <label class="form-check-label small fw-bold" for="pkgFeatured">Featured on Home</label>
                 </div>
-              </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <div class="form-check mb-2">
+                <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="pkgActive" checked>
                   <label class="form-check-label small fw-bold" for="pkgActive">Active</label>
                 </div>
@@ -367,10 +395,44 @@
       `).join('');
     }
 
+    function updatePreview(inputId, previewId) {
+      const val = document.getElementById(inputId).value.trim();
+      document.getElementById(previewId).src = resolveAdminImgSrc(val);
+    }
+
+    function clearImageField(inputId, previewId) {
+      document.getElementById(inputId).value = '';
+      document.getElementById(previewId).src = '../assets/images/popup.png';
+    }
+
+    async function handleImageUpload(fileInput, targetInputId, previewId, folder, statusId) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById(statusId);
+      // Instant local preview while uploading
+      const localUrl = URL.createObjectURL(file);
+      document.getElementById(previewId).src = localUrl;
+      if (statusEl) statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading...';
+
+      try {
+        const publicUrl = await uploadAdminImage(file, folder);
+        document.getElementById(targetInputId).value = publicUrl;
+        document.getElementById(previewId).src = publicUrl;
+        if (statusEl) statusEl.innerHTML = '<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Uploaded!</span>';
+        showAdminToast('Image uploaded to Supabase Storage!', 'success');
+      } catch (err) {
+        if (statusEl) statusEl.innerHTML = '<span class="text-danger">Upload failed</span>';
+        showAdminToast('Image upload error: ' + (err.message || err), 'error');
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
     function openServiceModal(id = '') {
       const form = document.getElementById('serviceForm');
       form.reset();
       document.getElementById('editServiceId').value = id || '';
+      document.getElementById('srvUploadStatus').textContent = '';
 
       if (id) {
         const s = servicesList.find(x => String(x.id) === String(id));
@@ -380,6 +442,7 @@
         document.getElementById('srvOrder').value = s.order_num || 1;
         document.getElementById('srvActive').checked = s.is_active !== false;
         document.getElementById('srvImage').value = s.image || '';
+        document.getElementById('srvImagePreview').src = resolveAdminImgSrc(s.image);
         document.getElementById('srvIcon').value = s.icon || 'bi-gear-fill';
         document.getElementById('srvShortDesc').value = s.short_desc || '';
         document.getElementById('srvOverview').value = s.overview || '';
@@ -388,6 +451,7 @@
         document.getElementById('serviceModalTitle').textContent = 'Add New Service';
         document.getElementById('srvOrder').value = servicesList.length + 1;
         document.getElementById('srvActive').checked = true;
+        document.getElementById('srvImagePreview').src = '../assets/images/popup.png';
       }
 
       new bootstrap.Modal(document.getElementById('serviceModal')).show();
@@ -397,6 +461,7 @@
       const form = document.getElementById('packageForm');
       form.reset();
       document.getElementById('editPackageId').value = id || '';
+      document.getElementById('pkgUploadStatus').textContent = '';
 
       if (id) {
         const p = packagesList.find(x => String(x.id) === String(id));
@@ -409,6 +474,7 @@
         document.getElementById('pkgOrder').value = p.order_num || 1;
         document.getElementById('pkgBadge').value = p.badge || '';
         document.getElementById('pkgImage').value = p.image || '';
+        document.getElementById('pkgImagePreview').src = resolveAdminImgSrc(p.image);
         document.getElementById('pkgFeatured').checked = Boolean(p.featured);
         document.getElementById('pkgActive').checked = p.is_active !== false;
         document.getElementById('pkgShortDesc').value = p.short_desc || '';
@@ -419,6 +485,7 @@
         document.getElementById('pkgOrder').value = packagesList.length + 1;
         document.getElementById('pkgFeatured').checked = true;
         document.getElementById('pkgActive').checked = true;
+        document.getElementById('pkgImagePreview').src = '../assets/images/popup.png';
       }
 
       new bootstrap.Modal(document.getElementById('packageModal')).show();
