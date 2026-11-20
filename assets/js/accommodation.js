@@ -224,12 +224,12 @@ function openBookingRequestModal(categorySlug) {
 
   onAccGuestCountsChanged();
 
-  // Initialize Document Uploader
+  // Initialize Document Uploader (Mandatory)
   if (typeof BookingDocUploader !== 'undefined') {
     window['accDocUploader'] = new BookingDocUploader('accDocUploaderContainer', 'accommodation', {
       title: 'Guest Identification Documents (Aadhaar / Passport / Govt ID)',
-      description: 'Upload valid ID proof for guests (PDF, JPG, or PNG under 5 MB).',
-      mandatory: false
+      description: 'Mandatory: Upload valid Govt ID proof for guests (Aadhaar, Passport, or Govt ID under 5 MB).',
+      mandatory: true
     });
   }
 
@@ -352,7 +352,14 @@ async function handleBookingRequestSubmit(e) {
       }
     }
 
-    // 2. Collect uploaded identification documents
+    // 2. Validate and collect uploaded identification documents (Mandatory)
+    if (window['accDocUploader'] && !window['accDocUploader'].validate()) {
+      alert('Guest Identification Document is mandatory. Please upload valid Govt ID proof (Aadhaar / Passport / Govt ID) before submitting.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send-check-fill me-1"></i> SUBMIT BOOKING REQUEST';
+      return;
+    }
+
     let uploadedDocs = [];
     if (window['accDocUploader'] && typeof window['accDocUploader'].getDocuments === 'function') {
       uploadedDocs = window['accDocUploader'].getDocuments();

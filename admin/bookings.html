@@ -230,9 +230,18 @@
                 <input type="date" id="wCheckOut" class="form-control" required>
               </div>
               <div class="col-md-4 walkin-acc-field">
-                <label class="form-label small fw-bold">Number of Guests *</label>
-                <input type="number" id="wGuests" class="form-control" value="2" min="1" max="50" required>
+                <label class="form-label small fw-bold">Number of Rooms</label>
+                <input type="number" id="wRoomsCount" class="form-control" value="1" min="1" max="10">
               </div>
+              <div class="col-md-6 walkin-acc-field">
+                <label class="form-label small fw-bold">Adult Guests (Age 12+) *</label>
+                <input type="number" id="wWalkinAdults" class="form-control" value="2" min="1" max="30" oninput="onWalkinGuestCountChanged()" required>
+              </div>
+              <div class="col-md-6 walkin-acc-field">
+                <label class="form-label small fw-bold">Children (&lt; 12 yrs)</label>
+                <input type="number" id="wWalkinChildren" class="form-control" value="0" min="0" max="20" oninput="onWalkinGuestCountChanged()">
+              </div>
+              <input type="hidden" id="wGuests" value="2">
 
               <!-- Services & Tours-specific fields -->
               <div class="col-md-6 walkin-srv-field d-none">
@@ -279,7 +288,7 @@
               <div class="col-md-4 walkin-darshan-field d-none">
                 <label class="form-label small fw-bold">Number of Devotees *</label>
                 <input type="number" id="wDarshanDevotees" class="form-control" value="2" min="1" max="50"
-                  oninput="calculateDarshanAmount()">
+                  oninput="calculateDarshanAmount(); onWalkinGuestCountChanged();">
               </div>
               <div class="col-md-4 walkin-darshan-field d-none">
                 <label class="form-label small fw-bold">Total Estimated (₹) *</label>
@@ -320,7 +329,7 @@
               <div class="col-md-4 walkin-bus-field d-none">
                 <label class="form-label small fw-bold">Seats (Pax) *</label>
                 <input type="number" id="wBusSeats" class="form-control" value="2" min="1" max="50"
-                  oninput="calculateBusAmount()">
+                  oninput="calculateBusAmount(); onWalkinGuestCountChanged();">
               </div>
               <div class="col-md-4 walkin-bus-field d-none">
                 <label class="form-label small fw-bold">Total Fare (₹) *</label>
@@ -370,7 +379,8 @@
               </div>
               <div class="col-md-4 walkin-taxi-field d-none">
                 <label class="form-label small fw-bold">Passengers (Pax) *</label>
-                <input type="number" id="wTaxiPassengers" class="form-control" value="4" min="1" max="25">
+                <input type="number" id="wTaxiPassengers" class="form-control" value="4" min="1" max="25"
+                  oninput="calculateTaxiAmount(); onWalkinGuestCountChanged();">
               </div>
               <div class="col-md-4 walkin-taxi-field d-none">
                 <label class="form-label small fw-bold">Estimated Fare (₹) *</label>
@@ -400,7 +410,7 @@
               <div class="col-md-3 walkin-bike-field d-none">
                 <label class="form-label small fw-bold">Number of Bikes *</label>
                 <input type="number" id="wBikeCount" class="form-control" value="1" min="1" max="20"
-                  oninput="calculateBikeAmount()">
+                  oninput="calculateBikeAmount(); onWalkinGuestCountChanged();">
               </div>
               <div class="col-md-3 walkin-bike-field d-none">
                 <label class="form-label small fw-bold">Total Rental (₹) *</label>
@@ -427,7 +437,8 @@
               </div>
               <div class="col-md-4 walkin-srv-field d-none">
                 <label class="form-label small fw-bold">Passengers / Devotees *</label>
-                <input type="number" id="wPassengers" class="form-control" value="2" min="1" max="100">
+                <input type="number" id="wPassengers" class="form-control" value="2" min="1" max="100"
+                  oninput="onWalkinGuestCountChanged()">
               </div>
               <div class="col-md-4 walkin-srv-field d-none">
                 <label class="form-label small fw-bold">Estimated Amount (₹) *</label>
@@ -451,6 +462,27 @@
                 </select>
               </div>
 
+              <!-- Dynamic Individual Guests (Names & Ages) -->
+              <div class="col-12" id="wWalkinGuestsSection">
+                <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-maroon mb-0" id="wWalkinGuestsTitle">
+                      <i class="bi bi-people-fill text-gold me-2"></i>Guest &amp; Devotee Information
+                    </h6>
+                    <span class="badge bg-danger text-white"><i class="bi bi-asterisk"></i> Mandatory (Names &amp; Ages)</span>
+                  </div>
+                  <div class="small text-muted mb-3" id="wWalkinGuestsSubtitle">
+                    Please provide the full name and age for every traveler / devotee.
+                  </div>
+                  <div id="wWalkinGuestsContainer" class="row g-2"></div>
+                </div>
+              </div>
+
+              <!-- Mandatory Identification Document Upload Section -->
+              <div class="col-12" id="wWalkinDocsSection">
+                <div id="wWalkinDocsContainer"></div>
+              </div>
+
               <div class="col-12">
                 <label class="form-label small fw-bold">Special Requirements / Notes</label>
                 <textarea id="wNotes" class="form-control" rows="2"></textarea>
@@ -472,6 +504,7 @@
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script src="assets/js/admin-invoice-pdf.js"></script>
+  <script src="assets/js/booking-helpers.js"></script>
   <script>
     let allRooms = [];
     let allCategories = [];
@@ -603,6 +636,140 @@
       if (amountEl) amountEl.value = rate * count;
     }
 
+    function calculateTaxiAmount() {
+      const vehSelect = document.getElementById('wTaxiVehicle');
+      const tripSelect = document.getElementById('wTaxiTripType');
+      const optVeh = vehSelect?.options[vehSelect.selectedIndex];
+      const optTrip = tripSelect?.options[tripSelect.selectedIndex];
+      const baseRate = parseFloat(optVeh?.dataset.rate || 2800);
+      const fixedRate = parseFloat(optTrip?.dataset.fixed || 0);
+      const multiplier = parseFloat(optTrip?.dataset.mul || 1);
+      const amountEl = document.getElementById('wTaxiAmount');
+      if (amountEl) {
+        amountEl.value = fixedRate > 0 ? fixedRate : Math.round(baseRate * multiplier);
+      }
+    }
+
+    let wWalkinDocsUploader = null;
+    function initWalkinDocUploader() {
+      const type = document.getElementById('wBookingType').value;
+      const docTypeMap = {
+        'accommodation': ['Aadhaar Card', 'Passport', 'Voter ID', 'Driving Licence', 'Govt Employee ID'],
+        'bike-rentals': ['Driving Licence', 'Aadhaar Card', 'Passport', 'Voter ID'],
+        'taxi-rentals': ['Aadhaar Card', 'Driving Licence', 'Passport', 'Voter ID'],
+        'temple-darshan': ['Aadhaar Card', 'Voter ID', 'Passport', 'Govt ID'],
+        'bus-booking': ['Aadhaar Card', 'Voter ID', 'Passport', 'Student / Govt ID'],
+        'service': ['Aadhaar Card', 'Passport', 'Voter ID', 'Driving Licence']
+      };
+      const titleMap = {
+        'accommodation': 'Guest Identification Document',
+        'bike-rentals': 'Rider Driving Licence & ID Proof',
+        'taxi-rentals': 'Passenger Identification Document',
+        'temple-darshan': 'Devotee Identification Document',
+        'bus-booking': 'Passenger Identification Document',
+        'service': 'Traveler Identification Document'
+      };
+      const descMap = {
+        'accommodation': 'Mandatory: Upload Govt ID proof (Aadhaar / Passport / Voter ID) for room check-in verification.',
+        'bike-rentals': 'Mandatory: Upload valid Driving Licence & Govt ID proof for two-wheeler dispatch.',
+        'taxi-rentals': 'Mandatory: Upload Govt ID proof for vehicle trip boarding and safety.',
+        'temple-darshan': 'Mandatory: Upload Govt ID proof for sacred darshan registration and temple entry.',
+        'bus-booking': 'Mandatory: Upload Govt ID proof for bus passenger manifest verification.',
+        'service': 'Mandatory: Upload Govt ID proof for travel verification.'
+      };
+
+      if (typeof BookingDocUploader === 'function') {
+        wWalkinDocsUploader = new BookingDocUploader('wWalkinDocsContainer', type, {
+          mandatory: true,
+          title: titleMap[type] || 'Identification Document Upload',
+          description: descMap[type] || 'Mandatory: Upload Govt ID proof (Aadhaar / Driving Licence / Passport / Voter ID). Max 5 MB.',
+          docTypes: docTypeMap[type] || ['Aadhaar Card', 'Driving Licence', 'Passport', 'Voter ID']
+        });
+        window['wWalkinDocsContainer_uploader'] = wWalkinDocsUploader;
+      }
+    }
+
+    function onWalkinGuestCountChanged() {
+      const type = document.getElementById('wBookingType').value;
+      let adults = 1;
+      let children = 0;
+      let adultLabel = 'Adult';
+      let childLabel = 'Child (<12 yrs)';
+
+      if (type === 'accommodation') {
+        adults = parseInt(document.getElementById('wWalkinAdults')?.value) || 1;
+        children = parseInt(document.getElementById('wWalkinChildren')?.value) || 0;
+        const wGuests = document.getElementById('wGuests');
+        if (wGuests) wGuests.value = adults + children;
+        adultLabel = 'Adult';
+        childLabel = 'Child (<12 yrs)';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-people-fill text-gold me-2"></i>Guest Information';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for every adult and child guest.';
+      } else if (type === 'temple-darshan') {
+        const total = parseInt(document.getElementById('wDarshanDevotees')?.value) || 1;
+        adults = total;
+        children = 0;
+        adultLabel = 'Devotee';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-flower1 text-danger me-2"></i>Devotee Details';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for every devotee attending darshan / seva.';
+      } else if (type === 'bus-booking') {
+        const total = parseInt(document.getElementById('wBusSeats')?.value) || 1;
+        adults = total;
+        children = 0;
+        adultLabel = 'Passenger';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-bus-front text-primary me-2"></i>Passenger Details';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for every passenger on the bus ticket.';
+      } else if (type === 'taxi-rentals') {
+        const total = parseInt(document.getElementById('wTaxiPassengers')?.value) || 1;
+        adults = total;
+        children = 0;
+        adultLabel = 'Passenger';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-car-front text-warning me-2"></i>Passenger Details';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for every passenger in the taxi.';
+      } else if (type === 'bike-rentals') {
+        const total = parseInt(document.getElementById('wBikeCount')?.value) || 1;
+        adults = total;
+        children = 0;
+        adultLabel = 'Rider';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-bicycle text-success me-2"></i>Rider Details';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for each bike rider.';
+      } else {
+        const total = parseInt(document.getElementById('wPassengers')?.value) || 1;
+        adults = total;
+        children = 0;
+        adultLabel = 'Traveler';
+        const titleEl = document.getElementById('wWalkinGuestsTitle');
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-compass text-info me-2"></i>Traveler Details';
+        const subEl = document.getElementById('wWalkinGuestsSubtitle');
+        if (subEl) subEl.textContent = 'Please provide the full name and age for every traveler.';
+      }
+
+      if (typeof renderDynamicGuests === 'function') {
+        renderDynamicGuests('wWalkinGuestsContainer', adults, children, {
+          adultLabel,
+          childLabel,
+          showGender: true
+        });
+      }
+
+      // Auto-populate Guest 1 with Customer Full Name if Guest 1 input is empty
+      const primaryNameInput = document.querySelector('#wWalkinGuestsContainer .guest-input[data-guest-index="1"][data-field="name"]');
+      const custName = document.getElementById('wName')?.value.trim();
+      if (primaryNameInput && !primaryNameInput.value && custName) {
+        primaryNameInput.value = custName;
+      }
+    }
+
     function openWalkinModal() {
       const currentFilter = document.getElementById('filterType').value;
       document.getElementById('wBookingType').value = currentFilter;
@@ -615,6 +782,7 @@
 
       const titles = {
         'accommodation': '<i class="bi bi-building-add me-2 text-warning"></i>Create Accommodation / Room Booking',
+        'taxi-rentals': '<i class="bi bi-car-front me-2 text-warning"></i>Book Taxi &amp; Car Rental (Innova / Ertiga / Sedan)',
         'temple-darshan': '<i class="bi bi-flower1 me-2 text-danger"></i>Book Temple Darshan / Seva Assistance',
         'bus-booking': '<i class="bi bi-bus-front me-2 text-primary"></i>Book Bus Tickets (Hyderabad &amp; Vijayawada)',
         'bike-rentals': '<i class="bi bi-bicycle me-2 text-success"></i>Book Two-Wheeler / Bike Rental',
@@ -627,13 +795,15 @@
       document.querySelectorAll('.walkin-darshan-field').forEach(el => el.classList.add('d-none'));
       document.querySelectorAll('.walkin-bus-field').forEach(el => el.classList.add('d-none'));
       document.querySelectorAll('.walkin-bike-field').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.walkin-taxi-field').forEach(el => el.classList.add('d-none'));
       document.querySelectorAll('.walkin-srv-field').forEach(el => el.classList.add('d-none'));
 
       // Reset required attributes
       document.getElementById('wCategory').required = false;
       document.getElementById('wCheckIn').required = false;
       document.getElementById('wCheckOut').required = false;
-      document.getElementById('wGuests').required = false;
+      const wAdults = document.getElementById('wWalkinAdults');
+      if (wAdults) wAdults.required = false;
 
       if (type === 'accommodation') {
         document.querySelectorAll('.walkin-acc-field').forEach(el => {
@@ -643,8 +813,16 @@
         document.getElementById('wCategory').required = true;
         document.getElementById('wCheckIn').required = true;
         document.getElementById('wCheckOut').required = true;
-        document.getElementById('wGuests').required = true;
+        if (wAdults) wAdults.required = true;
         toggleWalkinCustomCategory();
+      } else if (type === 'taxi-rentals') {
+        document.querySelectorAll('.walkin-taxi-field').forEach(el => el.classList.remove('d-none'));
+        if (!document.getElementById('wTaxiPickupTime').value) {
+          const now = new Date();
+          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+          document.getElementById('wTaxiPickupTime').value = now.toISOString().slice(0, 16);
+        }
+        calculateTaxiAmount();
       } else if (type === 'temple-darshan') {
         document.querySelectorAll('.walkin-darshan-field').forEach(el => el.classList.remove('d-none'));
         if (!document.getElementById('wDarshanDate').value) {
@@ -674,6 +852,9 @@
           document.getElementById('wTravelDate').value = new Date().toISOString().split('T')[0];
         }
       }
+
+      initWalkinDocUploader();
+      onWalkinGuestCountChanged();
     }
 
     function toggleWalkinCustomService() {
@@ -991,6 +1172,55 @@
         sb.from('invoices').select('*').eq('booking_code', b.booking_id).order('created_at', { ascending: false })
       ]);
 
+      // Fetch individual guests from localStorage & Supabase
+      let bookingGuests = [];
+      try {
+        const rawG = localStorage.getItem('arn_booking_guests');
+        if (rawG) {
+          const allG = JSON.parse(rawG);
+          bookingGuests = allG.filter(x => x.booking_id === b.booking_id);
+        }
+      } catch (e) { }
+
+      if (sb && b.booking_id) {
+        try {
+          const { data: remoteG } = await sb.from('booking_guests').select('*').eq('booking_id', b.booking_id).order('guest_index');
+          if (remoteG && remoteG.length > 0) {
+            bookingGuests = remoteG;
+          }
+        } catch (e) { }
+      }
+
+      // If no guests found, generate fallback row using primary customer details
+      if (bookingGuests.length === 0 && b.customer_name) {
+        bookingGuests = [{
+          guest_type: 'adult',
+          guest_index: 1,
+          full_name: b.customer_name,
+          age: b.age || 35,
+          gender: 'Male'
+        }];
+      }
+
+      // Fetch uploaded documents from localStorage & Supabase
+      let bookingDocs = [];
+      try {
+        const rawD = localStorage.getItem('arn_booking_documents');
+        if (rawD) {
+          const allD = JSON.parse(rawD);
+          bookingDocs = allD.filter(x => x.booking_id === b.booking_id);
+        }
+      } catch (e) { }
+
+      if (sb && b.booking_id) {
+        try {
+          const { data: remoteD } = await sb.from('booking_documents').select('*').eq('booking_id', b.booking_id).order('created_at', { ascending: false });
+          if (remoteD && remoteD.length > 0) {
+            bookingDocs = remoteD;
+          }
+        } catch (e) { }
+      }
+
       const paymentRows = (txns || []).length === 0
         ? '<p class="text-muted small mb-0">No manual payments recorded yet.</p>'
         : `<table class="table table-sm table-bordered mt-2 mb-0">
@@ -1078,6 +1308,97 @@
                 <div class="col-12"><strong>Location:</strong> ${b.pickup_location || 'Tiruvannamalai'}</div>
                 `}
                 <div class="col-12 mt-2 pt-1 border-top"><strong>Special Notes / Requests:</strong> ${b.special_requirements || b.special_requests || 'None'}</div>
+              </div>
+            </div>
+
+            <!-- Individual Guest / Devotee Details (Names & Ages) -->
+            <div class="card border-0 shadow-sm mb-3">
+              <div class="card-header bg-white fw-bold small d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people-fill text-maroon me-1"></i> Individual Traveler / Devotee Details (${bookingGuests.length})</span>
+                <span class="badge bg-light text-dark border">Names &amp; Ages</span>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light small">
+                      <tr>
+                        <th class="ps-3">#</th>
+                        <th>Type</th>
+                        <th>Full Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                      </tr>
+                    </thead>
+                    <tbody class="small">
+                      ${bookingGuests.map((g, idx) => `
+                        <tr>
+                          <td class="ps-3 fw-bold text-muted">${idx + 1}</td>
+                          <td><span class="badge ${g.guest_type === 'child' ? 'bg-secondary' : 'bg-maroon'} text-white text-capitalize">${g.guest_type || 'Adult'} ${g.guest_index || idx + 1}</span></td>
+                          <td class="fw-semibold text-dark">${escapeHtml(g.full_name || '—')}</td>
+                          <td>${g.age ? `${g.age} yrs` : '—'}</td>
+                          <td><span class="badge bg-light text-dark border">${g.gender || '—'}</span></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Identification Documents -->
+            <div class="card border-0 shadow-sm mb-3">
+              <div class="card-header bg-white fw-bold small d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-file-earmark-person-fill text-gold me-1"></i> Customer Identification Documents (${bookingDocs.length})</span>
+                <span class="badge ${bookingDocs.length > 0 ? 'bg-success' : 'bg-danger'} text-white">
+                  ${bookingDocs.length > 0 ? '<i class="bi bi-shield-check me-1"></i>Verified ID' : '<i class="bi bi-exclamation-triangle-fill me-1"></i>ID Missing'}
+                </span>
+              </div>
+              <div class="card-body p-3">
+                ${bookingDocs.length === 0 ? `
+                  <div class="alert alert-warning py-2 small mb-3">
+                    <i class="bi bi-exclamation-circle me-1"></i> No ID proof was submitted during online booking. You can attach a document below.
+                  </div>
+                ` : `
+                  <div class="d-flex flex-column gap-2 mb-3">
+                    ${bookingDocs.map(doc => {
+                      const isPdf = (doc.file_type || '').includes('pdf') || (doc.file_name || '').endsWith('.pdf');
+                      const icon = isPdf ? 'bi-file-earmark-pdf-fill text-danger' : 'bi-file-earmark-image-fill text-primary';
+                      const sizeKb = Math.round(doc.file_size / 1024) || '—';
+                      return `
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded-2 border bg-light">
+                          <div class="d-flex align-items-center gap-2 overflow-hidden me-2">
+                            <i class="bi ${icon} fs-5 flex-shrink-0"></i>
+                            <div class="text-truncate">
+                              <span class="badge bg-maroon text-white me-1">${escapeHtml(doc.document_type || 'Govt ID')}</span>
+                              <span class="small fw-bold text-dark text-truncate">${escapeHtml(doc.file_name || 'Document')}</span>
+                              <span class="small text-muted ms-1">(${sizeKb} KB)</span>
+                            </div>
+                          </div>
+                          <div class="flex-shrink-0 d-flex gap-1">
+                            <a href="${doc.file_url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.75rem;">
+                              <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="${doc.file_url}" download="${escapeHtml(doc.file_name)}" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">
+                              <i class="bi bi-download"></i>
+                            </a>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                `}
+                <!-- Front-desk Attach Document option -->
+                <div class="p-2 rounded-2 border bg-white">
+                  <div class="d-flex align-items-center justify-content-between gap-2">
+                    <div class="small fw-bold text-muted"><i class="bi bi-paperclip me-1"></i>Attach ID Proof (Desk / Scan):</div>
+                    <div class="d-flex gap-2">
+                      <input type="file" id="modalAttachDocFile" class="d-none" accept=".pdf,image/png,image/jpeg,image/jpg" onchange="uploadDocForBooking('${b.id}', '${b.booking_id}')">
+                      <button type="button" class="btn btn-xs btn-outline-maroon py-1 px-2 small" onclick="document.getElementById('modalAttachDocFile').click()">
+                        <i class="bi bi-upload me-1"></i> Choose File
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1238,6 +1559,72 @@
 
       const modal = new bootstrap.Modal(document.getElementById('bookingActionModal'));
       modal.show();
+    }
+
+    async function uploadDocForBooking(bookingId, bookingCode) {
+      const fileInput = document.getElementById('modalAttachDocFile');
+      const file = fileInput?.files?.[0];
+      if (!file) return;
+
+      const docType = prompt('Enter Document Type (e.g. Aadhaar Card, Driving Licence, Passport, Voter ID):', 'Aadhaar Card') || 'Aadhaar Card';
+
+      showAdminToast('Attaching identification document...', 'info');
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const dataUrl = reader.result;
+          let publicUrl = dataUrl;
+
+          const sb = window.adminSupabase;
+          if (sb && sb.storage) {
+            try {
+              const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+              const path = `documents/admin/${Date.now()}-${safeName}`;
+              const { data: upData, error: upErr } = await sb.storage.from('media').upload(path, file, { contentType: file.type, upsert: true });
+              if (!upErr && upData) {
+                const { data: pubData } = sb.storage.from('media').getPublicUrl(path);
+                if (pubData?.publicUrl) publicUrl = pubData.publicUrl;
+              }
+            } catch (se) {
+              console.warn('Storage upload fallback:', se);
+            }
+          }
+
+          const docRecord = {
+            id: 'doc-admin-' + Date.now(),
+            booking_id: bookingCode,
+            service_type: document.getElementById('filterType').value || 'general',
+            document_type: docType,
+            file_name: file.name,
+            file_url: publicUrl,
+            file_size: file.size,
+            file_type: file.type,
+            created_at: new Date().toISOString()
+          };
+
+          // Save to localStorage
+          try {
+            const raw = localStorage.getItem('arn_booking_documents');
+            const list = raw ? JSON.parse(raw) : [];
+            list.unshift(docRecord);
+            localStorage.setItem('arn_booking_documents', JSON.stringify(list));
+          } catch (e) { }
+
+          // Save to Supabase
+          if (sb) {
+            try {
+              await sb.from('booking_documents').insert([docRecord]);
+            } catch (e) { }
+          }
+
+          showAdminToast('Identification document attached successfully!', 'success');
+          openBookingModal(bookingId);
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        showAdminToast('Failed to attach document.', 'error');
+      }
     }
 
     async function sendPaymentInstructionsWA(bookingUuid) {
@@ -1730,11 +2117,35 @@
       await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
     }
 
-    // Walk-in Booking Submission (Handles both Accommodation & Services/Tours)
+    // Walk-in Booking Submission (Handles Accommodation, Taxi, Darshan, Bus, Bike, Services)
     document.getElementById('walkinBookingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const sb = window.adminSupabase;
       const bookingType = document.getElementById('wBookingType').value;
+
+      // 1. Validate individual guests (Names & Ages mandatory for all)
+      const individualGuests = typeof collectDynamicGuests === 'function' ? collectDynamicGuests('wWalkinGuestsContainer') : [];
+      for (const g of individualGuests) {
+        if (!g.full_name || g.full_name.trim().length < 2) {
+          showAdminToast(`Please enter the full name for ${g.guest_type} #${g.guest_index}.`, 'error');
+          const targetInput = document.querySelector(`#wWalkinGuestsContainer input[data-guest-type="${g.guest_type}"][data-guest-index="${g.guest_index}"][data-field="name"]`);
+          if (targetInput) targetInput.focus();
+          return;
+        }
+        if (!g.age || g.age < 0 || isNaN(g.age)) {
+          showAdminToast(`Please enter a valid age for ${g.guest_type} #${g.guest_index}.`, 'error');
+          const targetInput = document.querySelector(`#wWalkinGuestsContainer input[data-guest-type="${g.guest_type}"][data-guest-index="${g.guest_index}"][data-field="age"]`);
+          if (targetInput) targetInput.focus();
+          return;
+        }
+      }
+
+      // 2. Validate Identification Document (Mandatory)
+      if (wWalkinDocsUploader && !wWalkinDocsUploader.validate()) {
+        showAdminToast('Identification Document is mandatory. Please upload a valid ID proof.', 'error');
+        return;
+      }
+      const uploadedDocs = wWalkinDocsUploader ? wWalkinDocsUploader.getDocuments() : [];
 
       if (bookingType !== 'accommodation') {
         let serviceId = bookingType;
@@ -1772,6 +2183,19 @@
           vehicleType = `${document.getElementById('wBikeModel').value} | ${document.getElementById('wBikeDuration').value}`;
           pickupLoc = 'Tiruvannamalai Office / Desk';
           estAmount = parseFloat(document.getElementById('wBikeAmount').value) || 300;
+        } else if (bookingType === 'taxi-rentals') {
+          serviceId = 'taxi-car-rentals';
+          const vehicle = document.getElementById('wTaxiVehicle')?.value || 'Maruti Suzuki Ertiga';
+          const tripType = document.getElementById('wTaxiTripType')?.value || 'Local Sightseeing & Girivalam';
+          serviceTitle = `Taxi: ${vehicle} — ${tripType}`;
+          const pickupTime = document.getElementById('wTaxiPickupTime')?.value;
+          travelDate = pickupTime ? pickupTime.slice(0, 10) : new Date().toISOString().split('T')[0];
+          passengers = parseInt(document.getElementById('wTaxiPassengers')?.value) || 4;
+          vehicleType = `${vehicle} | ${tripType}`;
+          const pickLoc = document.getElementById('wTaxiPickupLoc')?.value.trim() || 'Tiruvannamalai';
+          const dropLoc = document.getElementById('wTaxiDropLoc')?.value.trim();
+          pickupLoc = dropLoc ? `${pickLoc} ➔ ${dropLoc}` : pickLoc;
+          estAmount = parseFloat(document.getElementById('wTaxiAmount')?.value) || 2800;
         } else {
           // Tour package or generic service
           const srvSel = document.getElementById('wServiceSelect');
@@ -1798,7 +2222,8 @@
         const prefixMap = {
           'temple-darshan': 'ARN-DARSHAN',
           'bus-booking': 'ARN-BUS',
-          'bike-rentals': 'ARN-BIKE'
+          'bike-rentals': 'ARN-BIKE',
+          'taxi-rentals': 'ARN-TAXI'
         };
         const bookingPrefix = prefixMap[bookingType] || 'ARN-SRV';
         const customBookingId = `${bookingPrefix}-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
@@ -1825,7 +2250,7 @@
           created_at: new Date().toISOString()
         };
 
-        // 1. Immediately persist to localStorage for instant 0ms offline availability
+        // 1. Immediately persist booking to localStorage
         try {
           const raw = localStorage.getItem('arn_service_bookings');
           const list = raw ? JSON.parse(raw) : [];
@@ -1833,7 +2258,49 @@
           localStorage.setItem('arn_service_bookings', JSON.stringify(list));
         } catch (e) { }
 
-        // 2. Insert to Supabase if online
+        // 2. Persist individual guest records to localStorage
+        try {
+          const rawG = localStorage.getItem('arn_booking_guests');
+          const allG = rawG ? JSON.parse(rawG) : [];
+          individualGuests.forEach(g => {
+            allG.push({
+              id: 'guest-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              booking_id: customBookingId,
+              service_type: bookingType,
+              guest_type: g.guest_type,
+              guest_index: g.guest_index,
+              full_name: g.full_name,
+              age: g.age,
+              gender: g.gender || 'Male',
+              created_at: new Date().toISOString()
+            });
+          });
+          localStorage.setItem('arn_booking_guests', JSON.stringify(allG));
+        } catch (e) { }
+
+        // 3. Persist uploaded documents to localStorage
+        if (uploadedDocs.length > 0) {
+          try {
+            const rawD = localStorage.getItem('arn_booking_documents');
+            const allD = rawD ? JSON.parse(rawD) : [];
+            uploadedDocs.forEach(d => {
+              allD.push({
+                id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                booking_id: customBookingId,
+                service_type: bookingType,
+                document_type: d.document_type,
+                file_name: d.file_name,
+                file_url: d.file_url,
+                file_size: d.file_size,
+                file_type: d.file_type,
+                created_at: new Date().toISOString()
+              });
+            });
+            localStorage.setItem('arn_booking_documents', JSON.stringify(allD));
+          } catch (e) { }
+        }
+
+        // 4. Insert to Supabase if online
         if (sb) {
           try {
             await sb.from('service_bookings').insert([{
@@ -1859,6 +2326,36 @@
           }
 
           try {
+            if (individualGuests.length > 0) {
+              const guestRows = individualGuests.map(g => ({
+                booking_id: customBookingId,
+                service_type: bookingType,
+                guest_type: g.guest_type,
+                guest_index: g.guest_index,
+                full_name: g.full_name,
+                age: g.age,
+                gender: g.gender || 'Male'
+              }));
+              await sb.from('booking_guests').insert(guestRows);
+            }
+          } catch (ge) { }
+
+          try {
+            if (uploadedDocs.length > 0) {
+              const docRows = uploadedDocs.map(d => ({
+                booking_id: customBookingId,
+                service_type: bookingType,
+                document_type: d.document_type,
+                file_name: d.file_name,
+                file_url: d.file_url,
+                file_size: d.file_size,
+                file_type: d.file_type
+              }));
+              await sb.from('booking_documents').insert(docRows);
+            }
+          } catch (de) { }
+
+          try {
             await sb.from('customers').upsert({
               full_name: newRecord.customer_name,
               mobile: newRecord.mobile,
@@ -1869,7 +2366,7 @@
         }
 
         await logAdminActivity('CREATE_SERVICE_BOOKING', 'service_bookings', newRecord.booking_id, { service: serviceTitle });
-        showAdminToast(`Booking ${newRecord.booking_id} created successfully!`, 'success');
+        showAdminToast(`Booking ${newRecord.booking_id} created successfully with guest & ID records!`, 'success');
         bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
         e.target.reset();
         document.getElementById('filterType').value = bookingType;
@@ -1877,6 +2374,7 @@
         return;
       }
 
+      // Accommodation Booking
       const catSelect = document.getElementById('wCategory');
       const opt = catSelect.options[catSelect.selectedIndex];
       const checkIn = document.getElementById('wCheckIn').value;
@@ -1920,6 +2418,7 @@
       }
 
       const total = nights * price;
+      const guestsCount = parseInt(document.getElementById('wGuests').value) || 2;
 
       const { data, error } = await sb.from('accommodation_bookings').insert([{
         customer_name: document.getElementById('wName').value.trim(),
@@ -1931,7 +2430,7 @@
         check_in: checkIn,
         check_out: checkOut,
         nights: nights,
-        guests: parseInt(document.getElementById('wGuests').value) || 2,
+        guests: guestsCount,
         estimated_amount: total,
         balance_amount: total,
         special_requirements: document.getElementById('wNotes').value.trim()
@@ -1942,20 +2441,111 @@
         return;
       }
 
-      // Upsert customer
-      await sb.from('customers').upsert({
-        full_name: data.customer_name,
-        mobile: data.mobile,
-        whatsapp_number: data.whatsapp_number,
-        email: data.email
-      }, { onConflict: 'mobile' });
+      const bookingCode = data.booking_id;
+
+      // 1. Save guests to localStorage
+      try {
+        const rawG = localStorage.getItem('arn_booking_guests');
+        const allG = rawG ? JSON.parse(rawG) : [];
+        individualGuests.forEach(g => {
+          allG.push({
+            id: 'guest-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            booking_id: bookingCode,
+            service_type: 'accommodation',
+            guest_type: g.guest_type,
+            guest_index: g.guest_index,
+            full_name: g.full_name,
+            age: g.age,
+            gender: g.gender || 'Male',
+            created_at: new Date().toISOString()
+          });
+        });
+        localStorage.setItem('arn_booking_guests', JSON.stringify(allG));
+      } catch (e) { }
+
+      // 2. Save documents to localStorage
+      if (uploadedDocs.length > 0) {
+        try {
+          const rawD = localStorage.getItem('arn_booking_documents');
+          const allD = rawD ? JSON.parse(rawD) : [];
+          uploadedDocs.forEach(d => {
+            allD.push({
+              id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              booking_id: bookingCode,
+              service_type: 'accommodation',
+              document_type: d.document_type,
+              file_name: d.file_name,
+              file_url: d.file_url,
+              file_size: d.file_size,
+              file_type: d.file_type,
+              created_at: new Date().toISOString()
+            });
+          });
+          localStorage.setItem('arn_booking_documents', JSON.stringify(allD));
+        } catch (e) { }
+      }
+
+      // 3. Save guests & documents to Supabase
+      if (sb) {
+        try {
+          if (individualGuests.length > 0) {
+            const guestRows = individualGuests.map(g => ({
+              booking_id: bookingCode,
+              service_type: 'accommodation',
+              guest_type: g.guest_type,
+              guest_index: g.guest_index,
+              full_name: g.full_name,
+              age: g.age,
+              gender: g.gender || 'Male'
+            }));
+            await sb.from('booking_guests').insert(guestRows);
+          }
+        } catch (ge) { }
+
+        try {
+          if (uploadedDocs.length > 0) {
+            const docRows = uploadedDocs.map(d => ({
+              booking_id: bookingCode,
+              service_type: 'accommodation',
+              document_type: d.document_type,
+              file_name: d.file_name,
+              file_url: d.file_url,
+              file_size: d.file_size,
+              file_type: d.file_type
+            }));
+            await sb.from('booking_documents').insert(docRows);
+          }
+        } catch (de) { }
+
+        // Upsert customer
+        await sb.from('customers').upsert({
+          full_name: data.customer_name,
+          mobile: data.mobile,
+          whatsapp_number: data.whatsapp_number,
+          email: data.email
+        }, { onConflict: 'mobile' });
+      }
 
       await logAdminActivity('CREATE_WALKIN_BOOKING', 'accommodation_bookings', data.booking_id);
-      showAdminToast(`Booking ${data.booking_id} created!`, 'success');
+      showAdminToast(`Accommodation booking ${data.booking_id} created with guest & ID records!`, 'success');
       bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
       e.target.reset();
       toggleWalkinCustomCategory();
       await loadBookings();
+    });
+
+    // Auto sync Customer Full Name to Guest 1
+    document.addEventListener('DOMContentLoaded', () => {
+      const wNameInput = document.getElementById('wName');
+      if (wNameInput) {
+        wNameInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim();
+          const primaryNameInput = document.querySelector('#wWalkinGuestsContainer .guest-input[data-guest-index="1"][data-field="name"]');
+          if (primaryNameInput && (!primaryNameInput.dataset.userEdited || !primaryNameInput.value)) {
+            primaryNameInput.value = val;
+          }
+        });
+      }
     });
   </script>
 </body>

@@ -236,7 +236,7 @@ async function openWhatsAppShare(phone, message, bookingCode = null, messageType
 
   // 2. If on the WhatsApp settings page, refresh the logs table live in real time
   if (typeof loadWaLogs === 'function') {
-    try { loadWaLogs(); } catch (e) {}
+    try { loadWaLogs(); } catch (e) { }
   }
 
   // 3. Log message attempt to Supabase whatsapp_messages table
@@ -270,14 +270,14 @@ function adminCacheGet(key, maxAgeMs = 5 * 60 * 1000) {
     if (parsed && (Date.now() - (parsed._ts || 0)) < maxAgeMs) {
       return parsed.data;
     }
-  } catch (e) {}
+  } catch (e) { }
   return null;
 }
 
 function adminCacheSet(key, data) {
   try {
     sessionStorage.setItem('arn_cache_' + key, JSON.stringify({ data, _ts: Date.now() }));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 /**
@@ -320,7 +320,7 @@ async function uploadAdminImage(file, folder = 'general') {
     file_type: 'image',
     category: folder,
     uploaded_by: window.CURRENT_ADMIN_USER ? window.CURRENT_ADMIN_USER.id : null
-  }]).then(() => {}).catch(() => {});
+  }]).then(() => { }).catch(() => { });
 
   return publicUrl;
 }
@@ -416,7 +416,7 @@ function renderWhatsAppTemplate(templateStr, vars = {}) {
 
 function clearWhatsAppTemplatesCache() {
   _cachedWhatsAppTemplates = null;
-  try { sessionStorage.removeItem('arn_cache_whatsapp_templates'); } catch (e) {}
+  try { sessionStorage.removeItem('arn_cache_whatsapp_templates'); } catch (e) { }
 }
 
 window.renderAdminSidebar = renderAdminSidebar;
