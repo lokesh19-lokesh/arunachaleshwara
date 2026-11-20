@@ -3,147 +3,981 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <title>Reports & Revenue – Arunachaleshwara Admin</title>
+  <title>Reports &amp; Revenue Analytics – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .filter-preset-btn {
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.15s ease-in-out;
+    }
+    .filter-preset-btn.active {
+      background-color: var(--admin-maroon, #45120E) !important;
+      color: #FFFFFF !important;
+      border-color: var(--admin-maroon, #45120E) !important;
+      box-shadow: 0 2px 6px rgba(69, 18, 14, 0.25);
+    }
+    .filter-preset-btn:not(.active):hover {
+      background-color: #F8F9FA;
+      border-color: #45120E;
+      color: #45120E;
+    }
+    .chart-container-card {
+      min-height: 320px;
+    }
+    .badge-filter-indicator {
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+    }
+    @media print {
+      .admin-sidebar, .admin-header, .filter-control-panel, .btn-no-print {
+        display: none !important;
+      }
+      .admin-main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+      }
+      .admin-content {
+        padding: 0 !important;
+      }
+      .admin-card {
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+      }
+    }
+  </style>
 </head>
 <body class="admin-body">
   <div class="admin-wrapper">
-    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <!-- Static Sidebar (failsafe fallback for file:// and offline load) -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <a href="dashboard.html" class="admin-sidebar-brand">
+        <img src="../assets/images/logo/logo.png" alt="Arunachaleshwara">
+        <div class="admin-sidebar-brand-text">
+          ARUNACHALESHWARA
+          <span>ADMIN PORTAL</span>
+        </div>
+      </a>
+      <nav class="admin-nav">
+        <div class="admin-nav-header">CORE</div>
+        <a href="dashboard.html" class="admin-nav-item">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+        <div class="admin-nav-header">BOOKING MANAGEMENT</div>
+        <a href="bookings.html" class="admin-nav-item">
+          <i class="bi bi-calendar-check-fill"></i>
+          <span>All Bookings</span>
+        </a>
+        <a href="operations.html" class="admin-nav-item">
+          <i class="bi bi-door-open-fill"></i>
+          <span>Room Operations</span>
+        </a>
+        <div class="admin-nav-header">INVENTORY &amp; CATALOG</div>
+        <a href="accommodation.html" class="admin-nav-item">
+          <i class="bi bi-building-fill"></i>
+          <span>Accommodation (17 Rooms)</span>
+        </a>
+        <a href="services.html" class="admin-nav-item">
+          <i class="bi bi-compass-fill"></i>
+          <span>Services &amp; Tours</span>
+        </a>
+        <div class="admin-nav-header">FINANCE (MANUAL)</div>
+        <a href="payments.html" class="admin-nav-item">
+          <i class="bi bi-cash-stack"></i>
+          <span>Manual Payments</span>
+        </a>
+        <a href="invoices.html" class="admin-nav-item">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          <span>Invoices &amp; PDFs</span>
+        </a>
+        <a href="reports.html" class="admin-nav-item active">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span>Reports &amp; Revenue</span>
+        </a>
+        <div class="admin-nav-header">CRM &amp; WEBSITE CMS</div>
+        <a href="customers.html" class="admin-nav-item">
+          <i class="bi bi-people-fill"></i>
+          <span>Customers</span>
+        </a>
+        <a href="cms.html" class="admin-nav-item">
+          <i class="bi bi-palette-fill"></i>
+          <span>Website CMS &amp; Media</span>
+        </a>
+        <a href="whatsapp.html" class="admin-nav-item">
+          <i class="bi bi-whatsapp"></i>
+          <span>WhatsApp Settings</span>
+        </a>
+        <div class="admin-nav-header">QUICK LINKS</div>
+        <a href="../index.html" target="_blank" class="admin-nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span>View Live Website</span>
+        </a>
+        <a href="javascript:void(0)" onclick="logoutAdmin()" class="admin-nav-item text-danger fw-bold">
+          <i class="bi bi-box-arrow-left text-danger"></i>
+          <span>Sign Out</span>
+        </a>
+      </nav>
+      <div class="admin-sidebar-user">
+        <div class="admin-user-avatar">SA</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">Super Admin</div>
+          <span class="admin-user-role">Main Admin</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
     <main class="admin-main">
-      <header class="admin-header" id="adminHeader"></header>
+      <header class="admin-header" id="adminHeader">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.getElementById('adminSidebar').classList.toggle('show')">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="admin-header-title">
+            <h4>Reports &amp; Analytics</h4>
+            <span class="badge d-none d-md-inline-block">Verified Financial Ledger</span>
+          </div>
+        </div>
+        <div class="admin-header-actions">
+          <a href="../accommodation.html" target="_blank" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center gap-1">
+            <i class="bi bi-globe"></i> Website
+          </a>
+          <button type="button" class="btn btn-sm btn-admin-yellow" onclick="loadReport()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+      </header>
+
       <div class="admin-content">
+
+        <!-- DYNAMIC FILTER CONTROL PANEL -->
+        <div class="admin-card mb-4 shadow-sm border border-warning-subtle filter-control-panel">
+          <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-funnel-fill text-warning fs-5"></i>
+              <div>
+                <h6 class="admin-card-title mb-0">Financial &amp; Revenue Ledger Filters</h6>
+                <small class="text-muted">Analyze collections by Hourly, Weekly, Monthly, Yearly or select a custom date range</small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-warning text-dark px-3 py-2 fw-semibold badge-filter-indicator" id="activeFilterBadge">
+                <i class="bi bi-clock-history me-1"></i> Preset: All Time
+              </span>
+            </div>
+          </div>
+
+          <div class="admin-card-body p-3">
+            <!-- Quick Preset Buttons -->
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-3 border-bottom">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px;">Quick Period:</span>
+                <div class="btn-group btn-group-sm flex-wrap gap-1" role="group" id="presetBtnGroup">
+                  <button type="button" class="btn btn-outline-secondary filter-preset-btn active" id="btn-preset-all" onclick="setPreset('all')">
+                    <i class="bi bi-globe2 me-1"></i> All Time
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary filter-preset-btn" id="btn-preset-hourly" onclick="setPreset('hourly')">
+                    <i class="bi bi-clock me-1"></i> Hourly (Today)
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary filter-preset-btn" id="btn-preset-weekly" onclick="setPreset('weekly')">
+                    <i class="bi bi-calendar-week me-1"></i> Weekly (7 Days)
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary filter-preset-btn" id="btn-preset-monthly" onclick="setPreset('monthly')">
+                    <i class="bi bi-calendar-month me-1"></i> Monthly (This Month)
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary filter-preset-btn" id="btn-preset-yearly" onclick="setPreset('yearly')">
+                    <i class="bi bi-calendar-check me-1"></i> Yearly (This Year)
+                  </button>
+                </div>
+              </div>
+              <div class="small text-muted fw-semibold" id="filterSummaryText">
+                Showing all lifetime transactions
+              </div>
+            </div>
+
+            <!-- Custom Date Range & Breakdown Selection -->
+            <div class="row g-2 align-items-end">
+              <div class="col-lg-3 col-md-6 col-sm-6">
+                <label for="filterStartDate" class="form-label small fw-semibold text-muted mb-1">
+                  <i class="bi bi-calendar-event me-1"></i> From Date
+                </label>
+                <input type="date" id="filterStartDate" class="form-control form-control-sm" onchange="onDateManualChange()">
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-6">
+                <label for="filterEndDate" class="form-label small fw-semibold text-muted mb-1">
+                  <i class="bi bi-calendar-event-fill me-1"></i> To Date
+                </label>
+                <input type="date" id="filterEndDate" class="form-control form-control-sm" onchange="onDateManualChange()">
+              </div>
+              <div class="col-lg-2 col-md-4 col-sm-6">
+                <label for="filterGrouping" class="form-label small fw-semibold text-muted mb-1">
+                  <i class="bi bi-bar-chart-steps me-1"></i> Group Trend By
+                </label>
+                <select id="filterGrouping" class="form-select form-select-sm" onchange="applyFilters()">
+                  <option value="auto">Auto (Smart Fit)</option>
+                  <option value="hourly">Hourly (00:00 - 23:00)</option>
+                  <option value="daily">Daily (Day by Day)</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly (Month by Month)</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-4 col-sm-6">
+                <label for="filterMethod" class="form-label small fw-semibold text-muted mb-1">
+                  <i class="bi bi-credit-card-2-front me-1"></i> Payment Method
+                </label>
+                <select id="filterMethod" class="form-select form-select-sm" onchange="applyFilters()">
+                  <option value="all">All Methods</option>
+                  <option value="UPI">UPI / GPay / PhonePe</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer / NEFT</option>
+                  <option value="Card">Debit / Credit Card</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-4 col-12 d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-admin-yellow flex-grow-1 fw-bold shadow-sm" onclick="applyFilters()">
+                  <i class="bi bi-funnel-fill me-1"></i> Apply Filter
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetToAllTime()" title="Reset to All Time">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI SUMMARY CARDS (DYNAMICALLY FILTERED) -->
         <div class="row g-3 mb-4">
-          <div class="col-md-4">
+          <div class="col-xl-3 col-md-6">
             <div class="admin-stat-card green">
               <div class="admin-stat-info">
                 <h6>Total Verified Collections</h6>
-                <div class="admin-stat-number" id="repVerified">₹0</div>
-                <div class="admin-stat-sub">Confirmed manual transactions only</div>
+                <div class="admin-stat-number text-success" id="repVerified">₹0</div>
+                <div class="admin-stat-sub" id="repVerifiedSub">Confirmed manual transactions</div>
               </div>
               <div class="admin-stat-icon"><i class="bi bi-bank2"></i></div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-xl-3 col-md-6">
             <div class="admin-stat-card warning">
               <div class="admin-stat-info">
                 <h6>Pending Verification</h6>
-                <div class="admin-stat-number" id="repPending">₹0</div>
-                <div class="admin-stat-sub">Awaiting admin confirmation</div>
+                <div class="admin-stat-number text-warning" id="repPending">₹0</div>
+                <div class="admin-stat-sub" id="repPendingSub">Awaiting admin confirmation</div>
               </div>
-              <div class="admin-stat-icon"><i class="bi bi-hourglass"></i></div>
+              <div class="admin-stat-icon"><i class="bi bi-hourglass-split"></i></div>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-xl-3 col-md-6">
             <div class="admin-stat-card maroon">
               <div class="admin-stat-info">
                 <h6>Confirmed Bookings Count</h6>
-                <div class="admin-stat-number" id="repConfirmedCount">0</div>
-                <div class="admin-stat-sub">Active & completed stays</div>
+                <div class="admin-stat-number text-maroon" id="repConfirmedCount">0</div>
+                <div class="admin-stat-sub" id="repConfirmedSub">Active &amp; completed stays</div>
               </div>
               <div class="admin-stat-icon"><i class="bi bi-check-all"></i></div>
             </div>
           </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card blue">
+              <div class="admin-stat-info">
+                <h6>Average Transaction Value</h6>
+                <div class="admin-stat-number text-primary" id="repAvgTxn">₹0</div>
+                <div class="admin-stat-sub" id="repTxnCount">0 verified payments in period</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-receipt-cutoff"></i></div>
+            </div>
+          </div>
         </div>
 
-        <div class="admin-card">
-          <div class="admin-card-header">
-            <h6 class="admin-card-title"><i class="bi bi-file-earmark-spreadsheet-fill text-success"></i> Verified Payment & Revenue Export</h6>
-            <button class="btn btn-sm btn-admin-yellow" onclick="exportCSV()">
-              <i class="bi bi-download me-1"></i> Export CSV Report
-            </button>
+        <!-- VISUAL CHARTS SECTION (REVENUE VELOCITY & METHOD MIX) -->
+        <div class="row g-3 mb-4">
+          <div class="col-lg-8">
+            <div class="admin-card h-100 chart-container-card">
+              <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h6 class="admin-card-title mb-0">
+                  <i class="bi bi-graph-up-arrow text-primary me-2"></i> Revenue Collection Trend
+                </h6>
+                <span class="badge bg-light text-dark border" id="chartGroupingBadge">Daily Trend</span>
+              </div>
+              <div class="admin-card-body p-3">
+                <div style="position: relative; height: 260px; width: 100%;">
+                  <canvas id="revenueTrendChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="admin-card h-100 chart-container-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title mb-0">
+                  <i class="bi bi-pie-chart-fill text-warning me-2"></i> Payment Method Mix
+                </h6>
+              </div>
+              <div class="admin-card-body p-3 d-flex flex-column align-items-center justify-content-center">
+                <div style="position: relative; height: 180px; width: 100%; max-width: 200px;">
+                  <canvas id="methodDonutChart"></canvas>
+                </div>
+                <div class="w-100 mt-3 small text-muted text-center" id="methodMixBreakdown"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAILED TRANSACTION LEDGER TABLE & CSV EXPORT -->
+        <div class="admin-card shadow-sm">
+          <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <h6 class="admin-card-title mb-0">
+                <i class="bi bi-file-earmark-spreadsheet-fill text-success me-1"></i> Verified Payment &amp; Revenue Export
+              </h6>
+              <span class="badge bg-light text-dark border ms-1" id="ledgerRowCountBadge">0 Entries</span>
+            </div>
+            <div class="d-flex gap-2 btn-no-print">
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Print Ledger
+              </button>
+              <button type="button" class="btn btn-sm btn-admin-yellow fw-bold" onclick="exportCSV()">
+                <i class="bi bi-download me-1"></i> Export Filtered CSV
+              </button>
+            </div>
           </div>
           <div class="table-responsive">
-            <table class="table admin-table">
-              <thead><tr><th>TXN ID</th><th>Date</th><th>Booking</th><th>Customer</th><th>Method</th><th>UTR / Ref</th><th>Verified Amount</th></tr></thead>
-              <tbody id="reportsBody"><tr><td colspan="7" class="text-center py-4 text-muted">Loading report data...</td></tr></tbody>
+            <table class="table admin-table align-middle">
+              <thead>
+                <tr>
+                  <th>TXN ID</th>
+                  <th>Date &amp; Time</th>
+                  <th>Booking</th>
+                  <th>Customer</th>
+                  <th>Method</th>
+                  <th>UTR / Reference</th>
+                  <th>Status</th>
+                  <th class="text-end">Verified Amount</th>
+                </tr>
+              </thead>
+              <tbody id="reportsBody">
+                <tr>
+                  <td colspan="8" class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                    Loading financial ledger data...
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
+
       </div>
     </main>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
+
   <script>
-    let verifiedRows = [];
+    // State management
+    let rawTxns = [];
+    let rawBookings = [];
+    let currentFilteredTxns = [];
+    let activePreset = 'all'; // 'all', 'hourly', 'weekly', 'monthly', 'yearly', 'custom'
+    let revenueChartInstance = null;
+    let methodChartInstance = null;
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
-      if (!user) return;
-      renderAdminSidebar('reports');
-      renderAdminHeader('Reports & Analytics', 'Verified Financial Ledger');
-      loadReport();
-    });
-
-    async function loadReport() {
-      const sb = window.adminSupabase;
-      const [{ data: txns }, { data: bookings }] = await Promise.all([
-        sb.from('payment_transactions').select('*').order('created_at', { ascending: false }),
-        sb.from('accommodation_bookings').select('booking_status')
-      ]);
-
-      const allTxns = txns || [];
-      verifiedRows = allTxns.filter(t => t.status === 'Verified');
-      const totalVerified = verifiedRows.reduce((s, t) => s + Number(t.amount || 0), 0);
-      const totalPending = allTxns.filter(t => t.status === 'Pending Verification').reduce((s, t) => s + Number(t.amount || 0), 0);
-      const confirmedCount = (bookings || []).filter(b => ['Confirmed', 'Checked In', 'Checked Out', 'Completed'].includes(b.booking_status)).length;
-
-      document.getElementById('repVerified').textContent = formatINR(totalVerified);
-      document.getElementById('repPending').textContent = formatINR(totalPending);
-      document.getElementById('repConfirmedCount').textContent = confirmedCount;
-
-      const tbody = document.getElementById('reportsBody');
-      if (verifiedRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">No verified payments recorded yet. Pending enquiries are excluded from revenue.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = verifiedRows.map(t => `
-        <tr>
-          <td class="small fw-bold">${t.transaction_id}</td>
-          <td class="small">${formatDate(t.payment_date || t.created_at)}</td>
-          <td class="small fw-bold">${t.booking_code}</td>
-          <td>${t.customer_name || 'Devotee'}</td>
-          <td><span class="badge bg-light text-dark border">${t.payment_method}</span></td>
-          <td class="small">${t.transaction_reference || '—'}</td>
-          <td class="fw-bold text-success">${formatINR(t.amount)}</td>
-        </tr>
-      `).join('');
+    // Helper: Local date formatting YYYY-MM-DD
+    function toLocalYMD(d) {
+      if (!d || isNaN(d.getTime())) return '';
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
-    function exportCSV() {
-      if (verifiedRows.length === 0) {
-        alert('No verified transactions available to export.');
+    // Safe timestamp extractor
+    function getTxnDate(t) {
+      const dateStr = t.payment_date || t.created_at;
+      if (!dateStr) return new Date();
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? new Date() : d;
+    }
+
+    // Format readable date and time
+    function formatDateTime(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const datePart = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      const timePart = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+      return `${datePart}, <span class="text-muted small">${timePart}</span>`;
+    }
+
+    // Initialization
+    function initReportsPage() {
+      if (typeof requireAdminAuth === 'function') {
+        requireAdminAuth().then(user => {
+          if (!user) return;
+          if (typeof renderAdminSidebar === 'function') renderAdminSidebar('reports');
+          if (typeof renderAdminHeader === 'function') renderAdminHeader('Reports & Analytics', 'Verified Financial Ledger');
+          loadReport();
+        }).catch(err => {
+          console.warn('Auth check handled fallback:', err);
+          loadReport();
+        });
+      } else {
+        loadReport();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initReportsPage);
+    } else {
+      initReportsPage();
+    }
+
+    // Load data from Supabase
+    async function loadReport() {
+      const tbody = document.getElementById('reportsBody');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm text-warning me-2"></div> Fetching live transaction records...
+      </td></tr>`;
+
+      try {
+        const sb = window.adminSupabase;
+        if (!sb) {
+          throw new Error('Supabase client not initialized');
+        }
+
+        const [{ data: txns, error: txError }, { data: bookings, error: bkError }] = await Promise.all([
+          sb.from('payment_transactions').select('*').order('created_at', { ascending: false }),
+          sb.from('accommodation_bookings').select('id, booking_status, created_at, check_in, check_out, total_price, customer_name')
+        ]);
+
+        if (txError) console.error('Error fetching transactions:', txError);
+        if (bkError) console.error('Error fetching bookings:', bkError);
+
+        rawTxns = txns || [];
+        rawBookings = bookings || [];
+
+        // Apply initial filter
+        applyFilters();
+      } catch (err) {
+        console.error('loadReport error:', err);
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">
+          <i class="bi bi-exclamation-triangle me-1"></i> Failed to load report data: ${err.message || err}
+        </td></tr>`;
+      }
+    }
+
+    // Set Quick Presets (Hourly, Weekly, Monthly, Yearly, All Time)
+    function setPreset(preset) {
+      activePreset = preset;
+      const today = new Date();
+      const startInput = document.getElementById('filterStartDate');
+      const endInput = document.getElementById('filterEndDate');
+      const groupingSelect = document.getElementById('filterGrouping');
+
+      // Update button visual styles
+      ['all', 'hourly', 'weekly', 'monthly', 'yearly'].forEach(p => {
+        const btn = document.getElementById(`btn-preset-${p}`);
+        if (btn) {
+          if (p === preset) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
+      });
+
+      if (preset === 'hourly') {
+        // Today from 00:00 to 23:59, grouped by hour
+        const todayStr = toLocalYMD(today);
+        startInput.value = todayStr;
+        endInput.value = todayStr;
+        groupingSelect.value = 'hourly';
+      } else if (preset === 'weekly') {
+        // Last 7 days including today
+        const pastDate = new Date(today);
+        pastDate.setDate(pastDate.getDate() - 6);
+        startInput.value = toLocalYMD(pastDate);
+        endInput.value = toLocalYMD(today);
+        groupingSelect.value = 'daily';
+      } else if (preset === 'monthly') {
+        // This Month (1st to last day of current month)
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        startInput.value = toLocalYMD(firstDay);
+        endInput.value = toLocalYMD(lastDay);
+        groupingSelect.value = 'daily';
+      } else if (preset === 'yearly') {
+        // This Year (Jan 1 to Dec 31)
+        const firstDay = new Date(today.getFullYear(), 0, 1);
+        const lastDay = new Date(today.getFullYear(), 11, 31);
+        startInput.value = toLocalYMD(firstDay);
+        endInput.value = toLocalYMD(lastDay);
+        groupingSelect.value = 'monthly';
+      } else if (preset === 'all') {
+        // Clear inputs for all time
+        startInput.value = '';
+        endInput.value = '';
+        groupingSelect.value = 'auto';
+      }
+
+      applyFilters();
+    }
+
+    // Manual date input changed -> switch preset to custom
+    function onDateManualChange() {
+      activePreset = 'custom';
+      ['all', 'hourly', 'weekly', 'monthly', 'yearly'].forEach(p => {
+        const btn = document.getElementById(`btn-preset-${p}`);
+        if (btn) btn.classList.remove('active');
+      });
+      applyFilters();
+    }
+
+    // Reset back to all time
+    function resetToAllTime() {
+      document.getElementById('filterMethod').value = 'all';
+      setPreset('all');
+    }
+
+    // Main Filter & Render Logic
+    function applyFilters() {
+      const startVal = document.getElementById('filterStartDate').value;
+      const endVal = document.getElementById('filterEndDate').value;
+      const methodVal = document.getElementById('filterMethod').value;
+      const groupingVal = document.getElementById('filterGrouping').value;
+
+      let startDateObj = null;
+      let endDateObj = null;
+
+      if (startVal) {
+        startDateObj = new Date(`${startVal}T00:00:00`);
+      }
+      if (endVal) {
+        endDateObj = new Date(`${endVal}T23:59:59.999`);
+      }
+
+      // Filter transactions
+      currentFilteredTxns = rawTxns.filter(t => {
+        // Payment method filter
+        if (methodVal !== 'all') {
+          const tMethod = (t.payment_method || '').toLowerCase();
+          if (tMethod !== methodVal.toLowerCase()) return false;
+        }
+
+        // Date bounds
+        const d = getTxnDate(t);
+        if (startDateObj && d < startDateObj) return false;
+        if (endDateObj && d > endDateObj) return false;
+
+        return true;
+      });
+
+      // Filter bookings
+      const filteredBookings = rawBookings.filter(b => {
+        const bDateStr = b.created_at || b.check_in;
+        if (!bDateStr) return true;
+        const bd = new Date(bDateStr);
+        if (isNaN(bd.getTime())) return true;
+        if (startDateObj && bd < startDateObj) return false;
+        if (endDateObj && bd > endDateObj) return false;
+        return true;
+      });
+
+      // Update badge indicator & description text
+      updateFilterSummaryUI(startVal, endVal, methodVal, groupingVal);
+
+      // Compute metrics
+      const verifiedTxns = currentFilteredTxns.filter(t => t.status === 'Verified');
+      const pendingTxns = currentFilteredTxns.filter(t => t.status === 'Pending Verification');
+
+      const totalVerified = verifiedTxns.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      const totalPending = pendingTxns.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      const confirmedBookingsCount = filteredBookings.filter(b => 
+        ['Confirmed', 'Checked In', 'Checked Out', 'Completed'].includes(b.booking_status)
+      ).length;
+      const avgTxnValue = verifiedTxns.length ? (totalVerified / verifiedTxns.length) : 0;
+
+      // Update KPI stat cards
+      document.getElementById('repVerified').textContent = formatINR(totalVerified);
+      document.getElementById('repPending').textContent = formatINR(totalPending);
+      document.getElementById('repConfirmedCount').textContent = confirmedBookingsCount;
+      document.getElementById('repAvgTxn').textContent = formatINR(avgTxnValue);
+      document.getElementById('repTxnCount').textContent = `${verifiedTxns.length} verified transaction${verifiedTxns.length === 1 ? '' : 's'}`;
+
+      // Update Ledger Table
+      renderLedgerTable(currentFilteredTxns);
+
+      // Render Visual Charts
+      renderTrendChart(verifiedTxns, startVal, endVal, groupingVal);
+      renderMethodChart(verifiedTxns);
+    }
+
+    // Update filter badge & summary text
+    function updateFilterSummaryUI(startVal, endVal, methodVal, groupingVal) {
+      const badge = document.getElementById('activeFilterBadge');
+      const summaryText = document.getElementById('filterSummaryText');
+
+      let label = 'All Time';
+      let desc = 'Showing lifetime verified financial records';
+
+      if (activePreset === 'hourly') {
+        label = `Hourly: Today (${startVal || 'Today'})`;
+        desc = `Showing hourly breakdown for today (${startVal || 'Today'})`;
+      } else if (activePreset === 'weekly') {
+        label = `Weekly: Last 7 Days`;
+        desc = `Showing transactions from ${formatDate(startVal)} to ${formatDate(endVal)}`;
+      } else if (activePreset === 'monthly') {
+        label = `Monthly: This Month`;
+        desc = `Showing transactions from ${formatDate(startVal)} to ${formatDate(endVal)}`;
+      } else if (activePreset === 'yearly') {
+        label = `Yearly: This Year`;
+        desc = `Showing transactions from ${formatDate(startVal)} to ${formatDate(endVal)}`;
+      } else if (startVal || endVal) {
+        label = `Custom Range: ${startVal ? formatDate(startVal) : 'Beginning'} → ${endVal ? formatDate(endVal) : 'Today'}`;
+        desc = `Custom filtered date range (${startVal || 'All'} to ${endVal || 'Today'})`;
+      }
+
+      if (methodVal !== 'all') {
+        label += ` • ${methodVal}`;
+        desc += ` (Method: ${methodVal})`;
+      }
+
+      badge.innerHTML = `<i class="bi bi-clock-history me-1"></i> ${label}`;
+      summaryText.textContent = desc;
+    }
+
+    // Render Ledger Table
+    function renderLedgerTable(txns) {
+      const tbody = document.getElementById('reportsBody');
+      const rowCountBadge = document.getElementById('ledgerRowCountBadge');
+      rowCountBadge.textContent = `${txns.length} Entr${txns.length === 1 ? 'y' : 'ies'}`;
+
+      if (txns.length === 0) {
+        tbody.innerHTML = `<tr>
+          <td colspan="8" class="text-center py-5 text-muted">
+            <i class="bi bi-search fs-3 d-block mb-2 text-warning"></i>
+            No transactions found for the selected period or filters.<br>
+            <span class="small">Try picking a broader date range or resetting the filter.</span>
+          </td>
+        </tr>`;
         return;
       }
-      const headers = ['Transaction ID', 'Date', 'Booking ID', 'Customer', 'Method', 'Reference', 'Amount (INR)'];
-      const rows = verifiedRows.map(r => [
-        r.transaction_id,
-        r.payment_date || r.created_at,
-        r.booking_code,
-        `"${(r.customer_name || '').replace(/"/g, '""')}"`,
-        r.payment_method,
-        `"${(r.transaction_reference || '').replace(/"/g, '""')}"`,
-        r.amount
-      ]);
+
+      tbody.innerHTML = txns.map(t => {
+        const isVerified = t.status === 'Verified';
+        const isPending = t.status === 'Pending Verification';
+        const statusBadge = isVerified 
+          ? '<span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold">Verified</span>'
+          : isPending
+          ? '<span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-semibold">Pending</span>'
+          : `<span class="badge bg-light text-dark border">${t.status || 'Unknown'}</span>`;
+
+        const amountClass = isVerified ? 'text-success fw-bold' : 'text-dark fw-semibold';
+
+        return `
+          <tr>
+            <td class="small fw-bold text-maroon">${t.transaction_id || '—'}</td>
+            <td class="small">${formatDateTime(t.payment_date || t.created_at)}</td>
+            <td class="small fw-bold"><a href="bookings.html" class="text-decoration-none text-dark">${t.booking_code || '—'}</a></td>
+            <td>
+              <div class="fw-semibold text-dark">${t.customer_name || 'Devotee'}</div>
+            </td>
+            <td><span class="badge bg-light text-dark border">${t.payment_method || 'Manual'}</span></td>
+            <td class="small text-muted font-monospace">${t.transaction_reference || '—'}</td>
+            <td>${statusBadge}</td>
+            <td class="text-end ${amountClass}">${formatINR(t.amount)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render Revenue Velocity Trend Chart (Chart.js)
+    function renderTrendChart(verifiedTxns, startVal, endVal, requestedGrouping) {
+      const canvas = document.getElementById('revenueTrendChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Determine effective grouping
+      let grouping = requestedGrouping;
+      if (grouping === 'auto') {
+        if (activePreset === 'hourly' || (startVal && endVal && startVal === endVal)) {
+          grouping = 'hourly';
+        } else if (activePreset === 'weekly') {
+          grouping = 'daily';
+        } else if (activePreset === 'monthly') {
+          grouping = 'daily';
+        } else if (activePreset === 'yearly') {
+          grouping = 'monthly';
+        } else if (startVal && endVal) {
+          const diffDays = Math.round((new Date(endVal) - new Date(startVal)) / (1000 * 60 * 60 * 24));
+          if (diffDays <= 1) grouping = 'hourly';
+          else if (diffDays <= 45) grouping = 'daily';
+          else if (diffDays <= 180) grouping = 'weekly';
+          else grouping = 'monthly';
+        } else {
+          grouping = 'daily';
+        }
+      }
+
+      document.getElementById('chartGroupingBadge').textContent = 
+        grouping.charAt(0).toUpperCase() + grouping.slice(1) + ' Trend';
+
+      // Build buckets & labels
+      let labels = [];
+      let values = [];
+
+      if (grouping === 'hourly') {
+        // 24 hours: 00:00 to 23:00
+        for (let h = 0; h < 24; h++) {
+          const hourLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`;
+          labels.push(hourLabel);
+          values.push(0);
+        }
+        verifiedTxns.forEach(t => {
+          const d = getTxnDate(t);
+          const hour = d.getHours();
+          if (hour >= 0 && hour < 24) {
+            values[hour] += Number(t.amount || 0);
+          }
+        });
+      } else if (grouping === 'monthly') {
+        // 12 Months: Jan - Dec
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        labels = [...months];
+        values = new Array(12).fill(0);
+        verifiedTxns.forEach(t => {
+          const d = getTxnDate(t);
+          const m = d.getMonth();
+          if (m >= 0 && m < 12) {
+            values[m] += Number(t.amount || 0);
+          }
+        });
+      } else if (grouping === 'yearly') {
+        // Distinct years present or selected
+        const yearsMap = {};
+        verifiedTxns.forEach(t => {
+          const yr = getTxnDate(t).getFullYear();
+          yearsMap[yr] = (yearsMap[yr] || 0) + Number(t.amount || 0);
+        });
+        const curYr = new Date().getFullYear();
+        if (!yearsMap[curYr]) yearsMap[curYr] = 0;
+        const sortedYrs = Object.keys(yearsMap).sort();
+        labels = sortedYrs;
+        values = sortedYrs.map(y => yearsMap[y]);
+      } else {
+        // Daily grouping (default)
+        const dateMap = {};
+
+        // If date range is specified and <= 60 days, prefill all consecutive days
+        if (startVal && endVal) {
+          const s = new Date(startVal);
+          const e = new Date(endVal);
+          const diffDays = Math.round((e - s) / (1000 * 60 * 60 * 24));
+          if (diffDays >= 0 && diffDays <= 60) {
+            const cur = new Date(s);
+            while (cur <= e) {
+              const k = toLocalYMD(cur);
+              dateMap[k] = 0;
+              cur.setDate(cur.getDate() + 1);
+            }
+          }
+        }
+
+        // Fill amounts from transactions
+        verifiedTxns.forEach(t => {
+          const k = toLocalYMD(getTxnDate(t));
+          dateMap[k] = (dateMap[k] || 0) + Number(t.amount || 0);
+        });
+
+        const sortedDates = Object.keys(dateMap).sort();
+        if (sortedDates.length === 0) {
+          sortedDates.push(toLocalYMD(new Date()));
+          dateMap[sortedDates[0]] = 0;
+        }
+
+        labels = sortedDates.map(dStr => {
+          const parts = dStr.split('-');
+          if (parts.length === 3) {
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+          }
+          return dStr;
+        });
+        values = sortedDates.map(k => dateMap[k]);
+      }
+
+      // Destroy previous chart instance
+      if (revenueChartInstance) {
+        revenueChartInstance.destroy();
+      }
+
+      revenueChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Verified Revenue (₹)',
+            data: values,
+            backgroundColor: 'rgba(69, 18, 14, 0.85)',
+            borderColor: '#45120E',
+            borderWidth: 1.5,
+            borderRadius: 6,
+            hoverBackgroundColor: '#FFC908',
+            hoverBorderColor: '#45120E'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` Collections: ${formatINR(context.raw)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(val) {
+                  return '₹' + val.toLocaleString('en-IN');
+                },
+                font: { size: 11 }
+              },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 11 }, maxRotation: 45 }
+            }
+          }
+        }
+      });
+    }
+
+    // Render Payment Method Distribution Donut
+    function renderMethodChart(verifiedTxns) {
+      const canvas = document.getElementById('methodDonutChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const breakdownEl = document.getElementById('methodMixBreakdown');
+
+      const methodCounts = {};
+      const methodTotals = {};
+
+      verifiedTxns.forEach(t => {
+        const m = t.payment_method || 'Other';
+        methodCounts[m] = (methodCounts[m] || 0) + 1;
+        methodTotals[m] = (methodTotals[m] || 0) + Number(t.amount || 0);
+      });
+
+      const methods = Object.keys(methodTotals);
+      const values = methods.map(m => methodTotals[m]);
+      const palette = ['#10B981', '#FFC908', '#3B82F6', '#8B5CF6', '#EC4899', '#6B7280'];
+
+      if (methods.length === 0) {
+        methods.push('No Verified Payments');
+        values.push(1);
+      }
+
+      if (methodChartInstance) {
+        methodChartInstance.destroy();
+      }
+
+      methodChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: methods,
+          datasets: [{
+            data: values,
+            backgroundColor: methods[0] === 'No Verified Payments' ? ['#E5E7EB'] : palette.slice(0, methods.length),
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  if (context.label === 'No Verified Payments') return ' No data';
+                  return ` ${context.label}: ${formatINR(context.raw)}`;
+                }
+              }
+            }
+          },
+          cutout: '68%'
+        }
+      });
+
+      // Render summary breakdown text
+      if (verifiedTxns.length === 0) {
+        breakdownEl.innerHTML = '<span class="text-muted">No verified transactions in this filter</span>';
+      } else {
+        breakdownEl.innerHTML = methods.map((m, idx) => `
+          <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light">
+            <span><i class="bi bi-circle-fill me-1" style="color: ${palette[idx % palette.length]}"></i> ${m}</span>
+            <span class="fw-bold">${formatINR(methodTotals[m])} <small class="text-muted">(${methodCounts[m]})</small></span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Export Filtered CSV Report
+    function exportCSV() {
+      const verifiedToExport = currentFilteredTxns.filter(t => t.status === 'Verified');
+      if (verifiedToExport.length === 0) {
+        alert('No verified transactions available in the currently selected filter to export.');
+        return;
+      }
+
+      const headers = ['Transaction ID', 'Payment Date & Time', 'Booking Code', 'Customer Name', 'Payment Method', 'UTR / Reference', 'Status', 'Verified Amount (INR)'];
+      const rows = verifiedToExport.map(r => {
+        const d = r.payment_date || r.created_at || '';
+        return [
+          r.transaction_id || '',
+          d,
+          r.booking_code || '',
+          `"${(r.customer_name || 'Devotee').replace(/"/g, '""')}"`,
+          r.payment_method || 'Manual',
+          `"${(r.transaction_reference || '—').replace(/"/g, '""')}"`,
+          r.status || 'Verified',
+          r.amount || 0
+        ];
+      });
+
       const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
+
+      const startVal = document.getElementById('filterStartDate').value;
+      const endVal = document.getElementById('filterEndDate').value;
+      const dateRangePart = (startVal || endVal) ? `${startVal || 'all'}_to_${endVal || 'today'}` : 'All_Time';
+
       link.href = URL.createObjectURL(blob);
-      link.download = `Arunachaleshwara_Verified_Revenue_${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `Arunachaleshwara_Revenue_${activePreset.toUpperCase()}_${dateRangePart}.csv`;
       link.click();
     }
   </script>
 </body>
 </html>
-
