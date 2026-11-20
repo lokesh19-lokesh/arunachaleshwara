@@ -51,7 +51,7 @@ function renderAdminSidebar(activePage) {
 
     // RBAC Check
     if (item.mainOnly && !user.isMainAdmin) return;
-    if (!canAccessModule(item.module)) return;
+    if (typeof canAccessModule === 'function' && !canAccessModule(item.module)) return;
 
     if (lastHeader) {
       navHtml += `<div class="admin-nav-header">${lastHeader}</div>`;
@@ -292,6 +292,100 @@ async function uploadAdminImage(file, folder = 'general') {
   return publicUrl;
 }
 
+/**
+ * Master WhatsApp Template Library & Dynamic Formatter
+ */
+const DEFAULT_WHATSAPP_TEMPLATES = {
+  payment_instructions: `Namaste {customer_name},
+Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.
+
+Regarding your booking *{booking_id}*:
+Total Estimated: {estimated_amount}
+Suggested Advance: {advance_amount}
+
+Please transfer via UPI / Bank Transfer:
+*UPI / GPay / PhonePe:* {upi_id}
+*Name:* {account_name}
+
+Once paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!`,
+
+  booking_confirmed: `*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*
+
+Namaste {customer_name},
+Your booking has been officially CONFIRMED!
+
+*Booking ID:* {booking_id}
+{booking_details}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Location: {location}
+We look forward to serving you. Om Namah Shivaya!`,
+
+  invoice_delivery: `Dear {customer_name},
+Thank you for choosing Arunachaleshwara Tours & Travels.
+
+Your booking has been confirmed.
+*Booking ID:* {booking_id}
+*Invoice Number:* {invoice_number}
+*Total Amount:* {total_amount}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Please reply if you need the PDF copy re-attached. Om Namah Shivaya!`,
+
+  enquiry_reply: `Namaste {customer_name}! Thank you for enquiring about {service_type} at Arunachaleshwara Tours & Travels. How can we help you plan your sacred journey?`,
+
+  customer_outreach: `Namaste {customer_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?`
+};
+
+let _cachedWhatsAppTemplates = null;
+
+async function getWhatsAppTemplates(forceRefresh = false) {
+  if (!forceRefresh && _cachedWhatsAppTemplates) return _cachedWhatsAppTemplates;
+  if (!forceRefresh) {
+    const cached = adminCacheGet('whatsapp_templates', 60 * 1000);
+    if (cached) {
+      _cachedWhatsAppTemplates = cached;
+      return cached;
+    }
+  }
+  if (!window.adminSupabase) return DEFAULT_WHATSAPP_TEMPLATES;
+  try {
+    const { data } = await window.adminSupabase
+      .from('whatsapp_settings')
+      .select('templates')
+      .maybeSingle();
+    const custom = (data && data.templates) || {};
+    const merged = { ...DEFAULT_WHATSAPP_TEMPLATES };
+    for (const [k, v] of Object.entries(custom)) {
+      if (v && String(v).trim().length > 0) {
+        merged[k] = v;
+      }
+    }
+    _cachedWhatsAppTemplates = merged;
+    adminCacheSet('whatsapp_templates', _cachedWhatsAppTemplates);
+    return _cachedWhatsAppTemplates;
+  } catch (e) {
+    console.warn('Error loading whatsapp templates:', e);
+    return DEFAULT_WHATSAPP_TEMPLATES;
+  }
+}
+
+function renderWhatsAppTemplate(templateStr, vars = {}) {
+  let out = String(templateStr || '');
+  for (const [k, v] of Object.entries(vars)) {
+    const safeVal = v !== undefined && v !== null ? String(v) : '';
+    out = out.split(`{${k}}`).join(safeVal);
+  }
+  return out;
+}
+
+function clearWhatsAppTemplatesCache() {
+  _cachedWhatsAppTemplates = null;
+  try { sessionStorage.removeItem('arn_cache_whatsapp_templates'); } catch (e) {}
+}
+
 window.renderAdminSidebar = renderAdminSidebar;
 window.renderAdminHeader = renderAdminHeader;
 window.showAdminToast = showAdminToast;
@@ -303,4 +397,8 @@ window.adminCacheGet = adminCacheGet;
 window.adminCacheSet = adminCacheSet;
 window.resolveAdminImgSrc = resolveAdminImgSrc;
 window.uploadAdminImage = uploadAdminImage;
+window.DEFAULT_WHATSAPP_TEMPLATES = DEFAULT_WHATSAPP_TEMPLATES;
+window.getWhatsAppTemplates = getWhatsAppTemplates;
+window.renderWhatsAppTemplate = renderWhatsAppTemplate;
+window.clearWhatsAppTemplatesCache = clearWhatsAppTemplatesCache;
 

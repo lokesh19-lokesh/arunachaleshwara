@@ -260,10 +260,9 @@ async function requireAdminAuth() {
  * Check if current user has permission to access a module
  */
 function canAccessModule(moduleName) {
-  if (!window.CURRENT_ADMIN_USER) return false;
-  if (window.CURRENT_ADMIN_USER.isMainAdmin) return true;
+  if (!window.CURRENT_ADMIN_USER || window.CURRENT_ADMIN_USER.isMainAdmin) return true;
   if (moduleName === 'dashboard') return true;
-  return window.CURRENT_ADMIN_USER.assignedModules.includes(moduleName);
+  return Array.isArray(window.CURRENT_ADMIN_USER.assignedModules) && window.CURRENT_ADMIN_USER.assignedModules.includes(moduleName);
 }
 
 /**

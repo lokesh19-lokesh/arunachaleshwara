@@ -89,12 +89,21 @@
           <td class="small">${formatDate(c.created_at)}</td>
           <td>${getStatusBadge(c.status || 'Active')}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-admin-whatsapp" onclick="openWhatsAppShare('${c.whatsapp_number || c.mobile}', 'Namaste ${c.full_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?', null, 'Customer Outreach')">
+            <button class="btn btn-sm btn-admin-whatsapp" onclick="chatCustomerWA('${c.whatsapp_number || c.mobile}', '${String(c.full_name || '').replace(/'/g, "\\'")}')">
               <i class="bi bi-whatsapp"></i> Chat
             </button>
           </td>
         </tr>
       `).join('');
+    }
+
+    async function chatCustomerWA(phone, name) {
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.customer_outreach || DEFAULT_WHATSAPP_TEMPLATES.customer_outreach;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: name || 'Devotee'
+      });
+      await openWhatsAppShare(phone, msg, null, 'Customer Outreach');
     }
   </script>
 </body>

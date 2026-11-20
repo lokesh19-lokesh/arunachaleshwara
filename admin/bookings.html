@@ -702,7 +702,16 @@
       const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
 
       const adv = Math.round((Number(b.estimated_amount) || 0) * 0.5) || b.estimated_amount;
-      const msg = `Namaste ${b.customer_name},\nGreetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.\n\nRegarding your booking *${b.booking_id}*:\nTotal Estimated: ${formatINR(b.estimated_amount)}\nSuggested Advance: ${formatINR(adv)}\n\nPlease transfer via UPI / Bank Transfer:\n*UPI / GPay / PhonePe:* 9010515341\n*Name:* Arunachaleshwara Tours & Travels\n\nOnce paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!`;
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.payment_instructions || DEFAULT_WHATSAPP_TEMPLATES.payment_instructions;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: b.customer_name || 'Devotee',
+        booking_id: b.booking_id,
+        estimated_amount: formatINR(b.estimated_amount),
+        advance_amount: formatINR(adv),
+        upi_id: '9010515341',
+        account_name: 'Arunachaleshwara Tours & Travels'
+      });
 
       // Update status to Awaiting Payment
       await window.adminSupabase.from(table).update({
@@ -1019,9 +1028,24 @@
       showAdminToast(`Booking ${b.booking_id} CONFIRMED!`, 'success');
 
       // Send WhatsApp Confirmation
-      const msg = `*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*\n\nNamaste ${b.customer_name},\nYour booking has been officially CONFIRMED!\n\n*Booking ID:* ${b.booking_id}\n` +
-        (roomNumber ? `*Allocated Room:* Room ${roomNumber} (${b.category_name})\n*Check-in:* ${formatDate(b.check_in)}\n*Check-out:* ${formatDate(b.check_out)}\n` : `*Service:* ${b.service_title}\n`) +
-        `*Amount Paid:* ${formatINR(b.amount_paid)}\n*Balance Due:* ${formatINR(b.balance_amount)}\n\nLocation: Avulpet Bypass, Tiruvannamalai.\nWe look forward to serving you. Om Namah Shivaya!`;
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.booking_confirmed || DEFAULT_WHATSAPP_TEMPLATES.booking_confirmed;
+      const details = roomNumber
+        ? `*Allocated Room:* Room ${roomNumber} (${b.category_name || ''})\n*Check-in:* ${formatDate(b.check_in)}\n*Check-out:* ${formatDate(b.check_out)}`
+        : `*Service:* ${b.service_title || ''}`;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: b.customer_name || 'Devotee',
+        booking_id: b.booking_id,
+        booking_details: details,
+        room_number: roomNumber ? `Room ${roomNumber}` : '',
+        category_name: b.category_name || '',
+        check_in: formatDate(b.check_in),
+        check_out: formatDate(b.check_out),
+        service_title: b.service_title || '',
+        amount_paid: formatINR(b.amount_paid),
+        balance_due: formatINR(b.balance_amount),
+        location: 'Avulpet Bypass, Tiruvannamalai'
+      });
 
       await openWhatsAppShare(b.whatsapp_number || b.mobile, msg, b.booking_id, 'Booking Confirmation');
       await loadBookings();
@@ -1148,7 +1172,16 @@
       const inv = await getSyncedInvoice(invoiceId);
       if (!inv) return;
 
-      const msg = `Dear ${inv.customer_name},\nThank you for choosing Arunachaleshwara Tours & Travels.\n\nYour booking has been confirmed.\n*Booking ID:* ${inv.booking_code}\n*Invoice Number:* ${inv.invoice_number}\n*Total Amount:* ${formatINR(inv.total_amount)}\n*Amount Paid:* ${formatINR(inv.amount_received)}\n*Balance Due:* ${formatINR(inv.balance_due)}\n\nPlease reply if you need the PDF copy re-attached. Om Namah Shivaya!`;
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.invoice_delivery || DEFAULT_WHATSAPP_TEMPLATES.invoice_delivery;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: inv.customer_name || 'Devotee',
+        booking_id: inv.booking_code || '',
+        invoice_number: inv.invoice_number,
+        total_amount: formatINR(inv.total_amount),
+        amount_paid: formatINR(inv.amount_received),
+        balance_due: formatINR(inv.balance_due)
+      });
       await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
     }
 

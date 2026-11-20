@@ -15,28 +15,664 @@
 </head>
 <body class="admin-body">
   <div class="admin-wrapper">
-    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <aside class="admin-sidebar" id="adminSidebar">
+      <a href="dashboard.html" class="admin-sidebar-brand">
+        <img src="../assets/images/logo/logo.png" alt="Arunachaleshwara">
+        <div class="admin-sidebar-brand-text">
+          ARUNACHALESHWARA
+          <span>ADMIN PORTAL</span>
+        </div>
+      </a>
+      <nav class="admin-nav">
+        <div class="admin-nav-header">CORE</div>
+        <a href="dashboard.html" class="admin-nav-item">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+        <div class="admin-nav-header">BOOKING MANAGEMENT</div>
+        <a href="bookings.html" class="admin-nav-item">
+          <i class="bi bi-calendar-check-fill"></i>
+          <span>All Bookings</span>
+        </a>
+        <a href="operations.html" class="admin-nav-item">
+          <i class="bi bi-door-open-fill"></i>
+          <span>Room Operations</span>
+        </a>
+        <div class="admin-nav-header">INVENTORY &amp; CATALOG</div>
+        <a href="accommodation.html" class="admin-nav-item">
+          <i class="bi bi-building-fill"></i>
+          <span>Accommodation (17 Rooms)</span>
+        </a>
+        <a href="services.html" class="admin-nav-item">
+          <i class="bi bi-compass-fill"></i>
+          <span>Services &amp; Tours</span>
+        </a>
+        <div class="admin-nav-header">FINANCE (MANUAL)</div>
+        <a href="payments.html" class="admin-nav-item">
+          <i class="bi bi-cash-stack"></i>
+          <span>Manual Payments</span>
+        </a>
+        <a href="invoices.html" class="admin-nav-item">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          <span>Invoices &amp; PDFs</span>
+        </a>
+        <a href="reports.html" class="admin-nav-item">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span>Reports &amp; Revenue</span>
+        </a>
+        <div class="admin-nav-header">CRM &amp; WEBSITE CMS</div>
+        <a href="customers.html" class="admin-nav-item">
+          <i class="bi bi-people-fill"></i>
+          <span>Customers</span>
+        </a>
+        <a href="cms.html" class="admin-nav-item">
+          <i class="bi bi-palette-fill"></i>
+          <span>Website CMS &amp; Media</span>
+        </a>
+        <a href="whatsapp.html" class="admin-nav-item active">
+          <i class="bi bi-whatsapp"></i>
+          <span>WhatsApp Settings</span>
+        </a>
+        <div class="admin-nav-header">QUICK LINKS</div>
+        <a href="../index.html" target="_blank" class="admin-nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span>View Live Website</span>
+        </a>
+        <a href="javascript:void(0)" onclick="logoutAdmin()" class="admin-nav-item text-danger fw-bold">
+          <i class="bi bi-box-arrow-left text-danger"></i>
+          <span>Sign Out</span>
+        </a>
+      </nav>
+      <div class="admin-sidebar-user">
+        <div class="admin-user-avatar">SA</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">Super Admin</div>
+          <span class="admin-user-role">Main Admin</span>
+        </div>
+      </div>
+    </aside>
     <main class="admin-main">
-      <header class="admin-header" id="adminHeader"></header>
+      <header class="admin-header" id="adminHeader">
+        <div class="admin-header-title">
+          <h4>WhatsApp Settings &amp; Templates</h4>
+          <small class="text-muted">Dynamic Routing &amp; Live Message Customization</small>
+        </div>
+        <div class="admin-header-actions">
+          <a href="../index.html" target="_blank" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-globe me-1"></i> Website
+          </a>
+          <button type="button" class="btn btn-warning btn-sm" onclick="location.reload()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+        </div>
+      </header>
       <div class="admin-content">
         <div class="row g-4">
+          <!-- Dynamic WhatsApp Message Templates Section (PRIMARY AT TOP) -->
+          <div class="col-12">
+            <div class="admin-card shadow-sm border border-warning-subtle">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
+                <div>
+                  <h6 class="admin-card-title mb-0 text-maroon">
+                    <i class="bi bi-chat-dots-fill text-success me-2"></i> Dynamic WhatsApp Message Templates
+                  </h6>
+                  <small class="text-muted">Select an option below to customize and save message templates. Changes apply instantly.</small>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetAllTemplatesToDefault()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All Defaults
+                  </button>
+                  <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm" id="saveAllTemplatesBtn" onclick="saveAllWhatsAppTemplates()">
+                    <i class="bi bi-save me-1"></i> Save All Templates
+                  </button>
+                </div>
+              </div>
+
+              <!-- Template Type Pills Navigation (STICKY OPTIONS BAR) -->
+              <div class="p-3 bg-white border-bottom wa-sticky-nav">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <div class="small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px;">Template Options:</div>
+                  <ul class="nav nav-pills gap-2 flex-wrap mb-0" id="waTemplateTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active small py-2 px-3 fw-bold" id="tab-payment-btn" data-bs-toggle="pill" data-bs-target="#tab-payment" type="button" role="tab" onclick="setActiveTemplateKey('payment_instructions')">
+                        <i class="bi bi-credit-card-fill me-1 text-primary"></i> 1. Payment Instructions
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link small py-2 px-3 fw-bold" id="tab-confirm-btn" data-bs-toggle="pill" data-bs-target="#tab-confirm" type="button" role="tab" onclick="setActiveTemplateKey('booking_confirmed')">
+                        <i class="bi bi-check-circle-fill me-1 text-success"></i> 2. Booking Confirmation
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link small py-2 px-3 fw-bold" id="tab-invoice-btn" data-bs-toggle="pill" data-bs-target="#tab-invoice" type="button" role="tab" onclick="setActiveTemplateKey('invoice_delivery')">
+                        <i class="bi bi-receipt-cutoff me-1 text-warning"></i> 3. Invoice Delivery
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link small py-2 px-3 fw-bold" id="tab-enquiry-btn" data-bs-toggle="pill" data-bs-target="#tab-enquiry" type="button" role="tab" onclick="setActiveTemplateKey('enquiry_reply')">
+                        <i class="bi bi-chat-quote-fill me-1 text-info"></i> 4. Enquiry Reply
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link small py-2 px-3 fw-bold" id="tab-outreach-btn" data-bs-toggle="pill" data-bs-target="#tab-outreach" type="button" role="tab" onclick="setActiveTemplateKey('customer_outreach')">
+                        <i class="bi bi-heart-fill me-1 text-danger"></i> 5. Devotee Outreach
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Template Editors & Previews -->
+              <div class="admin-card-body p-4">
+                <div class="tab-content" id="waTemplateTabsContent">
+                  <!-- Tab 1: Payment Instructions -->
+                  <div class="tab-pane fade show active" id="tab-payment" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                      <div class="col-lg-7">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary text-white px-2 py-1"><i class="bi bi-credit-card-fill me-1"></i> Option 1: Payment Instructions</span>
+                            <span class="badge bg-light text-dark border">Editable by Admin</span>
+                          </div>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-primary active btn-sm" onclick="switchTemplateTab('tab-payment-btn')">1. Payment</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-confirm-btn')">2. Confirmation</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-invoice-btn')">3. Invoice</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-enquiry-btn')">4. Enquiry</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-outreach-btn')">5. Devotee</button>
+                          </div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-light rounded-3 border">
+                          <small class="text-muted d-block mb-1 fw-bold">Click to insert dynamic variable tag:</small>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{customer_name}')">{customer_name}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{booking_id}')">{booking_id}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{estimated_amount}')">{estimated_amount}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{advance_amount}')">{advance_amount}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{upi_id}')">{upi_id}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_payment_instructions', '{account_name}')">{account_name}</span>
+                        </div>
+                        <textarea id="tpl_payment_instructions" class="form-control font-monospace" rows="11" oninput="updateLivePreview('payment_instructions')">Namaste {customer_name},
+Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.
+
+Regarding your booking *{booking_id}*:
+Total Estimated: {estimated_amount}
+Suggested Advance: {advance_amount}
+
+Please transfer via UPI / Bank Transfer:
+*UPI / GPay / PhonePe:* {upi_id}
+*Name:* {account_name}
+
+Once paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!</textarea>
+
+                        <!-- System Default Reference Box -->
+                        <div class="mt-3 p-2 bg-light rounded border">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-secondary">
+                              <i class="bi bi-info-circle-fill text-primary me-1"></i> System Default Template Reference:
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none text-primary" onclick="copyDefaultToEditor('payment_instructions')">
+                              <i class="bi bi-arrow-repeat me-1"></i> Reset / Copy Default to Editor
+                            </button>
+                          </div>
+                          <pre class="small text-muted mb-0 bg-white p-2 rounded border" style="white-space: pre-wrap; font-size: 11.5px; max-height: 95px; overflow-y: auto;">Namaste {customer_name},
+Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.
+
+Regarding your booking *{booking_id}*:
+Total Estimated: {estimated_amount}
+Suggested Advance: {advance_amount}
+
+Please transfer via UPI / Bank Transfer:
+*UPI / GPay / PhonePe:* {upi_id}
+*Name:* {account_name}
+
+Once paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!</pre>
+                        </div>
+
+                        <!-- Per-Template Save and Actions Bar -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top flex-wrap gap-2">
+                          <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm fw-bold" id="saveBtn_payment_instructions" onclick="saveSingleWhatsAppTemplate('payment_instructions')">
+                              <i class="bi bi-save me-1"></i> Save This Template
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetSingleTemplate('payment_instructions')">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="testSendTemplate('payment_instructions')">
+                              <i class="bi bi-send me-1"></i> Send Test to My WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small text-muted mt-2">Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~</div>
+                      </div>
+
+                      <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted d-block mb-2">Live WhatsApp Preview (Devotee View)</label>
+                        <div class="wa-preview-device">
+                          <div class="wa-preview-header">
+                            <div class="wa-preview-avatar">🕉</div>
+                            <div>
+                              <div class="fw-bold small">Arunachaleshwara Tours</div>
+                              <div style="font-size: 11px; opacity: 0.85;">online</div>
+                            </div>
+                          </div>
+                          <div class="wa-preview-body">
+                            <div class="wa-bubble-sent" id="preview_payment_instructions">
+                              <div>Namaste Suresh Kumar,<br>Greetings from Arunachaleshwara Tours &amp; Travels, Tiruvannamalai.<br><br>Regarding your booking <strong>ARN-2026-00012</strong>:<br>Total Estimated: ₹2,200<br>Suggested Advance: ₹1,100<br><br>Please transfer via UPI / Bank Transfer:<br><strong>UPI / GPay / PhonePe:</strong> 9010515341<br><strong>Name:</strong> Arunachaleshwara Tours &amp; Travels<br><br>Once paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!</div>
+                              <div class="wa-bubble-meta">
+                                <span>10:30 AM</span>
+                                <span style="color: #53BDEB;">✓✓</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 2: Booking Confirmation -->
+                  <div class="tab-pane fade" id="tab-confirm" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                      <div class="col-lg-7">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success text-white px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i> Option 2: Booking Confirmation</span>
+                            <span class="badge bg-light text-dark border">Editable by Admin</span>
+                          </div>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-payment-btn')">1. Payment</button>
+                            <button type="button" class="btn btn-success active btn-sm" onclick="switchTemplateTab('tab-confirm-btn')">2. Confirmation</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-invoice-btn')">3. Invoice</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-enquiry-btn')">4. Enquiry</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-outreach-btn')">5. Devotee</button>
+                          </div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-light rounded-3 border">
+                          <small class="text-muted d-block mb-1 fw-bold">Click to insert dynamic variable tag:</small>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{customer_name}')">{customer_name}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{booking_id}')">{booking_id}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{booking_details}')">{booking_details}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{room_number}')">{room_number}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{category_name}')">{category_name}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{check_in}')">{check_in}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{check_out}')">{check_out}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{amount_paid}')">{amount_paid}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{balance_due}')">{balance_due}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_booking_confirmed', '{location}')">{location}</span>
+                        </div>
+                        <textarea id="tpl_booking_confirmed" class="form-control font-monospace" rows="11" oninput="updateLivePreview('booking_confirmed')">*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*
+
+Namaste {customer_name},
+Your booking has been officially CONFIRMED!
+
+*Booking ID:* {booking_id}
+{booking_details}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Location: {location}
+We look forward to serving you. Om Namah Shivaya!</textarea>
+
+                        <!-- System Default Reference Box -->
+                        <div class="mt-3 p-2 bg-light rounded border">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-secondary">
+                              <i class="bi bi-info-circle-fill text-primary me-1"></i> System Default Template Reference:
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none text-primary" onclick="copyDefaultToEditor('booking_confirmed')">
+                              <i class="bi bi-arrow-repeat me-1"></i> Reset / Copy Default to Editor
+                            </button>
+                          </div>
+                          <pre class="small text-muted mb-0 bg-white p-2 rounded border" style="white-space: pre-wrap; font-size: 11.5px; max-height: 95px; overflow-y: auto;">*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*
+
+Namaste {customer_name},
+Your booking has been officially CONFIRMED!
+
+*Booking ID:* {booking_id}
+{booking_details}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Location: {location}
+We look forward to serving you. Om Namah Shivaya!</pre>
+                        </div>
+
+                        <!-- Per-Template Save and Actions Bar -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top flex-wrap gap-2">
+                          <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm fw-bold" id="saveBtn_booking_confirmed" onclick="saveSingleWhatsAppTemplate('booking_confirmed')">
+                              <i class="bi bi-save me-1"></i> Save This Template
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetSingleTemplate('booking_confirmed')">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="testSendTemplate('booking_confirmed')">
+                              <i class="bi bi-send me-1"></i> Send Test to My WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small text-muted mt-2">Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~</div>
+                      </div>
+
+                      <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted d-block mb-2">Live WhatsApp Preview (Devotee View)</label>
+                        <div class="wa-preview-device">
+                          <div class="wa-preview-header">
+                            <div class="wa-preview-avatar">🕉</div>
+                            <div>
+                              <div class="fw-bold small">Arunachaleshwara Tours</div>
+                              <div style="font-size: 11px; opacity: 0.85;">online</div>
+                            </div>
+                          </div>
+                          <div class="wa-preview-body">
+                            <div class="wa-bubble-sent" id="preview_booking_confirmed">
+                              <div><strong>BOOKING CONFIRMED - ARUNACHALESHWARA TOURS &amp; TRAVELS</strong><br><br>Namaste Suresh Kumar,<br>Your booking has been officially CONFIRMED!<br><br><strong>Booking ID:</strong> ARN-2026-00012<br><strong>Allocated Room:</strong> Room 101 (Big 2-Bed Family Room)<br><strong>Check-in:</strong> 24 Nov 2026<br><strong>Check-out:</strong> 26 Nov 2026<br><strong>Amount Paid:</strong> ₹2,200<br><strong>Balance Due:</strong> ₹0<br><br>Location: Avulpet Bypass, Tiruvannamalai<br>We look forward to serving you. Om Namah Shivaya!</div>
+                              <div class="wa-bubble-meta">
+                                <span>10:30 AM</span>
+                                <span style="color: #53BDEB;">✓✓</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 3: Invoice Delivery -->
+                  <div class="tab-pane fade" id="tab-invoice" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                      <div class="col-lg-7">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-receipt-cutoff me-1"></i> Option 3: Invoice Delivery</span>
+                            <span class="badge bg-light text-dark border">Editable by Admin</span>
+                          </div>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-payment-btn')">1. Payment</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-confirm-btn')">2. Confirmation</button>
+                            <button type="button" class="btn btn-warning active btn-sm" onclick="switchTemplateTab('tab-invoice-btn')">3. Invoice</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-enquiry-btn')">4. Enquiry</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-outreach-btn')">5. Devotee</button>
+                          </div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-light rounded-3 border">
+                          <small class="text-muted d-block mb-1 fw-bold">Click to insert dynamic variable tag:</small>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{customer_name}')">{customer_name}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{booking_id}')">{booking_id}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{invoice_number}')">{invoice_number}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{total_amount}')">{total_amount}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{amount_paid}')">{amount_paid}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_invoice_delivery', '{balance_due}')">{balance_due}</span>
+                        </div>
+                        <textarea id="tpl_invoice_delivery" class="form-control font-monospace" rows="11" oninput="updateLivePreview('invoice_delivery')">Dear {customer_name},
+Thank you for choosing Arunachaleshwara Tours & Travels.
+
+Your booking has been confirmed.
+*Booking ID:* {booking_id}
+*Invoice Number:* {invoice_number}
+*Total Amount:* {total_amount}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Please reply if you need the PDF copy re-attached. Om Namah Shivaya!</textarea>
+
+                        <!-- System Default Reference Box -->
+                        <div class="mt-3 p-2 bg-light rounded border">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-secondary">
+                              <i class="bi bi-info-circle-fill text-primary me-1"></i> System Default Template Reference:
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none text-primary" onclick="copyDefaultToEditor('invoice_delivery')">
+                              <i class="bi bi-arrow-repeat me-1"></i> Reset / Copy Default to Editor
+                            </button>
+                          </div>
+                          <pre class="small text-muted mb-0 bg-white p-2 rounded border" style="white-space: pre-wrap; font-size: 11.5px; max-height: 95px; overflow-y: auto;">Dear {customer_name},
+Thank you for choosing Arunachaleshwara Tours & Travels.
+
+Your booking has been confirmed.
+*Booking ID:* {booking_id}
+*Invoice Number:* {invoice_number}
+*Total Amount:* {total_amount}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Please reply if you need the PDF copy re-attached. Om Namah Shivaya!</pre>
+                        </div>
+
+                        <!-- Per-Template Save and Actions Bar -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top flex-wrap gap-2">
+                          <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm fw-bold" id="saveBtn_invoice_delivery" onclick="saveSingleWhatsAppTemplate('invoice_delivery')">
+                              <i class="bi bi-save me-1"></i> Save This Template
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetSingleTemplate('invoice_delivery')">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="testSendTemplate('invoice_delivery')">
+                              <i class="bi bi-send me-1"></i> Send Test to My WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small text-muted mt-2">Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~</div>
+                      </div>
+
+                      <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted d-block mb-2">Live WhatsApp Preview (Devotee View)</label>
+                        <div class="wa-preview-device">
+                          <div class="wa-preview-header">
+                            <div class="wa-preview-avatar">🕉</div>
+                            <div>
+                              <div class="fw-bold small">Arunachaleshwara Tours</div>
+                              <div style="font-size: 11px; opacity: 0.85;">online</div>
+                            </div>
+                          </div>
+                          <div class="wa-preview-body">
+                            <div class="wa-bubble-sent" id="preview_invoice_delivery">
+                              <div>Dear Suresh Kumar,<br>Thank you for choosing Arunachaleshwara Tours &amp; Travels.<br><br>Your booking has been confirmed.<br><strong>Booking ID:</strong> ARN-2026-00012<br><strong>Invoice Number:</strong> ARN-INV-2026-00008<br><strong>Total Amount:</strong> ₹2,200<br><strong>Amount Paid:</strong> ₹2,200<br><strong>Balance Due:</strong> ₹0<br><br>Please reply if you need the PDF copy re-attached. Om Namah Shivaya!</div>
+                              <div class="wa-bubble-meta">
+                                <span>10:30 AM</span>
+                                <span style="color: #53BDEB;">✓✓</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 4: Enquiry Reply -->
+                  <div class="tab-pane fade" id="tab-enquiry" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                      <div class="col-lg-7">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-info text-white px-2 py-1"><i class="bi bi-chat-quote-fill me-1"></i> Option 4: Enquiry Reply</span>
+                            <span class="badge bg-light text-dark border">Editable by Admin</span>
+                          </div>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-payment-btn')">1. Payment</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-confirm-btn')">2. Confirmation</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-invoice-btn')">3. Invoice</button>
+                            <button type="button" class="btn btn-info active btn-sm" onclick="switchTemplateTab('tab-enquiry-btn')">4. Enquiry</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-outreach-btn')">5. Devotee</button>
+                          </div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-light rounded-3 border">
+                          <small class="text-muted d-block mb-1 fw-bold">Click to insert dynamic variable tag:</small>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_enquiry_reply', '{customer_name}')">{customer_name}</span>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_enquiry_reply', '{service_type}')">{service_type}</span>
+                        </div>
+                        <textarea id="tpl_enquiry_reply" class="form-control font-monospace" rows="8" oninput="updateLivePreview('enquiry_reply')">Namaste {customer_name}! Thank you for enquiring about {service_type} at Arunachaleshwara Tours & Travels. How can we help you plan your sacred journey?</textarea>
+
+                        <!-- System Default Reference Box -->
+                        <div class="mt-3 p-2 bg-light rounded border">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-secondary">
+                              <i class="bi bi-info-circle-fill text-primary me-1"></i> System Default Template Reference:
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none text-primary" onclick="copyDefaultToEditor('enquiry_reply')">
+                              <i class="bi bi-arrow-repeat me-1"></i> Reset / Copy Default to Editor
+                            </button>
+                          </div>
+                          <pre class="small text-muted mb-0 bg-white p-2 rounded border" style="white-space: pre-wrap; font-size: 11.5px; max-height: 85px; overflow-y: auto;">Namaste {customer_name}! Thank you for enquiring about {service_type} at Arunachaleshwara Tours & Travels. How can we help you plan your sacred journey?</pre>
+                        </div>
+
+                        <!-- Per-Template Save and Actions Bar -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top flex-wrap gap-2">
+                          <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm fw-bold" id="saveBtn_enquiry_reply" onclick="saveSingleWhatsAppTemplate('enquiry_reply')">
+                              <i class="bi bi-save me-1"></i> Save This Template
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetSingleTemplate('enquiry_reply')">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="testSendTemplate('enquiry_reply')">
+                              <i class="bi bi-send me-1"></i> Send Test to My WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small text-muted mt-2">Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~</div>
+                      </div>
+
+                      <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted d-block mb-2">Live WhatsApp Preview (Devotee View)</label>
+                        <div class="wa-preview-device">
+                          <div class="wa-preview-header">
+                            <div class="wa-preview-avatar">🕉</div>
+                            <div>
+                              <div class="fw-bold small">Arunachaleshwara Tours</div>
+                              <div style="font-size: 11px; opacity: 0.85;">online</div>
+                            </div>
+                          </div>
+                          <div class="wa-preview-body">
+                            <div class="wa-bubble-sent" id="preview_enquiry_reply">
+                              <div>Namaste Devotee Ananya! Thank you for enquiring about 1 Day Saptha Shiva Kshetra Yatra at Arunachaleshwara Tours &amp; Travels. How can we help you plan your sacred journey?</div>
+                              <div class="wa-bubble-meta">
+                                <span>10:30 AM</span>
+                                <span style="color: #53BDEB;">✓✓</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tab 5: Customer Outreach -->
+                  <div class="tab-pane fade" id="tab-outreach" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                      <div class="col-lg-7">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger text-white px-2 py-1"><i class="bi bi-heart-fill me-1"></i> Option 5: Devotee Outreach</span>
+                            <span class="badge bg-light text-dark border">Editable by Admin</span>
+                          </div>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-payment-btn')">1. Payment</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-confirm-btn')">2. Confirmation</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-invoice-btn')">3. Invoice</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="switchTemplateTab('tab-enquiry-btn')">4. Enquiry</button>
+                            <button type="button" class="btn btn-danger active btn-sm" onclick="switchTemplateTab('tab-outreach-btn')">5. Devotee</button>
+                          </div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-light rounded-3 border">
+                          <small class="text-muted d-block mb-1 fw-bold">Click to insert dynamic variable tag:</small>
+                          <span class="wa-tag-btn" onclick="insertTag('tpl_customer_outreach', '{customer_name}')">{customer_name}</span>
+                        </div>
+                        <textarea id="tpl_customer_outreach" class="form-control font-monospace" rows="8" oninput="updateLivePreview('customer_outreach')">Namaste {customer_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?</textarea>
+
+                        <!-- System Default Reference Box -->
+                        <div class="mt-3 p-2 bg-light rounded border">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-secondary">
+                              <i class="bi bi-info-circle-fill text-primary me-1"></i> System Default Template Reference:
+                            </span>
+                            <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none text-primary" onclick="copyDefaultToEditor('customer_outreach')">
+                              <i class="bi bi-arrow-repeat me-1"></i> Reset / Copy Default to Editor
+                            </button>
+                          </div>
+                          <pre class="small text-muted mb-0 bg-white p-2 rounded border" style="white-space: pre-wrap; font-size: 11.5px; max-height: 85px; overflow-y: auto;">Namaste {customer_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?</pre>
+                        </div>
+
+                        <!-- Per-Template Save and Actions Bar -->
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top flex-wrap gap-2">
+                          <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-admin-whatsapp btn-sm px-3 shadow-sm fw-bold" id="saveBtn_customer_outreach" onclick="saveSingleWhatsAppTemplate('customer_outreach')">
+                              <i class="bi bi-save me-1"></i> Save This Template
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetSingleTemplate('customer_outreach')">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-success" onclick="testSendTemplate('customer_outreach')">
+                              <i class="bi bi-send me-1"></i> Send Test to My WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small text-muted mt-2">Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~</div>
+                      </div>
+
+                      <div class="col-lg-5">
+                        <label class="form-label small fw-bold text-muted d-block mb-2">Live WhatsApp Preview (Devotee View)</label>
+                        <div class="wa-preview-device">
+                          <div class="wa-preview-header">
+                            <div class="wa-preview-avatar">🕉</div>
+                            <div>
+                              <div class="fw-bold small">Arunachaleshwara Tours</div>
+                              <div style="font-size: 11px; opacity: 0.85;">online</div>
+                            </div>
+                          </div>
+                          <div class="wa-preview-body">
+                            <div class="wa-bubble-sent" id="preview_customer_outreach">
+                              <div>Namaste Devotee Ramesh! Greetings from Arunachaleshwara Tours &amp; Travels, Tiruvannamalai. How may we assist you today?</div>
+                              <div class="wa-bubble-meta">
+                                <span>10:30 AM</span>
+                                <span style="color: #53BDEB;">✓✓</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WhatsApp Routing Numbers -->
           <div class="col-lg-5">
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-whatsapp text-success"></i> WhatsApp Routing Numbers</h6>
+            <div class="admin-card h-100">
+              <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-whatsapp text-success me-1"></i> WhatsApp Routing Numbers</h6>
+                <span class="badge bg-success-subtle text-success small">Direct Desk Routing</span>
               </div>
               <div class="admin-card-body">
                 <form id="waSettingsForm">
                   <div class="mb-3">
                     <label class="form-label small fw-bold">Main Admin WhatsApp Number</label>
                     <input type="text" id="waMain" class="form-control" placeholder="919010515341">
+                    <div class="form-text small">Default number used for notifications &amp; payments</div>
                   </div>
                   <div class="mb-3">
                     <label class="form-label small fw-bold">Accommodation Booking Desk Number</label>
                     <input type="text" id="waAcc" class="form-control" placeholder="919010515341">
                   </div>
                   <div class="mb-3">
-                    <label class="form-label small fw-bold">Services & Tour Booking Number</label>
+                    <label class="form-label small fw-bold">Services &amp; Tour Booking Number</label>
                     <input type="text" id="waSrv" class="form-control" placeholder="919010515341">
                   </div>
                   <div class="mb-3">
@@ -49,14 +685,18 @@
             </div>
           </div>
 
+          <!-- WhatsApp Communication History -->
           <div class="col-lg-7">
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-chat-left-text-fill text-warning"></i> WhatsApp Communication History</h6>
+            <div class="admin-card h-100">
+              <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-chat-left-text-fill text-warning me-1"></i> WhatsApp Communication History</h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="loadWaData()" title="Refresh Logs">
+                  <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
               </div>
-              <div class="table-responsive">
-                <table class="table admin-table">
-                  <thead><tr><th>Date</th><th>Booking</th><th>Recipient</th><th>Type</th><th>Status</th></tr></thead>
+              <div class="table-responsive" style="max-height: 380px;">
+                <table class="table admin-table mb-0">
+                  <thead class="sticky-top bg-white"><tr><th>Date</th><th>Booking</th><th>Recipient</th><th>Type</th><th>Status</th></tr></thead>
                   <tbody id="waLogsBody"><tr><td colspan="5" class="text-center py-4 text-muted">Loading logs...</td></tr></tbody>
                 </table>
               </div>
@@ -72,13 +712,187 @@
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
-      if (!user) return;
-      renderAdminSidebar('whatsapp');
-      renderAdminHeader('WhatsApp Settings', 'Routing & Message History');
-      loadWaData();
-    });
+    // Master System Default Templates (guaranteed local definition)
+    const DEFAULT_WHATSAPP_TEMPLATES = {
+      payment_instructions: `Namaste {customer_name},
+Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai.
+
+Regarding your booking *{booking_id}*:
+Total Estimated: {estimated_amount}
+Suggested Advance: {advance_amount}
+
+Please transfer via UPI / Bank Transfer:
+*UPI / GPay / PhonePe:* {upi_id}
+*Name:* {account_name}
+
+Once paid, kindly share the payment screenshot or UTR number on this WhatsApp chat so we can verify and confirm your room immediately. Om Namah Shivaya!`,
+
+      booking_confirmed: `*BOOKING CONFIRMED - ARUNACHALESHWARA TOURS & TRAVELS*
+
+Namaste {customer_name},
+Your booking has been officially CONFIRMED!
+
+*Booking ID:* {booking_id}
+{booking_details}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Location: {location}
+We look forward to serving you. Om Namah Shivaya!`,
+
+      invoice_delivery: `Dear {customer_name},
+Thank you for choosing Arunachaleshwara Tours & Travels.
+
+Your booking has been confirmed.
+*Booking ID:* {booking_id}
+*Invoice Number:* {invoice_number}
+*Total Amount:* {total_amount}
+*Amount Paid:* {amount_paid}
+*Balance Due:* {balance_due}
+
+Please reply if you need the PDF copy re-attached. Om Namah Shivaya!`,
+
+      enquiry_reply: `Namaste {customer_name}! Thank you for enquiring about {service_type} at Arunachaleshwara Tours & Travels. How can we help you plan your sacred journey?`,
+
+      customer_outreach: `Namaste {customer_name}! Greetings from Arunachaleshwara Tours & Travels, Tiruvannamalai. How may we assist you today?`
+    };
+
+    window.DEFAULT_WHATSAPP_TEMPLATES = DEFAULT_WHATSAPP_TEMPLATES;
+
+    let currentWaSettings = null;
+    let currentTemplates = { ...DEFAULT_WHATSAPP_TEMPLATES };
+    let activeTemplateKey = 'payment_instructions';
+
+    const SAMPLE_DATA = {
+      payment_instructions: {
+        customer_name: 'Suresh Kumar',
+        booking_id: 'ARN-2026-00012',
+        estimated_amount: '₹2,200',
+        advance_amount: '₹1,100',
+        upi_id: '9010515341',
+        account_name: 'Arunachaleshwara Tours & Travels'
+      },
+      booking_confirmed: {
+        customer_name: 'Suresh Kumar',
+        booking_id: 'ARN-2026-00012',
+        booking_details: '*Allocated Room:* Room 101 (Big 2-Bed Family Room)\n*Check-in:* 24 Nov 2026\n*Check-out:* 26 Nov 2026',
+        room_number: 'Room 101',
+        category_name: 'Big 2-Bed Family Room',
+        check_in: '24 Nov 2026',
+        check_out: '26 Nov 2026',
+        service_title: 'Arunachalam Giri Pradakshina',
+        amount_paid: '₹2,200',
+        balance_due: '₹0',
+        location: 'Avulpet Bypass, Tiruvannamalai'
+      },
+      invoice_delivery: {
+        customer_name: 'Suresh Kumar',
+        booking_id: 'ARN-2026-00012',
+        invoice_number: 'ARN-INV-2026-00008',
+        total_amount: '₹2,200',
+        amount_paid: '₹2,200',
+        balance_due: '₹0'
+      },
+      enquiry_reply: {
+        customer_name: 'Devotee Ananya',
+        service_type: '1 Day Saptha Shiva Kshetra Yatra'
+      },
+      customer_outreach: {
+        customer_name: 'Devotee Ramesh'
+      }
+    };
+
+    const TEMPLATE_LABELS = {
+      payment_instructions: 'Payment Instructions',
+      booking_confirmed: 'Booking Confirmation',
+      invoice_delivery: 'Invoice Delivery',
+      enquiry_reply: 'Enquiry Reply',
+      customer_outreach: 'Devotee Outreach'
+    };
+
+    function switchTemplateTab(buttonId) {
+      const btn = document.getElementById(buttonId);
+      if (btn) {
+        if (window.bootstrap && window.bootstrap.Tab) {
+          const tab = new bootstrap.Tab(btn);
+          tab.show();
+        } else {
+          btn.click();
+        }
+      }
+    }
+
+    function renderLocalWhatsAppTemplate(templateStr, vars = {}) {
+      let out = String(templateStr || '');
+      for (const [k, v] of Object.entries(vars)) {
+        const safeVal = v !== undefined && v !== null ? String(v) : '';
+        out = out.split(`{${k}}`).join(safeVal);
+      }
+      return out;
+    }
+
+    async function initWhatsAppPage() {
+      // 1. Immediately render sidebar & header layout
+      if (typeof renderAdminSidebar === 'function') renderAdminSidebar('whatsapp');
+      if (typeof renderAdminHeader === 'function') renderAdminHeader('WhatsApp Settings & Templates', 'Dynamic Routing & Live Message Customization');
+
+      // 2. Initialize tab switch listeners
+      const tabPills = document.querySelectorAll('#waTemplateTabs button[data-bs-toggle="pill"]');
+      tabPills.forEach(pill => {
+        pill.addEventListener('shown.bs.tab', (e) => {
+          const target = e.target.getAttribute('data-bs-target');
+          const map = {
+            '#tab-payment': 'payment_instructions',
+            '#tab-confirm': 'booking_confirmed',
+            '#tab-invoice': 'invoice_delivery',
+            '#tab-enquiry': 'enquiry_reply',
+            '#tab-outreach': 'customer_outreach'
+          };
+          const key = map[target];
+          if (key) {
+            setActiveTemplateKey(key);
+            updateLivePreview(key);
+          }
+        });
+      });
+
+      // 3. Immediately render live previews for all 5 templates
+      const keys = ['payment_instructions', 'booking_confirmed', 'invoice_delivery', 'enquiry_reply', 'customer_outreach'];
+      for (const k of keys) {
+        updateLivePreview(k);
+      }
+
+      // 4. Check auth & re-render sidebar
+      try {
+        if (typeof requireAdminAuth === 'function') {
+          const user = await requireAdminAuth();
+          if (user) {
+            if (typeof renderAdminSidebar === 'function') renderAdminSidebar('whatsapp');
+            if (typeof renderAdminHeader === 'function') renderAdminHeader('WhatsApp Settings & Templates', 'Dynamic Routing & Live Message Customization');
+          }
+        }
+      } catch (err) {
+        console.warn('Auth check warning:', err);
+      }
+
+      // 5. Load dynamic settings from DB
+      try {
+        await loadWaData();
+      } catch (err) {
+        console.warn('loadWaData warning:', err);
+      }
+    }
+
+    // Run immediately if DOM ready, otherwise on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initWhatsAppPage);
+    } else {
+      initWhatsAppPage();
+    }
+
+    function setActiveTemplateKey(key) {
+      activeTemplateKey = key;
+    }
 
     async function loadWaData() {
       const sb = window.adminSupabase;
@@ -87,6 +901,7 @@
         sb.from('whatsapp_messages').select('*').order('sent_at', { ascending: false }).limit(50)
       ]);
 
+      currentWaSettings = sett;
       if (sett) {
         document.getElementById('waMain').value = sett.main_admin_number || '919010515341';
         document.getElementById('waAcc').value = sett.accommodation_number || '919010515341';
@@ -94,6 +909,25 @@
         document.getElementById('waSup').value = sett.support_number || '919010515341';
       }
 
+      // Populate templates: prioritize saved custom template if non-empty, otherwise use system default
+      const custom = (sett && sett.templates) || {};
+      const keys = ['payment_instructions', 'booking_confirmed', 'invoice_delivery', 'enquiry_reply', 'customer_outreach'];
+      
+      for (const k of keys) {
+        if (custom[k] && String(custom[k]).trim().length > 0) {
+          currentTemplates[k] = custom[k];
+        } else {
+          currentTemplates[k] = DEFAULT_WHATSAPP_TEMPLATES[k];
+        }
+
+        const txtEl = document.getElementById(`tpl_${k}`);
+        if (txtEl) {
+          txtEl.value = currentTemplates[k];
+        }
+        updateLivePreview(k);
+      }
+
+      // Populate logs
       const tbody = document.getElementById('waLogsBody');
       if (!logs || logs.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No WhatsApp messages logged yet.</td></tr>';
@@ -110,10 +944,192 @@
       }
     }
 
+    function updateLivePreview(key) {
+      const txtEl = document.getElementById(`tpl_${key}`);
+      const previewEl = document.getElementById(`preview_${key}`);
+      if (!previewEl) return;
+
+      const raw = (txtEl && txtEl.value.trim().length > 0) ? txtEl.value : (DEFAULT_WHATSAPP_TEMPLATES[key] || '');
+      currentTemplates[key] = (txtEl && txtEl.value.trim().length > 0) ? txtEl.value : raw;
+      const sample = SAMPLE_DATA[key] || {};
+      const rendered = renderLocalWhatsAppTemplate(raw, sample);
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      // Escape HTML and format WhatsApp markdown
+      const escaped = rendered
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+        .replace(/_(.*?)_/g, '<em>$1</em>')
+        .replace(/~(.*?)~/g, '<del>$1</del>')
+        .replace(/\n/g, '<br>');
+
+      previewEl.innerHTML = `
+        <div>${escaped}</div>
+        <div class="wa-bubble-meta">
+          <span>${timeStr}</span>
+          <span style="color: #53BDEB;">✓✓</span>
+        </div>
+      `;
+    }
+
+    function insertTag(textareaId, tag) {
+      const el = document.getElementById(textareaId);
+      if (!el) return;
+      const start = el.selectionStart || 0;
+      const end = el.selectionEnd || 0;
+      const val = el.value;
+      el.value = val.substring(0, start) + tag + val.substring(end);
+      el.focus();
+      el.selectionStart = el.selectionEnd = start + tag.length;
+
+      const key = textareaId.replace('tpl_', '');
+      updateLivePreview(key);
+    }
+
+    function copyDefaultToEditor(key) {
+      const def = DEFAULT_WHATSAPP_TEMPLATES[key] || '';
+      const txtEl = document.getElementById(`tpl_${key}`);
+      if (txtEl && def) {
+        txtEl.value = def;
+        currentTemplates[key] = def;
+        updateLivePreview(key);
+        txtEl.focus();
+        showAdminToast(`Default "${TEMPLATE_LABELS[key] || key}" template copied to editor. Click "Save This Template" to save.`, 'info');
+      }
+    }
+
+    function resetSingleTemplate(key) {
+      const def = DEFAULT_WHATSAPP_TEMPLATES[key] || '';
+      const txtEl = document.getElementById(`tpl_${key}`);
+      if (txtEl && def) {
+        txtEl.value = def;
+        currentTemplates[key] = def;
+        updateLivePreview(key);
+        showAdminToast(`Template "${TEMPLATE_LABELS[key] || key}" reset to system default. Click "Save This Template" to apply.`, 'info');
+      }
+    }
+
+    function resetAllTemplatesToDefault() {
+      if (!confirm('Are you sure you want to reset ALL 5 WhatsApp templates to system defaults?')) return;
+      for (const [k, v] of Object.entries(DEFAULT_WHATSAPP_TEMPLATES)) {
+        const txtEl = document.getElementById(`tpl_${k}`);
+        if (txtEl) {
+          txtEl.value = v;
+          currentTemplates[k] = v;
+          updateLivePreview(k);
+        }
+      }
+      showAdminToast('All templates reset to defaults. Click "Save All Templates" or save individually to persist.', 'info');
+    }
+
+    async function saveSingleWhatsAppTemplate(key) {
+      const btn = document.getElementById(`saveBtn_${key}`);
+      const originalHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+        btn.disabled = true;
+      }
+
+      try {
+        const txtEl = document.getElementById(`tpl_${key}`);
+        const enteredVal = txtEl ? txtEl.value.trim() : '';
+        const valToSave = enteredVal || (DEFAULT_WHATSAPP_TEMPLATES[key] || '');
+        if (!enteredVal && txtEl) {
+          txtEl.value = valToSave;
+          updateLivePreview(key);
+        }
+        currentTemplates[key] = valToSave;
+
+        // Ensure all templates exist before saving
+        const keys = ['payment_instructions', 'booking_confirmed', 'invoice_delivery', 'enquiry_reply', 'customer_outreach'];
+        for (const k of keys) {
+          if (!currentTemplates[k] || currentTemplates[k].trim().length === 0) {
+            const el = document.getElementById(`tpl_${k}`);
+            currentTemplates[k] = (el && el.value.trim().length > 0) ? el.value.trim() : (DEFAULT_WHATSAPP_TEMPLATES[k] || '');
+          }
+        }
+
+        const id = currentWaSettings?.id || '00000000-0000-0000-0000-000000000001';
+        const { error } = await window.adminSupabase.from('whatsapp_settings').upsert({
+          id: id,
+          templates: currentTemplates,
+          updated_at: new Date().toISOString()
+        });
+
+        if (error) throw error;
+
+        if (window.clearWhatsAppTemplatesCache) window.clearWhatsAppTemplatesCache();
+        await logAdminActivity('UPDATE_WHATSAPP_TEMPLATE', 'whatsapp_settings', key);
+
+        showAdminToast(`"${TEMPLATE_LABELS[key] || key}" template saved successfully!`, 'success');
+      } catch (err) {
+        console.error('Error saving template:', err);
+        showAdminToast('Error saving template: ' + (err.message || err), 'error');
+      } finally {
+        if (btn) {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    async function saveAllWhatsAppTemplates() {
+      const btn = document.getElementById('saveAllTemplatesBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+      btn.disabled = true;
+
+      try {
+        const keys = ['payment_instructions', 'booking_confirmed', 'invoice_delivery', 'enquiry_reply', 'customer_outreach'];
+        for (const k of keys) {
+          const txtEl = document.getElementById(`tpl_${k}`);
+          const val = txtEl ? txtEl.value.trim() : '';
+          currentTemplates[k] = val || (DEFAULT_WHATSAPP_TEMPLATES[k] || '');
+          if (!val && txtEl) {
+            txtEl.value = currentTemplates[k];
+            updateLivePreview(k);
+          }
+        }
+
+        const id = currentWaSettings?.id || '00000000-0000-0000-0000-000000000001';
+        const { error } = await window.adminSupabase.from('whatsapp_settings').upsert({
+          id: id,
+          templates: currentTemplates,
+          updated_at: new Date().toISOString()
+        });
+
+        if (error) throw error;
+
+        if (window.clearWhatsAppTemplatesCache) window.clearWhatsAppTemplatesCache();
+        await logAdminActivity('UPDATE_WHATSAPP_TEMPLATES', 'whatsapp_settings', 'all_templates');
+        showAdminToast('All 5 WhatsApp templates saved dynamically & updated live!', 'success');
+      } catch (err) {
+        console.error('Error saving templates:', err);
+        showAdminToast('Error saving templates: ' + (err.message || err), 'error');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    function testSendTemplate(key) {
+      const raw = currentTemplates[key] || DEFAULT_WHATSAPP_TEMPLATES[key] || '';
+      const sample = SAMPLE_DATA[key] || {};
+      const rendered = window.renderWhatsAppTemplate ? window.renderWhatsAppTemplate(raw, sample) : raw;
+      const defaultNumber = document.getElementById('waMain')?.value?.trim() || '919010515341';
+      const targetPhone = prompt('Enter 10-digit mobile number to send this test message to (will open WhatsApp):', defaultNumber);
+      if (!targetPhone) return;
+
+      openWhatsAppShare(targetPhone, rendered, 'TEST', `Test ${key}`);
+    }
+
     document.getElementById('waSettingsForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const id = currentWaSettings?.id || '00000000-0000-0000-0000-000000000001';
       await window.adminSupabase.from('whatsapp_settings').upsert({
-        id: '00000000-0000-0000-0000-000000000001',
+        id: id,
         main_admin_number: document.getElementById('waMain').value.trim(),
         accommodation_number: document.getElementById('waAcc').value.trim(),
         service_number: document.getElementById('waSrv').value.trim(),

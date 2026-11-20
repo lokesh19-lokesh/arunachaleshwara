@@ -113,7 +113,16 @@
     async function shareInvWA(id) {
       const inv = invoicesList.find(x => x.id === id);
       if (!inv) return;
-      const msg = `Dear ${inv.customer_name},\nThank you for choosing Arunachaleshwara Tours & Travels.\n\n*Booking ID:* ${inv.booking_code}\n*Invoice Number:* ${inv.invoice_number}\n*Total Amount:* ${formatINR(inv.total_amount)}\n*Amount Paid:* ${formatINR(inv.amount_received)}\n*Balance Due:* ${formatINR(inv.balance_due)}\n\nPlease find your official booking receipt attached. Om Namah Shivaya!`;
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.invoice_delivery || DEFAULT_WHATSAPP_TEMPLATES.invoice_delivery;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: inv.customer_name || 'Devotee',
+        booking_id: inv.booking_code || '',
+        invoice_number: inv.invoice_number,
+        total_amount: formatINR(inv.total_amount),
+        amount_paid: formatINR(inv.amount_received),
+        balance_due: formatINR(inv.balance_due)
+      });
       await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
     }
   </script>

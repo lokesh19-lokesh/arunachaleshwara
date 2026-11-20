@@ -394,7 +394,7 @@
           <td class="small">${formatDate(e.travel_date)}</td>
           <td>${getStatusBadge(e.status || 'New')}</td>
           <td class="text-end text-nowrap">
-            <button class="btn btn-sm btn-admin-whatsapp me-1" onclick="openWhatsAppShare('${e.phone}', 'Namaste ${String(e.customer_name || '').replace(/'/g, "\\'")}! Thank you for enquiring about ${String(e.service_type || e.destination || 'our services').replace(/'/g, "\\'")} at Arunachaleshwara Tours & Travels. How can we help you?', null, 'Enquiry Reply')">
+            <button class="btn btn-sm btn-admin-whatsapp me-1" onclick="replyEnquiryWA('${e.phone}', '${String(e.customer_name || '').replace(/'/g, "\\'")}', '${String(e.service_type || e.destination || 'our services').replace(/'/g, "\\'")}')">
               <i class="bi bi-whatsapp"></i> Reply
             </button>
             <button class="btn btn-sm btn-outline-danger" onclick="deleteCatalogItem('enquiries', '${e.id}', 'Enquiry from ${String(e.customer_name || '').replace(/'/g, "\\'")}')" title="Delete Enquiry">
@@ -403,6 +403,16 @@
           </td>
         </tr>
       `).join('');
+    }
+
+    async function replyEnquiryWA(phone, name, serviceType) {
+      const templates = await getWhatsAppTemplates();
+      const tpl = templates.enquiry_reply || DEFAULT_WHATSAPP_TEMPLATES.enquiry_reply;
+      const msg = renderWhatsAppTemplate(tpl, {
+        customer_name: name || 'Devotee',
+        service_type: serviceType || 'our services'
+      });
+      await openWhatsAppShare(phone, msg, null, 'Enquiry Reply');
     }
 
     function updatePreview(inputId, previewId) {
