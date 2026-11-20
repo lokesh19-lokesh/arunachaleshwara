@@ -113,12 +113,47 @@ function initWelcomePopupAndAudio() {
 
   const dialog = document.getElementById('welcomePopup');
   const closeBtn = document.getElementById('welcomePopupClose');
+  const popupImg = document.getElementById('welcomePopupImg') || (dialog ? dialog.querySelector('.welcome-popup-img') : null);
   const audio = document.getElementById('bgMantramAudio');
   const audioBtn = document.getElementById('audioToggleBtn');
   const audioIcon = document.getElementById('audioToggleIcon');
   const audioLabel = document.getElementById('audioToggleLabel');
 
   if (!dialog && !audio && !audioBtn) return;
+
+  // Hydrate popup banner dynamically if customized in Admin CMS
+  const applyDynamicPopupConfig = (pop) => {
+    if (!pop || !dialog) return;
+    if (pop.isActive === false) {
+      window.__shouldShowWelcomePopup = false;
+      if (dialog.open) {
+        try { dialog.close(); } catch (e) {}
+      }
+      return;
+    }
+    if (popupImg && pop.image) {
+      popupImg.src = pop.image;
+      if (pop.altText) popupImg.alt = pop.altText;
+    }
+    if (pop.linkUrl && popupImg) {
+      popupImg.style.cursor = 'pointer';
+      popupImg.title = 'Click to explore: ' + pop.linkUrl;
+      popupImg.onclick = () => {
+        if (/^(https?:|\/\/)/i.test(pop.linkUrl)) {
+          window.open(pop.linkUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          window.location.href = pop.linkUrl;
+        }
+      };
+    }
+  };
+
+  if (typeof window.getPublicCache === 'function') {
+    applyDynamicPopupConfig(window.getPublicCache('popup_banner'));
+  }
+  if (typeof window.fetchPopupBannerFromSupabase === 'function') {
+    window.fetchPopupBannerFromSupabase().then(applyDynamicPopupConfig).catch(() => {});
+  }
 
   const updateAudioUI = (isPlaying) => {
     if (!audioBtn) return;

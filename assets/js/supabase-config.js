@@ -205,12 +205,51 @@ async function submitContactMessageToSupabase(contact) {
   }
 }
 
+/**
+ * Fetch dynamic popup banner configuration from Supabase website_settings
+ * @returns {Promise<{isActive: boolean, image: string, altText: string, linkUrl: string, aspectRatio: string}|null>}
+ */
+async function fetchPopupBannerFromSupabase() {
+  const cached = getPublicCache('popup_banner');
+  if (!supabaseClient) return cached;
+  try {
+    const { data, error } = await supabaseClient
+      .from('website_settings')
+      .select('value')
+      .eq('key', 'popup_banner')
+      .maybeSingle();
+
+    if (error) {
+      console.warn('Supabase popup banner fetch error:', error.message);
+      return cached;
+    }
+
+    if (data && data.value) {
+      const val = data.value;
+      const banner = {
+        isActive: val.is_active !== false,
+        image: val.image || 'assets/images/popup.png',
+        altText: val.alt_text || 'Welcome to Arunachaleshwara Tours & Travels – Your Spiritual Journey Begins Here.',
+        linkUrl: val.link_url || '',
+        aspectRatio: val.aspect_ratio || '3:2'
+      };
+      setPublicCache('popup_banner', banner);
+      return banner;
+    }
+    return cached;
+  } catch (err) {
+    console.warn('Error fetching popup banner from Supabase:', err);
+    return cached;
+  }
+}
+
 // Expose globally
 if (typeof window !== 'undefined') {
   window.SUPABASE_CONFIG = SUPABASE_CONFIG;
   window.getPublicCache = getPublicCache;
   window.fetchServicesFromSupabase = fetchServicesFromSupabase;
   window.fetchPackagesFromSupabase = fetchPackagesFromSupabase;
+  window.fetchPopupBannerFromSupabase = fetchPopupBannerFromSupabase;
   window.submitEnquiryToSupabase = submitEnquiryToSupabase;
   window.submitContactMessageToSupabase = submitContactMessageToSupabase;
 }

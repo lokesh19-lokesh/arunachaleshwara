@@ -85,6 +85,98 @@
               </div>
             </div>
           </div>
+
+          <!-- Welcome Popup Banner Settings -->
+          <div class="col-12">
+            <div class="admin-card">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <h6 class="admin-card-title mb-0">
+                    <i class="bi bi-window-stack text-warning me-1"></i> Homepage Welcome Popup Banner
+                  </h6>
+                  <span class="badge bg-warning text-dark px-2 py-1 small fw-semibold">
+                    <i class="bi bi-aspect-ratio me-1"></i> Ratio: 3:2 Landscape
+                  </span>
+                </div>
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="popupActive" checked>
+                  <label class="form-check-label small fw-bold" for="popupActive">Popup Active on Website</label>
+                </div>
+              </div>
+              <div class="admin-card-body">
+                <form id="popupBannerForm">
+                  <div class="row g-4 align-items-center">
+                    <!-- Preview Column -->
+                    <div class="col-lg-5 text-center">
+                      <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <span class="small fw-bold text-muted">Live Banner Preview</span>
+                          <span class="badge bg-dark text-warning small" id="previewRatioBadge">Ratio: 3:2</span>
+                        </div>
+                        <div class="position-relative d-inline-block w-100" style="max-width: 440px;">
+                          <img id="popupImagePreview" src="../assets/images/popup.png" alt="Popup Banner Preview"
+                               class="w-100 rounded-3 shadow-sm border border-warning"
+                               style="aspect-ratio: 3 / 2; object-fit: cover; background: #FFF9EF; display: block;">
+                        </div>
+                        <div class="small text-muted mt-2" id="popupDimensionsLabel">
+                          Optimal Size: <strong>1536 × 1024 px</strong> or <strong>1200 × 800 px</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Controls Column -->
+                    <div class="col-lg-7">
+                      <!-- Aspect Ratio Guide Notice -->
+                      <div class="alert alert-warning py-2 px-3 mb-3 d-flex align-items-start gap-2 rounded-3" style="background-color: #FFF9EF; border-color: #FFC908; color: #45120E;">
+                        <i class="bi bi-info-circle-fill fs-5 text-warning flex-shrink-0 mt-1"></i>
+                        <div class="small">
+                          <strong>Banner Image Size &amp; Aspect Ratio Guidelines:</strong>
+                          <ul class="mb-0 ps-3 mt-1">
+                            <li><strong>Aspect Ratio:</strong> Exactly <strong>3:2 (Landscape)</strong> (1.5:1 width-to-height ratio).</li>
+                            <li><strong>Optimal Dimensions:</strong> <strong>1536 × 1024 px</strong> (High Resolution) or <strong>1200 × 800 px</strong>.</li>
+                            <li><strong>Supported Formats:</strong> PNG, JPG, or WebP. Keep file size under <strong>2 MB</strong> for smooth website loading.</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <!-- Image Upload & URL -->
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Banner Image File or URL</label>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                          <label class="btn btn-admin-yellow btn-sm text-nowrap m-0 d-inline-flex align-items-center">
+                            <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Banner Image
+                            <input type="file" id="popupFileInput" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="handlePopupUpload(this)">
+                          </label>
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetPopupToDefault()" title="Reset to original welcome image">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset to Default
+                          </button>
+                        </div>
+                        <input type="text" id="popupImageUrl" class="form-control form-control-sm font-monospace" placeholder="assets/images/popup.png or Supabase storage URL" oninput="updatePopupPreview(this.value)">
+                        <div id="popupUploadStatus" class="small mt-1"></div>
+                      </div>
+
+                      <!-- Alt Text -->
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Accessibility Title / Alt Text</label>
+                        <input type="text" id="popupAltText" class="form-control form-control-sm" placeholder="Welcome to Arunachaleshwara Tours &amp; Travels – Your Spiritual Journey Begins Here.">
+                      </div>
+
+                      <!-- Optional Link -->
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Click Action / Destination URL (Optional)</label>
+                        <input type="text" id="popupLinkUrl" class="form-control form-control-sm" placeholder="e.g. tour-packages.html or https://wa.me/919010515341 (leave blank for view-only)">
+                        <div class="form-text small">Optional: clicking the banner opens this link (e.g. specific yatra package or WhatsApp).</div>
+                      </div>
+
+                      <button type="submit" class="btn btn-admin-primary">
+                        <i class="bi bi-save me-1"></i> Save Popup Banner Settings
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -120,7 +212,86 @@
       document.getElementById('invOrgName').value = inv.org_name || '';
       document.getElementById('invGstin').value = inv.gstin || '';
       document.getElementById('invTerms').value = inv.terms || '';
+
+      // Load Popup Banner settings
+      const pop = data.find(x => x.key === 'popup_banner')?.value || {};
+      document.getElementById('popupActive').checked = pop.is_active !== false;
+      document.getElementById('popupImageUrl').value = pop.image || 'assets/images/popup.png';
+      document.getElementById('popupAltText').value = pop.alt_text || 'Welcome to Arunachaleshwara Tours & Travels – Your Spiritual Journey Begins Here.';
+      document.getElementById('popupLinkUrl').value = pop.link_url || '';
+      updatePopupPreview(pop.image || 'assets/images/popup.png');
     }
+
+    function updatePopupPreview(url) {
+      const img = document.getElementById('popupImagePreview');
+      if (!url) {
+        img.src = '../assets/images/popup.png';
+        return;
+      }
+      img.src = resolveAdminImgSrc(url);
+    }
+
+    function resetPopupToDefault() {
+      document.getElementById('popupImageUrl').value = 'assets/images/popup.png';
+      document.getElementById('popupAltText').value = 'Welcome to Arunachaleshwara Tours & Travels – Your Spiritual Journey Begins Here.';
+      document.getElementById('popupLinkUrl').value = '';
+      updatePopupPreview('assets/images/popup.png');
+      document.getElementById('popupUploadStatus').innerHTML = '<span class="text-muted"><i class="bi bi-info-circle me-1"></i>Reset to default welcome image</span>';
+    }
+
+    async function handlePopupUpload(fileInput) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('popupUploadStatus');
+      const localUrl = URL.createObjectURL(file);
+      document.getElementById('popupImagePreview').src = localUrl;
+      statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading banner to storage...';
+
+      try {
+        const dimLabel = await new Promise((resolve) => {
+          const probe = new Image();
+          probe.onload = () => {
+            const ratio = (probe.naturalWidth / probe.naturalHeight).toFixed(2);
+            resolve(`${probe.naturalWidth}×${probe.naturalHeight} px (Ratio: ${ratio}:1)`);
+          };
+          probe.onerror = () => resolve('');
+          probe.src = localUrl;
+        });
+        const publicUrl = await uploadAdminImage(file, 'banners');
+        document.getElementById('popupImageUrl').value = publicUrl;
+        document.getElementById('popupImagePreview').src = publicUrl;
+        statusEl.innerHTML = `<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Uploaded successfully${dimLabel ? ' • ' + dimLabel : ''}!</span>`;
+        if (dimLabel) {
+          document.getElementById('popupDimensionsLabel').innerHTML = `Uploaded dimensions: <strong>${dimLabel}</strong>`;
+        }
+        showAdminToast('New popup banner uploaded to Supabase!', 'success');
+      } catch (err) {
+        statusEl.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Upload failed: ' + (err.message || err) + '</span>';
+        showAdminToast('Banner upload error: ' + (err.message || err), 'error');
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
+    document.getElementById('popupBannerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = {
+        is_active: document.getElementById('popupActive').checked,
+        image: document.getElementById('popupImageUrl').value.trim() || 'assets/images/popup.png',
+        alt_text: document.getElementById('popupAltText').value.trim() || 'Welcome to Arunachaleshwara Tours & Travels – Your Spiritual Journey Begins Here.',
+        link_url: document.getElementById('popupLinkUrl').value.trim(),
+        aspect_ratio: '3:2',
+        recommended_dimensions: '1536x1024'
+      };
+      await window.adminSupabase.from('website_settings').upsert({
+        key: 'popup_banner',
+        value: val,
+        updated_by: window.CURRENT_ADMIN_USER?.id,
+        updated_at: new Date().toISOString()
+      });
+      await logAdminActivity('UPDATE_CMS_POPUP_BANNER', 'website_settings', 'popup_banner');
+      showAdminToast('Welcome popup banner updated successfully!', 'success');
+    });
 
     document.getElementById('siteInfoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
