@@ -949,6 +949,65 @@
   }
 }
 
+/* Founder's Story Responsive */
+@media (max-width: 991.98px) {
+  .founder-story-section {
+    padding: 3.5rem 0;
+  }
+  .founder-img-card {
+    max-width: 380px;
+    margin: 0 auto 2rem;
+  }
+  .founder-img-frame img {
+    max-height: 440px;
+  }
+  .founder-sig-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .founder-story-section {
+    padding: 2.75rem 0;
+  }
+  .founder-img-card {
+    max-width: 320px;
+    margin: 0 auto 1.5rem;
+  }
+  .founder-img-frame img {
+    max-height: 380px;
+  }
+  .founder-img-badge {
+    padding: 1.2rem 1rem 1rem;
+  }
+  .founder-story-content p {
+    font-size: 0.98rem;
+    line-height: 1.75;
+  }
+  .founder-quote-lead {
+    font-size: 1rem !important;
+  }
+  .founder-mantra-card {
+    padding: 1rem;
+  }
+  .founder-mantra-card .mantra-text {
+    font-size: 1.1rem;
+  }
+  .founder-sig-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .founder-sig-card .d-flex {
+    justify-content: center;
+  }
+  .founder-sig-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ---------- Print Styles ---------- */
 @media print {
   .top-bar,

@@ -3247,3 +3247,111 @@ html.show-preloader .page-preloader.loaded {
   }
 }
 
+/* ============================================================
+   FOUNDER'S STORY SECTION (Desktop & Mobile Optimized)
+   ============================================================ */
+.founder-story-section {
+  position: relative;
+  background-color: #FFFFFF;
+  padding: 5rem 0;
+  overflow: hidden;
+}
+
+.founder-img-card {
+  position: relative;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.founder-img-frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(69, 18, 14, 0.18);
+  border: 3px solid #C99535;
+  background: #FFF9EF;
+}
+
+.founder-img-frame img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.founder-img-frame:hover img {
+  transform: scale(1.02);
+}
+
+.founder-img-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 1.25rem 1.25rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(69, 18, 14, 0.88) 45%, rgba(69, 18, 14, 0.98) 100%);
+  color: #FFFFFF;
+  text-align: left;
+}
+
+.founder-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 50px;
+  background-color: var(--clr-cream);
+  border: 1px solid var(--clr-gold);
+  color: var(--clr-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.founder-story-content p {
+  color: #4a3b34;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  margin-bottom: 1.2rem;
+}
+
+.founder-quote-lead {
+  font-family: var(--ff-body);
+  font-size: 1.1rem !important;
+  line-height: 1.85 !important;
+  color: #35251F !important;
+  font-weight: 500;
+}
+
+.founder-mantra-card {
+  background: linear-gradient(135deg, #FFF9EF 0%, #FFF3D6 100%);
+  border: 1.5px solid var(--clr-gold);
+  border-left: 5px solid #681D17;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 18px rgba(201, 149, 53, 0.15);
+}
+
+.founder-mantra-card .mantra-text {
+  font-family: var(--ff-brand);
+  color: var(--clr-primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+}
+
+.founder-sig-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(201, 149, 53, 0.3);
+}
+
+
