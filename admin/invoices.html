@@ -2352,6 +2352,11 @@
       activeCanvasState.headerSubColor = def.header_sub_color;
       activeCanvasState.headerDetailColor = def.header_detail_color;
       activeCanvasState.badgeTextColor = def.badge_text_color;
+      activeCanvasState.headerTopLeft = def.header_top_left;
+      activeCanvasState.headerTopCenter = def.header_top_center;
+      activeCanvasState.headerTopRight = def.header_top_right;
+      activeCanvasState.headerTopColor = def.header_top_color;
+      activeCanvasState.headerTopSize = def.header_top_size;
       activeCanvasState.orgNameSize = def.org_name_size;
       activeCanvasState.paperTone = 'white';
       activeCanvasState.bannerImage = null;
@@ -2398,6 +2403,23 @@
       document.getElementById('lblBadgeTextColor').textContent = def.badge_text_color;
       document.getElementById('pickerHeaderDetailColor').value = def.header_detail_color;
       document.getElementById('lblHeaderDetailColor').textContent = def.header_detail_color;
+
+      const inpTL_r = document.getElementById('inpHeaderTopLeft');
+      if (inpTL_r) inpTL_r.value = def.header_top_left;
+      const inpTC_r = document.getElementById('inpHeaderTopCenter');
+      if (inpTC_r) inpTC_r.value = def.header_top_center;
+      const inpTR_r = document.getElementById('inpHeaderTopRight');
+      if (inpTR_r) inpTR_r.value = def.header_top_right;
+      const pTopC_r = document.getElementById('pickerHeaderTopColor');
+      if (pTopC_r) pTopC_r.value = def.header_top_color;
+      const lTopC_r = document.getElementById('lblHeaderTopColor');
+      if (lTopC_r) lTopC_r.textContent = def.header_top_color;
+      const sTopS_r = document.getElementById('selHeaderTopSize');
+      if (sTopS_r) sTopS_r.value = def.header_top_size;
+      const lTopS_r = document.getElementById('lblHeaderTopSize');
+      if (lTopS_r) lTopS_r.textContent = `${def.header_top_size} px`;
+      applyHeaderTopArtboard();
+
       document.getElementById('sliderOrgTitleSize').value = def.org_name_size;
       document.getElementById('lblOrgTitleSize').textContent = `${def.org_name_size} px`;
 
