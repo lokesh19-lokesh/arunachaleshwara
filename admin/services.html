@@ -19,15 +19,372 @@
     <main class="admin-main">
       <header class="admin-header" id="adminHeader"></header>
       <div class="admin-content">
-        <ul class="nav nav-tabs mb-4">
-          <li class="nav-item"><button class="nav-link active fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#servicesTab">Dynamic Services (<span id="srvCountTab">0</span>)</button></li>
-          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#packagesTab">Tour Packages (<span id="pkgCountTab">0</span>)</button></li>
-          <li class="nav-item"><button class="nav-link fw-bold text-dark" data-bs-toggle="tab" data-bs-target="#enquiriesTab">Website Enquiries (<span id="enqCountTab">0</span>)</button></li>
+        <ul class="nav nav-tabs mb-4" id="serviceCatalogTabs">
+          <li class="nav-item">
+            <button class="nav-link active fw-bold text-dark" id="tabDarshanBtn" data-bs-toggle="tab" data-bs-target="#darshanTab">
+              <i class="bi bi-flower1 text-danger me-1"></i> Temple Darshan (<span id="darshanCountTab">4</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBusBtn" data-bs-toggle="tab" data-bs-target="#busTab">
+              <i class="bi bi-bus-front text-primary me-1"></i> Bus Tickets (<span id="busCountTab">2</span> Routes)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBikesBtn" data-bs-toggle="tab" data-bs-target="#bikesTab">
+              <i class="bi bi-bicycle text-success me-1"></i> Bike Rentals (<span id="bikesCountTab">6</span> Fleet)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabTaxiBtn" data-bs-toggle="tab" data-bs-target="#taxiTab">
+              <i class="bi bi-car-front-fill text-warning me-1"></i> Taxi &amp; Car Fleet (<span id="taxiCountTab">5</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabPackagesBtn" data-bs-toggle="tab" data-bs-target="#packagesTab">
+              <i class="bi bi-compass-fill text-info me-1"></i> Tour Packages (<span id="pkgCountTab">0</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabServicesBtn" data-bs-toggle="tab" data-bs-target="#servicesTab">
+              <i class="bi bi-gear-fill text-secondary me-1"></i> All Website Services (<span id="srvCountTab">0</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabEnquiriesBtn" data-bs-toggle="tab" data-bs-target="#enquiriesTab">
+              <i class="bi bi-chat-dots-fill text-warning me-1"></i> Enquiries (<span id="enqCountTab">0</span>)
+            </button>
+          </li>
         </ul>
 
         <div class="tab-content">
-          <!-- Tab 1: Dynamic Services -->
-          <div class="tab-pane fade show active" id="servicesTab">
+          <!-- Tab 1: Temple Darshan Services -->
+          <div class="tab-pane fade show active" id="darshanTab">
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Active Sevas</h6>
+                    <div class="admin-stat-number text-maroon" id="kpiDarshanActive">4</div>
+                    <div class="admin-stat-sub">Configured Temple Rituals</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-flower1"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card warning">
+                  <div class="admin-stat-info">
+                    <h6>Morning Rituals</h6>
+                    <div class="admin-stat-number text-warning" id="kpiDarshanMorning">2</div>
+                    <div class="admin-stat-sub">Abhishekam &amp; Morning Archana</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-sunrise-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card green">
+                  <div class="admin-stat-info">
+                    <h6>Girivalam &amp; Full Day</h6>
+                    <div class="admin-stat-number text-success">2</div>
+                    <div class="admin-stat-sub">Quick Darshan &amp; 14km Path</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-person-walking"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card blue">
+                  <div class="admin-stat-info">
+                    <h6>Tariff Range</h6>
+                    <div class="admin-stat-number text-primary">₹250 – ₹1,500</div>
+                    <div class="admin-stat-sub">Per Seva / Devotee Group</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-cash-stack"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-flower1 text-danger me-1"></i> Temple Darshan Sevas &amp; Rituals Catalog</h6>
+                  <small class="text-muted">Configure temple sevas (Abhishekam, Archana, Quick Darshan, Girivalam), timings, and pricing.</small>
+                </div>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openDarshanModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add New Seva
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Seva / Ritual</th>
+                      <th>Time Slot</th>
+                      <th>Base Rate (₹)</th>
+                      <th>Inclusions &amp; Guidelines</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="darshanTableBody">
+                    <tr><td colspan="6" class="text-center py-4 text-muted">Loading sevas...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Bus Ticket Booking Routes & Schedules -->
+          <div class="tab-pane fade" id="busTab">
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Active Routes</h6>
+                    <div class="admin-stat-number text-primary" id="kpiBusRoutes">2</div>
+                    <div class="admin-stat-sub">Hyderabad &amp; Vijayawada</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-bus-front"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card warning">
+                  <div class="admin-stat-info">
+                    <h6>Hyderabad Daily Trips</h6>
+                    <div class="admin-stat-number text-warning" id="kpiBusHydTrips">10</div>
+                    <div class="admin-stat-sub">3:20 PM through 10:00 PM</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-clock-history"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card green">
+                  <div class="admin-stat-info">
+                    <h6>Vijayawada Daily Trips</h6>
+                    <div class="admin-stat-number text-success" id="kpiBusVjaTrips">6</div>
+                    <div class="admin-stat-sub">6:30 PM through 11:00 PM</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-clock-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card blue">
+                  <div class="admin-stat-info">
+                    <h6>Coach Types</h6>
+                    <div class="admin-stat-number text-info">AC / Non-AC</div>
+                    <div class="admin-stat-sub">Sleeper &amp; Semi-Sleeper</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-shield-check"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-card mb-4">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-bus-front text-primary me-1"></i> Bus Ticket Routes &amp; Daily Departure Schedules</h6>
+                  <small class="text-muted">Configure daily trips, departure timings (from notebook schedule), ticket fares, and boarding points.</small>
+                </div>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openBusRouteModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add New Route
+                </button>
+              </div>
+              <div class="admin-card-body" id="busRoutesContainer">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: Bike Rentals Fleet & Hourly Tariff -->
+          <div class="tab-pane fade" id="bikesTab">
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Total Fleet</h6>
+                    <div class="admin-stat-number" id="kpiBikesTotal">6</div>
+                    <div class="admin-stat-sub">Two-wheelers registered</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-bicycle"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card green">
+                  <div class="admin-stat-info">
+                    <h6>Available Bikes</h6>
+                    <div class="admin-stat-number text-success" id="kpiBikesAvail">4</div>
+                    <div class="admin-stat-sub">Ready for instant handover</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card warning">
+                  <div class="admin-stat-info">
+                    <h6>Currently Rented</h6>
+                    <div class="admin-stat-number text-warning" id="kpiBikesRented">1</div>
+                    <div class="admin-stat-sub">Devotees on Girivalam / road</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card blue">
+                  <div class="admin-stat-info">
+                    <h6>Tariff Rates</h6>
+                    <div class="admin-stat-number text-primary">₹300 / ₹600</div>
+                    <div class="admin-stat-sub">6 Hours / 12 Hours</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-tag-fill"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bike Tariff Packages (Matching Handwritten Notes) -->
+            <div class="admin-card mb-4">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-tag-fill text-warning me-1"></i> Bike Rental Tariff Packages</h6>
+                  <small class="text-muted">Configured rates directly matching your fleet guidelines (6h @ ₹300, 12h @ ₹600).</small>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="openBikeTariffModal()">
+                  <i class="bi bi-pencil me-1"></i> Edit Tariff Packages
+                </button>
+              </div>
+              <div class="admin-card-body">
+                <div class="row g-3" id="bikeTariffCards">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Bike Fleet Registry Table (Like Accommodation Physical Rooms Registry) -->
+            <div class="admin-card">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-bicycle text-success me-1"></i> Physical Bike Fleet Registry</h6>
+                  <small class="text-muted">Manage individual two-wheelers, registration numbers, models, and real-time availability status.</small>
+                </div>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openAddBikeModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add Bike to Fleet
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Bike Reg No.</th>
+                      <th>Model / Make</th>
+                      <th>Category</th>
+                      <th>Rates (6h / 12h)</th>
+                      <th>Helmets</th>
+                      <th>Status</th>
+                      <th class="text-end">Quick Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bikesTableBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading bike fleet...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3B: Taxi & Car Rentals Fleet & Tariffs -->
+          <div class="tab-pane fade" id="taxiTab">
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Active Vehicle Models</h6>
+                    <div class="admin-stat-number text-warning-emphasis" id="kpiTaxiActive">5</div>
+                    <div class="admin-stat-sub">Innova, Ertiga, Sedan, Tempo</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-car-front-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card warning">
+                  <div class="admin-stat-info">
+                    <h6>Local 8h/80km Base</h6>
+                    <div class="admin-stat-number text-warning">₹2,200 – ₹4,800</div>
+                    <div class="admin-stat-sub">Girivalam &amp; Temple Sightseeing</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card green">
+                  <div class="admin-stat-info">
+                    <h6>Outstation Per Km</h6>
+                    <div class="admin-stat-number text-success">₹12 – ₹24 / km</div>
+                    <div class="admin-stat-sub">AC Cabs with Safe Drivers</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-speedometer2"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card blue">
+                  <div class="admin-stat-info">
+                    <h6>Airport Transfers</h6>
+                    <div class="admin-stat-number text-info">MAA &amp; BLR</div>
+                    <div class="admin-stat-sub">Door-to-door Airport Pickup</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-airplane-fill"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Outstation & Airport Packages -->
+            <div class="admin-card mb-4">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-tag-fill text-warning me-1"></i> Taxi Outstation &amp; Airport Transfer Tariffs</h6>
+                  <small class="text-muted">Fixed packages for Chennai Airport, Bengaluru Airport, Pondicherry &amp; Vellore Golden Temple.</small>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="openTaxiTariffModal()">
+                  <i class="bi bi-pencil me-1"></i> Edit Outstation Tariffs
+                </button>
+              </div>
+              <div class="admin-card-body">
+                <div class="row g-3" id="taxiTariffCards">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Taxi Fleet Registry Table -->
+            <div class="admin-card">
+              <div class="admin-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-car-front-fill text-warning me-1"></i> Taxi &amp; Car Fleet Catalog</h6>
+                  <small class="text-muted">Configure vehicle models, seating capacity, local daily tariffs, and outstation per-km rates.</small>
+                </div>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openTaxiVehicleModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add Vehicle Model
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Vehicle Model</th>
+                      <th>Category &amp; Seating</th>
+                      <th>Local Rate (8h/80km)</th>
+                      <th>Outstation Rate</th>
+                      <th>AC &amp; Features</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="taxiTableBody">
+                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading taxi fleet...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 4: Dynamic Services -->
+          <div class="tab-pane fade" id="servicesTab">
             <div class="admin-card">
               <div class="admin-card-header">
                 <h6 class="admin-card-title"><i class="bi bi-gear-fill text-warning"></i> Active Website Services</h6>
@@ -281,6 +638,319 @@
     </div>
   </div>
 
+  <!-- Add / Edit Darshan Seva Modal -->
+  <div class="modal fade" id="darshanModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="darshanModalTitle">Add / Edit Temple Darshan Seva</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="darshanForm" onsubmit="saveDarshanSeva(event)">
+            <input type="hidden" id="editDarshanId">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Seva / Ritual Name *</label>
+                <input type="text" id="darshanTitle" class="form-control" placeholder="e.g. Abhishekam, Archana, Quick Darshan" required>
+              </div>
+              <div class="col-md-7">
+                <label class="form-label small fw-bold">Time Slot / Schedule *</label>
+                <input type="text" id="darshanTiming" class="form-control" placeholder="e.g. 06:00 AM - 07:30 AM or All Day" required>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold">Base Rate (₹) *</label>
+                <input type="number" id="darshanPrice" class="form-control" min="0" placeholder="e.g. 1500" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Inclusions &amp; Guidelines</label>
+                <textarea id="darshanInclusions" class="form-control" rows="3" placeholder="Sankalpam, Bilva Archana, Vibhuti Prasadam, Guided priest assistance"></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="darshanActive" checked>
+                  <label class="form-check-label small fw-bold" for="darshanActive">Active &amp; Bookable on Website</label>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Seva</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Bus Route Modal -->
+  <div class="modal fade" id="busRouteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="busRouteModalTitle">Add / Edit Bus Route &amp; Daily Departure Schedule</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="busRouteForm" onsubmit="saveBusRoute(event)">
+            <input type="hidden" id="editBusRouteId">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Route Title *</label>
+                <input type="text" id="busRouteTitle" class="form-control" placeholder="e.g. Hyderabad ↔ Arunachalam (Round Trip)" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Daily Departure Timings * <span class="text-muted fw-normal">(Comma-separated, matching daily schedule)</span></label>
+                <textarea id="busRouteTimings" class="form-control" rows="3" placeholder="3:20 PM, 4:00 PM, 5:10 PM, 5:30 PM, 6:00 PM, 6:40 PM, 7:00 PM, 8:20 PM, 9:10 PM, 10:00 PM" required></textarea>
+                <div class="form-text small">Enter daily departure times separated by commas.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">AC Sleeper Fare (₹) *</label>
+                <input type="number" id="busFareSleeper" class="form-control" min="0" placeholder="e.g. 1800" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Non-AC Sleeper Fare (₹) *</label>
+                <input type="number" id="busFareNonAc" class="form-control" min="0" placeholder="e.g. 1200" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Boarding Points &amp; Stops</label>
+                <input type="text" id="busBoardingPoints" class="form-control" placeholder="e.g. MGBS, Ameerpet, Dilsukhnagar, LB Nagar / Arunachalam Bus Station">
+              </div>
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="busRouteActive" checked>
+                  <label class="form-check-label small fw-bold" for="busRouteActive">Route Active for Booking</label>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Route</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Bike to Fleet Modal -->
+  <div class="modal fade" id="addBikeModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="bikeModalTitle">Add Two-Wheeler to Fleet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="bikeForm" onsubmit="saveBike(event)">
+            <input type="hidden" id="editBikeId">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Vehicle Reg. No. *</label>
+                <input type="text" id="bikeRegNo" class="form-control text-uppercase" placeholder="e.g. TN-25-AB-101" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Model &amp; Make *</label>
+                <input type="text" id="bikeModel" class="form-control" placeholder="e.g. Honda Activa 6G" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Category</label>
+                <select id="bikeCategory" class="form-select">
+                  <option value="Scooter / Gearless">Scooter / Gearless</option>
+                  <option value="Motorcycle / Geared">Motorcycle / Geared</option>
+                  <option value="Electric Scooter">Electric Scooter</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Fleet Status</label>
+                <select id="bikeStatus" class="form-select">
+                  <option value="Available">Available (Ready to Handover)</option>
+                  <option value="Rented">Currently Rented</option>
+                  <option value="Maintenance">Maintenance / Service</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Rate for 6 Hours (₹)</label>
+                <input type="number" id="bikeRate6h" class="form-control" value="300" min="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Rate for 12 Hours (₹)</label>
+                <input type="number" id="bikeRate12h" class="form-control" value="600" min="0" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Helmets &amp; Accessories</label>
+                <input type="text" id="bikeHelmets" class="form-control" value="2 ISI Helmets Provided">
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Bike</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Bike Tariff Packages Modal -->
+  <div class="modal fade" id="bikeTariffModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold">Edit Bike Rental Tariff Packages</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="bikeTariffForm" onsubmit="saveBikeTariffs(event)">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">6 Hours Rental Rate (₹) *</label>
+                <input type="number" id="tariffRate6h" class="form-control" value="300" min="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">12 Hours Rental Rate (₹) *</label>
+                <input type="number" id="tariffRate12h" class="form-control" value="600" min="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">24 Hours / Full Day Rate (₹) *</label>
+                <input type="number" id="tariffRate24h" class="form-control" value="1000" min="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Extra Hour Charge (₹/hr)</label>
+                <input type="number" id="tariffExtraHour" class="form-control" value="50" min="0">
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Security Deposit / ID Requirement</label>
+                <input type="text" id="tariffDeposit" class="form-control" value="Valid Driving License &amp; Original Govt ID required at pickup.">
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Tariffs</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Taxi Vehicle Modal -->
+  <div class="modal fade" id="taxiVehicleModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold" id="taxiVehicleModalTitle">Add Vehicle Model</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="taxiVehicleForm" onsubmit="saveTaxiVehicle(event)">
+            <input type="hidden" id="editTaxiVehicleId" value="">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Vehicle Model Name *</label>
+                <input type="text" id="taxiModelName" class="form-control" placeholder="e.g. Toyota Innova Crysta (7+1 Seater AC)" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Category</label>
+                <input type="text" id="taxiCategory" class="form-control" placeholder="e.g. Premium Luxury MPV / Sedan">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Seating Capacity (Pax) *</label>
+                <input type="number" id="taxiSeats" class="form-control" value="7" min="1" max="50" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Local 8h/80km Base Rate (₹) *</label>
+                <input type="number" id="taxiLocalRate" class="form-control" value="2800" min="0" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Outstation Rate (₹/km) *</label>
+                <input type="number" id="taxiOutstationKm" class="form-control" value="15" min="0" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">AC &amp; Comfort Features</label>
+                <input type="text" id="taxiAcType" class="form-control" placeholder="e.g. Dual AC, Clean Sanitized Interior, Pushback Seats">
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Pilgrimage Guidelines / Description</label>
+                <textarea id="taxiNotes" class="form-control" rows="2" placeholder="e.g. Courteous pilgrimage drivers, door-to-door temple drops..."></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="taxiActive" checked>
+                  <label class="form-check-label fw-bold small" for="taxiActive">Active &amp; Available for Online Bookings</label>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Vehicle</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Taxi Outstation Tariffs Modal -->
+  <div class="modal fade" id="taxiTariffModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-admin">
+          <h5 class="modal-title fw-bold">Edit Taxi &amp; Outstation Tariffs</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="taxiTariffForm" onsubmit="saveTaxiTariff(event)">
+            <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-geo-alt me-1"></i>Local Sightseeing Rates (8h / 80km)</h6>
+            <div class="row g-3 mb-4">
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">Ertiga MPV (₹)</label>
+                <input type="number" id="tariffErtigaLocal" class="form-control form-control-sm" value="2800" min="0">
+              </div>
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">Innova Crysta (₹)</label>
+                <input type="number" id="tariffInnovaLocal" class="form-control form-control-sm" value="3600" min="0">
+              </div>
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">Sedan / Dzire (₹)</label>
+                <input type="number" id="tariffSedanLocal" class="form-control form-control-sm" value="2200" min="0">
+              </div>
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">Tempo Traveller (₹)</label>
+                <input type="number" id="tariffTempoLocal" class="form-control form-control-sm" value="4800" min="0">
+              </div>
+            </div>
+
+            <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-airplane me-1"></i>Airport &amp; Outstation Fixed Transfers</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Chennai Airport (MAA) ↔ Arunachalam (₹)</label>
+                <input type="number" id="tariffChennaiAirport" class="form-control form-control-sm" value="4800" min="0">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Bengaluru Airport (BLR) ↔ Arunachalam (₹)</label>
+                <input type="number" id="tariffBlrAirport" class="form-control form-control-sm" value="6200" min="0">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Pondicherry Day Trip (₹)</label>
+                <input type="number" id="tariffPondicherry" class="form-control form-control-sm" value="4200" min="0">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Vellore Golden Temple Day Trip (₹)</label>
+                <input type="number" id="tariffVellore" class="form-control form-control-sm" value="3400" min="0">
+              </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-primary">Save Tariffs</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/admin-auth.js"></script>
@@ -290,12 +960,102 @@
     let packagesList = [];
     let enquiriesList = [];
 
+    let darshanList = [];
+    let busRoutesList = [];
+    let bikeTariffs = {};
+    let bikeFleet = [];
+
+    // Baseline catalog data matching handwritten notebook specifications
+    const DEFAULT_DARSHAN_SEVAS = [
+      { id: 'abhishekam', title: 'Abhishekam', timing: '06:00 AM - 07:30 AM', price: 1500, inclusions: 'Sankalpam, Bilva Archana, Vibhuti Prasadam, Guided priest assistance', is_active: true },
+      { id: 'archana', title: 'Archana', timing: '07:30 AM - 08:30 PM (All Day)', price: 250, inclusions: 'Kumkum & Vibhuti Prasadam, Astothra Namavali chanting', is_active: true },
+      { id: 'quick-darshan', title: 'Quick Darshan', timing: '06:00 AM - 09:00 PM', price: 500, inclusions: 'Fast-track queue assistance, Escorted temple entry', is_active: true },
+      { id: 'girivalam-darshan', title: 'Girivalam Special Darshan', timing: 'Full Moon / Pradosham Days', price: 999, inclusions: '14 KM Girivalam guidance, Ashta Lingam tour, Special Darshan line', is_active: true }
+    ];
+
+    const DEFAULT_BUS_ROUTES = [
+      {
+        id: 'hyd-arn',
+        title: 'Hyderabad ↔ Arunachalam (Round Trip)',
+        timings: ['3:20 PM', '4:00 PM', '5:10 PM', '5:30 PM', '6:00 PM', '6:40 PM', '7:00 PM', '8:20 PM', '9:10 PM', '10:00 PM'],
+        fare_sleeper: 1800,
+        fare_non_ac: 1200,
+        boarding: 'MGBS, Ameerpet, Dilsukhnagar, LB Nagar / Arunachalam Bus Station',
+        is_active: true
+      },
+      {
+        id: 'vja-arn',
+        title: 'Vijayawada ↔ Arunachalam (Round Trip)',
+        timings: ['6:30 PM', '7:00 PM', '7:30 PM', '8:40 PM', '10:00 PM', '11:00 PM'],
+        fare_sleeper: 1650,
+        fare_non_ac: 1100,
+        boarding: 'PNBS, Benz Circle, Gollapudi / Arunachalam Bus Station',
+        is_active: true
+      }
+    ];
+
+    const DEFAULT_BIKE_TARIFFS = {
+      rate_6h: 300,
+      rate_12h: 600,
+      rate_24h: 1000,
+      extra_hour: 50,
+      deposit: 'Valid Driving License & Original Govt ID required at pickup.'
+    };
+
+    const DEFAULT_BIKE_FLEET = [
+      { id: 'BIKE-01', reg_no: 'TN-25-AB-101', model: 'Honda Activa 6G (110cc)', category: 'Scooter / Gearless', status: 'Available', helmets: '2 Helmets', rate_6h: 300, rate_12h: 600 },
+      { id: 'BIKE-02', reg_no: 'TN-25-AB-102', model: 'Honda Activa 6G (110cc)', category: 'Scooter / Gearless', status: 'Available', helmets: '2 Helmets', rate_6h: 300, rate_12h: 600 },
+      { id: 'BIKE-03', reg_no: 'TN-25-AC-201', model: 'TVS Jupiter 125 (Disc)', category: 'Scooter / Gearless', status: 'Available', helmets: '2 Helmets', rate_6h: 300, rate_12h: 600 },
+      { id: 'BIKE-04', reg_no: 'TN-25-AC-202', model: 'TVS Jupiter 125 (Disc)', category: 'Scooter / Gearless', status: 'Rented', helmets: '2 Helmets', rate_6h: 300, rate_12h: 600 },
+      { id: 'BIKE-05', reg_no: 'TN-25-AD-301', model: 'Suzuki Access 125', category: 'Scooter / Gearless', status: 'Available', helmets: '2 Helmets', rate_6h: 300, rate_12h: 600 },
+      { id: 'BIKE-06', reg_no: 'TN-25-AE-401', model: 'Royal Enfield Classic 350', category: 'Motorcycle / Geared', status: 'Available', helmets: '2 Helmets', rate_6h: 500, rate_12h: 900 }
+    ];
+
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await requireAdminAuth();
       if (!user) return;
-      renderAdminSidebar('services');
-      renderAdminHeader('Services & Tour Packages', 'Dynamic Catalog Management');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTabParam = urlParams.get('tab') || 'darshan';
+
+      let sidebarPage = 'services';
+      if (activeTabParam === 'darshan') sidebarPage = 'darshan';
+      else if (activeTabParam === 'bus') sidebarPage = 'bus';
+      else if (activeTabParam === 'bikes') sidebarPage = 'bikes';
+      else if (activeTabParam === 'taxi') sidebarPage = 'taxi';
+
+      renderAdminSidebar(sidebarPage);
+      renderAdminHeader('Services & Inventory Catalog', 'Dynamic Catalog & Fleet Management');
+
+      loadDarshanCatalog();
+      loadBusCatalog();
+      loadBikeCatalog();
+      loadTaxiCatalog();
       loadCatalog();
+
+      // Switch to the requested tab if specified in URL
+      if (activeTabParam === 'darshan') {
+        const btn = document.getElementById('tabDarshanBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'bus') {
+        const btn = document.getElementById('tabBusBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'bikes') {
+        const btn = document.getElementById('tabBikesBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'taxi') {
+        const btn = document.getElementById('tabTaxiBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'packages') {
+        const btn = document.getElementById('tabPackagesBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'services') {
+        const btn = document.getElementById('tabServicesBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      } else if (activeTabParam === 'enquiries') {
+        const btn = document.getElementById('tabEnquiriesBtn');
+        if (btn) new bootstrap.Tab(btn).show();
+      }
     });
 
     function invalidatePublicCatalogCache() {
@@ -626,6 +1386,798 @@
       showAdminToast(`Deleted "${label}" successfully.`, 'warning');
       await loadCatalog();
     }
+
+    /* ==========================================================================
+       TEMPLE DARSHAN CATALOG METHODS (Abhishekam, Archana, Quick Darshan)
+       ========================================================================== */
+    function loadDarshanCatalog() {
+      try {
+        const raw = localStorage.getItem('arn_custom_darshan_sevas');
+        darshanList = raw ? JSON.parse(raw) : DEFAULT_DARSHAN_SEVAS;
+      } catch (e) {
+        darshanList = DEFAULT_DARSHAN_SEVAS;
+      }
+      renderDarshanUI();
+    }
+
+    function renderDarshanUI() {
+      const tbody = document.getElementById('darshanTableBody');
+      const tabCount = document.getElementById('darshanCountTab');
+      const kpiActive = document.getElementById('kpiDarshanActive');
+      const kpiMorning = document.getElementById('kpiDarshanMorning');
+
+      if (tabCount) tabCount.textContent = darshanList.length;
+      if (kpiActive) kpiActive.textContent = darshanList.filter(s => s.is_active !== false).length;
+      if (kpiMorning) kpiMorning.textContent = darshanList.filter(s => (s.timing || '').toLowerCase().includes('am')).length;
+
+      if (!tbody) return;
+      if (darshanList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No Darshan Sevas configured. Click "Add New Seva" to add.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = darshanList.map(s => `
+        <tr>
+          <td>
+            <div class="fw-bold text-maroon">${s.title}</div>
+            <small class="text-muted">ID: ${s.id}</small>
+          </td>
+          <td><span class="badge bg-light text-dark border"><i class="bi bi-clock me-1 text-warning"></i>${s.timing || 'Daily'}</span></td>
+          <td class="fw-bold text-success fs-6">₹${Number(s.price || 0).toLocaleString('en-IN')}</td>
+          <td class="small text-muted" style="max-width: 280px;">${s.inclusions || '—'}</td>
+          <td>${getStatusBadge(s.is_active !== false ? 'Active' : 'Inactive')}</td>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="openDarshanModal('${s.id}')" title="Edit Seva">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-secondary" onclick="toggleDarshanActive('${s.id}')" title="Toggle Active">
+                ${s.is_active !== false ? 'Disable' : 'Enable'}
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteDarshanSeva('${s.id}', '${String(s.title).replace(/'/g, "\\'")}')" title="Delete Seva">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openDarshanModal(id = '') {
+      const form = document.getElementById('darshanForm');
+      form.reset();
+      document.getElementById('editDarshanId').value = id || '';
+
+      if (id) {
+        const s = darshanList.find(x => String(x.id) === String(id));
+        if (!s) return;
+        document.getElementById('darshanModalTitle').textContent = 'Edit Seva: ' + s.title;
+        document.getElementById('darshanTitle').value = s.title || '';
+        document.getElementById('darshanTiming').value = s.timing || '';
+        document.getElementById('darshanPrice').value = s.price || 0;
+        document.getElementById('darshanInclusions').value = s.inclusions || '';
+        document.getElementById('darshanActive').checked = s.is_active !== false;
+      } else {
+        document.getElementById('darshanModalTitle').textContent = 'Add New Temple Darshan Seva';
+        document.getElementById('darshanPrice').value = 500;
+        document.getElementById('darshanActive').checked = true;
+      }
+
+      new bootstrap.Modal(document.getElementById('darshanModal')).show();
+    }
+
+    function saveDarshanSeva(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editDarshanId').value.trim();
+      const title = document.getElementById('darshanTitle').value.trim();
+      const timing = document.getElementById('darshanTiming').value.trim();
+      const price = parseFloat(document.getElementById('darshanPrice').value) || 0;
+      const inclusions = document.getElementById('darshanInclusions').value.trim();
+      const isActive = document.getElementById('darshanActive').checked;
+
+      if (!title) {
+        showAdminToast('Please provide a seva name.', 'error');
+        return;
+      }
+
+      if (editId) {
+        const idx = darshanList.findIndex(x => String(x.id) === String(editId));
+        if (idx !== -1) {
+          darshanList[idx] = { ...darshanList[idx], title, timing, price, inclusions, is_active: isActive };
+        }
+      } else {
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('seva-' + Date.now());
+        darshanList.push({
+          id: slug,
+          title,
+          timing,
+          price,
+          inclusions,
+          is_active: isActive
+        });
+      }
+
+      localStorage.setItem('arn_custom_darshan_sevas', JSON.stringify(darshanList));
+      invalidatePublicCatalogCache();
+      renderDarshanUI();
+      bootstrap.Modal.getInstance(document.getElementById('darshanModal')).hide();
+      showAdminToast(`Seva "${title}" saved successfully!`, 'success');
+    }
+
+    function toggleDarshanActive(id) {
+      const idx = darshanList.findIndex(x => String(x.id) === String(id));
+      if (idx !== -1) {
+        darshanList[idx].is_active = darshanList[idx].is_active === false ? true : false;
+        localStorage.setItem('arn_custom_darshan_sevas', JSON.stringify(darshanList));
+        renderDarshanUI();
+        showAdminToast(`Updated visibility for ${darshanList[idx].title}.`, 'success');
+      }
+    }
+
+    function deleteDarshanSeva(id, title) {
+      if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+      darshanList = darshanList.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('arn_custom_darshan_sevas', JSON.stringify(darshanList));
+      renderDarshanUI();
+      showAdminToast(`Deleted "${title}".`, 'warning');
+    }
+
+    /* ==========================================================================
+       BUS TICKET ROUTES & SCHEDULES METHODS (Hyderabad & Vijayawada)
+       ========================================================================== */
+    function loadBusCatalog() {
+      try {
+        const raw = localStorage.getItem('arn_custom_bus_routes');
+        busRoutesList = raw ? JSON.parse(raw) : DEFAULT_BUS_ROUTES;
+      } catch (e) {
+        busRoutesList = DEFAULT_BUS_ROUTES;
+      }
+      renderBusUI();
+    }
+
+    function renderBusUI() {
+      const container = document.getElementById('busRoutesContainer');
+      const tabCount = document.getElementById('busCountTab');
+      const kpiRoutes = document.getElementById('kpiBusRoutes');
+      const kpiHyd = document.getElementById('kpiBusHydTrips');
+      const kpiVja = document.getElementById('kpiBusVjaTrips');
+
+      if (tabCount) tabCount.textContent = busRoutesList.length;
+      if (kpiRoutes) kpiRoutes.textContent = busRoutesList.length;
+
+      const hydRoute = busRoutesList.find(r => (r.title || '').toLowerCase().includes('hyd'));
+      if (kpiHyd && hydRoute) kpiHyd.textContent = (hydRoute.timings || []).length;
+      const vjaRoute = busRoutesList.find(r => (r.title || '').toLowerCase().includes('vja') || (r.title || '').toLowerCase().includes('vijayawada'));
+      if (kpiVja && vjaRoute) kpiVja.textContent = (vjaRoute.timings || []).length;
+
+      if (!container) return;
+      if (busRoutesList.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-muted">No bus routes configured. Click "Add New Route" to add.</div>';
+        return;
+      }
+
+      container.innerHTML = busRoutesList.map(r => `
+        <div class="card border rounded-3 p-3 mb-3 shadow-sm bg-white">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
+            <div>
+              <h5 class="fw-bold mb-1 text-primary"><i class="bi bi-bus-front me-2"></i>${r.title}</h5>
+              <div class="small text-muted">
+                <i class="bi bi-geo-alt-fill text-danger me-1"></i><strong>Boarding:</strong> ${r.boarding || 'Major boarding hubs & Arunachalam Bus Stand'}
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              ${getStatusBadge(r.is_active !== false ? 'Active' : 'Inactive')}
+              <button class="btn btn-sm btn-outline-primary" onclick="openBusRouteModal('${r.id}')">
+                <i class="bi bi-pencil me-1"></i> Edit Route &amp; Timings
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="toggleBusActive('${r.id}')">
+                ${r.is_active !== false ? 'Disable' : 'Enable'}
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteBusRoute('${r.id}', '${String(r.title).replace(/'/g, "\\'")}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="p-2 rounded bg-light border">
+                <div class="small text-muted mb-1">Coach Fares:</div>
+                <div class="fw-bold text-dark fs-6"><i class="bi bi-ticket-perforated text-success me-1"></i>AC Sleeper: <span class="text-success">₹${Number(r.fare_sleeper || 1800).toLocaleString('en-IN')}</span></div>
+                <div class="fw-bold text-dark fs-6"><i class="bi bi-ticket-perforated text-primary me-1"></i>Non-AC Sleeper: <span class="text-primary">₹${Number(r.fare_non_ac || 1200).toLocaleString('en-IN')}</span></div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="p-2 rounded bg-light border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="small text-muted fw-bold">Daily Departure Timings (${(r.timings || []).length} Trips / Day):</span>
+                  <span class="badge bg-warning text-dark"><i class="bi bi-check2-circle me-1"></i>From Notebook Schedule</span>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                  ${(r.timings || []).map(t => `<span class="badge bg-white text-dark border px-2 py-1"><i class="bi bi-clock me-1 text-warning"></i>${t}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openBusRouteModal(id = '') {
+      const form = document.getElementById('busRouteForm');
+      form.reset();
+      document.getElementById('editBusRouteId').value = id || '';
+
+      if (id) {
+        const r = busRoutesList.find(x => String(x.id) === String(id));
+        if (!r) return;
+        document.getElementById('busRouteModalTitle').textContent = 'Edit Route: ' + r.title;
+        document.getElementById('busRouteTitle').value = r.title || '';
+        document.getElementById('busRouteTimings').value = (r.timings || []).join(', ');
+        document.getElementById('busFareSleeper').value = r.fare_sleeper || 1800;
+        document.getElementById('busFareNonAc').value = r.fare_non_ac || 1200;
+        document.getElementById('busBoardingPoints').value = r.boarding || '';
+        document.getElementById('busRouteActive').checked = r.is_active !== false;
+      } else {
+        document.getElementById('busRouteModalTitle').textContent = 'Add New Bus Route';
+        document.getElementById('busFareSleeper').value = 1800;
+        document.getElementById('busFareNonAc').value = 1200;
+        document.getElementById('busRouteActive').checked = true;
+      }
+
+      new bootstrap.Modal(document.getElementById('busRouteModal')).show();
+    }
+
+    function saveBusRoute(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editBusRouteId').value.trim();
+      const title = document.getElementById('busRouteTitle').value.trim();
+      const timingsRaw = document.getElementById('busRouteTimings').value.trim();
+      const fareSleeper = parseFloat(document.getElementById('busFareSleeper').value) || 1800;
+      const fareNonAc = parseFloat(document.getElementById('busFareNonAc').value) || 1200;
+      const boarding = document.getElementById('busBoardingPoints').value.trim();
+      const isActive = document.getElementById('busRouteActive').checked;
+
+      const timings = timingsRaw.split(/[,;\n]+/).map(t => t.trim()).filter(Boolean);
+
+      if (!title) {
+        showAdminToast('Please provide a route title.', 'error');
+        return;
+      }
+
+      if (editId) {
+        const idx = busRoutesList.findIndex(x => String(x.id) === String(editId));
+        if (idx !== -1) {
+          busRoutesList[idx] = { ...busRoutesList[idx], title, timings, fare_sleeper: fareSleeper, fare_non_ac: fareNonAc, boarding, is_active: isActive };
+        }
+      } else {
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('bus-' + Date.now());
+        busRoutesList.push({
+          id: slug,
+          title,
+          timings,
+          fare_sleeper: fareSleeper,
+          fare_non_ac: fareNonAc,
+          boarding,
+          is_active: isActive
+        });
+      }
+
+      localStorage.setItem('arn_custom_bus_routes', JSON.stringify(busRoutesList));
+      invalidatePublicCatalogCache();
+      renderBusUI();
+      bootstrap.Modal.getInstance(document.getElementById('busRouteModal')).hide();
+      showAdminToast(`Bus Route "${title}" saved successfully!`, 'success');
+    }
+
+    function toggleBusActive(id) {
+      const idx = busRoutesList.findIndex(x => String(x.id) === String(id));
+      if (idx !== -1) {
+        busRoutesList[idx].is_active = busRoutesList[idx].is_active === false ? true : false;
+        localStorage.setItem('arn_custom_bus_routes', JSON.stringify(busRoutesList));
+        renderBusUI();
+        showAdminToast(`Updated visibility for ${busRoutesList[idx].title}.`, 'success');
+      }
+    }
+
+    function deleteBusRoute(id, title) {
+      if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+      busRoutesList = busRoutesList.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('arn_custom_bus_routes', JSON.stringify(busRoutesList));
+      renderBusUI();
+      showAdminToast(`Deleted "${title}".`, 'warning');
+    }
+
+    /* ==========================================================================
+       BIKE RENTALS FLEET & TARIFF METHODS (6 Hrs @ ₹300, 12 Hrs @ ₹600)
+       ========================================================================== */
+    function loadBikeCatalog() {
+      try {
+        const rawTariffs = localStorage.getItem('arn_custom_bike_tariffs');
+        bikeTariffs = rawTariffs ? JSON.parse(rawTariffs) : DEFAULT_BIKE_TARIFFS;
+      } catch (e) {
+        bikeTariffs = DEFAULT_BIKE_TARIFFS;
+      }
+      try {
+        const rawFleet = localStorage.getItem('arn_custom_bike_fleet');
+        bikeFleet = rawFleet ? JSON.parse(rawFleet) : DEFAULT_BIKE_FLEET;
+      } catch (e) {
+        bikeFleet = DEFAULT_BIKE_FLEET;
+      }
+      renderBikeUI();
+    }
+
+    function renderBikeUI() {
+      const tariffContainer = document.getElementById('bikeTariffCards');
+      const tableBody = document.getElementById('bikesTableBody');
+      const tabCount = document.getElementById('bikesCountTab');
+      const kpiTotal = document.getElementById('kpiBikesTotal');
+      const kpiAvail = document.getElementById('kpiBikesAvail');
+      const kpiRented = document.getElementById('kpiBikesRented');
+
+      if (tabCount) tabCount.textContent = bikeFleet.length;
+      if (kpiTotal) kpiTotal.textContent = bikeFleet.length;
+      if (kpiAvail) kpiAvail.textContent = bikeFleet.filter(b => b.status === 'Available').length;
+      if (kpiRented) kpiRented.textContent = bikeFleet.filter(b => b.status === 'Rented').length;
+
+      // Render Tariff Cards
+      if (tariffContainer) {
+        tariffContainer.innerHTML = `
+          <div class="col-md-4">
+            <div class="p-3 rounded-3 border bg-light h-100 position-relative">
+              <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">Handwritten Rate</span>
+              <h6 class="fw-bold text-dark mb-1"><i class="bi bi-clock-history me-1 text-warning"></i>6 Hours Rental</h6>
+              <div class="fs-4 fw-bold text-success mb-2">₹${Number(bikeTariffs.rate_6h || 300).toLocaleString('en-IN')}</div>
+              <p class="small text-muted mb-2">Perfect for visiting Arunachaleswarar Temple, morning rituals, and quick Girivalam parikrama.</p>
+              <ul class="small text-muted ps-3 mb-0">
+                <li>2 ISI Certified Helmets Included</li>
+                <li>Instant pickup from Tiruvannamalai desk</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 rounded-3 border bg-light h-100 position-relative">
+              <span class="badge bg-success position-absolute top-0 end-0 m-2">Handwritten Rate</span>
+              <h6 class="fw-bold text-dark mb-1"><i class="bi bi-clock-fill me-1 text-success"></i>12 Hours Rental</h6>
+              <div class="fs-4 fw-bold text-success mb-2">₹${Number(bikeTariffs.rate_12h || 600).toLocaleString('en-IN')}</div>
+              <p class="small text-muted mb-2">Ideal for full Girivalam, visiting Ramana Maharshi Ashram, Seshadri Swamigal Ashram &amp; nearby temples.</p>
+              <ul class="small text-muted ps-3 mb-0">
+                <li>Full day flexibility (morning to evening)</li>
+                <li>Extra Hour Charge: ₹${bikeTariffs.extra_hour || 50}/hr</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3 rounded-3 border bg-light h-100">
+              <h6 class="fw-bold text-dark mb-1"><i class="bi bi-calendar2-check-fill me-1 text-primary"></i>24 Hours / Full Day</h6>
+              <div class="fs-4 fw-bold text-primary mb-2">₹${Number(bikeTariffs.rate_24h || 1000).toLocaleString('en-IN')}</div>
+              <p class="small text-muted mb-2">Overnight stay pilgrims exploring Tiruvannamalai, Gingee Fort, and surrounding spiritual shrines.</p>
+              <ul class="small text-muted ps-3 mb-0">
+                <li>Deposit: ${bikeTariffs.deposit || 'Govt ID proof'}</li>
+                <li>Unlimited local travel in Tiruvannamalai</li>
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+
+      // Render Fleet Registry Table (like Accommodation Physical Rooms)
+      if (tableBody) {
+        if (bikeFleet.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No bikes registered in fleet. Click "Add Bike to Fleet" to add.</td></tr>';
+          return;
+        }
+
+        tableBody.innerHTML = bikeFleet.map(b => {
+          let statusBadge = '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Available</span>';
+          if (b.status === 'Rented') {
+            statusBadge = '<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-hourglass-split me-1"></i>Currently Rented</span>';
+          } else if (b.status === 'Maintenance') {
+            statusBadge = '<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="bi bi-tools me-1"></i>Maintenance</span>';
+          }
+
+          return `
+            <tr>
+              <td class="fw-bold font-monospace text-dark fs-6">${b.reg_no}</td>
+              <td><div class="fw-semibold">${b.model}</div><small class="text-muted">ID: ${b.id}</small></td>
+              <td><span class="badge bg-light text-dark border">${b.category || 'Scooter'}</span></td>
+              <td>
+                <span class="fw-bold text-success">₹${b.rate_6h || 300}</span> (6h) /
+                <span class="fw-bold text-success">₹${b.rate_12h || 600}</span> (12h)
+              </td>
+              <td class="small text-muted">${b.helmets || '2 Helmets'}</td>
+              <td>${statusBadge}</td>
+              <td class="text-end text-nowrap">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" onclick="openAddBikeModal('${b.id}')" title="Edit Bike">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button class="btn btn-outline-${b.status === 'Available' ? 'warning' : 'success'}" onclick="toggleBikeStatus('${b.id}', '${b.status === 'Available' ? 'Rented' : 'Available'}')" title="Quick Status Switch">
+                    ${b.status === 'Available' ? 'Mark Rented' : 'Mark Available'}
+                  </button>
+                  <button class="btn btn-outline-danger" onclick="deleteBike('${b.id}', '${b.reg_no}')" title="Delete Bike">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    function openAddBikeModal(id = '') {
+      const form = document.getElementById('bikeForm');
+      form.reset();
+      document.getElementById('editBikeId').value = id || '';
+
+      if (id) {
+        const b = bikeFleet.find(x => String(x.id) === String(id));
+        if (!b) return;
+        document.getElementById('bikeModalTitle').textContent = 'Edit Two-Wheeler: ' + b.reg_no;
+        document.getElementById('bikeRegNo').value = b.reg_no || '';
+        document.getElementById('bikeModel').value = b.model || '';
+        document.getElementById('bikeCategory').value = b.category || 'Scooter / Gearless';
+        document.getElementById('bikeStatus').value = b.status || 'Available';
+        document.getElementById('bikeRate6h').value = b.rate_6h || 300;
+        document.getElementById('bikeRate12h').value = b.rate_12h || 600;
+        document.getElementById('bikeHelmets').value = b.helmets || '2 ISI Helmets Provided';
+      } else {
+        document.getElementById('bikeModalTitle').textContent = 'Add Two-Wheeler to Fleet';
+        document.getElementById('bikeRate6h').value = bikeTariffs.rate_6h || 300;
+        document.getElementById('bikeRate12h').value = bikeTariffs.rate_12h || 600;
+        document.getElementById('bikeStatus').value = 'Available';
+        document.getElementById('bikeHelmets').value = '2 ISI Helmets Provided';
+      }
+
+      new bootstrap.Modal(document.getElementById('addBikeModal')).show();
+    }
+
+    function saveBike(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editBikeId').value.trim();
+      const regNo = document.getElementById('bikeRegNo').value.trim().toUpperCase();
+      const model = document.getElementById('bikeModel').value.trim();
+      const category = document.getElementById('bikeCategory').value;
+      const status = document.getElementById('bikeStatus').value;
+      const rate6h = parseFloat(document.getElementById('bikeRate6h').value) || 300;
+      const rate12h = parseFloat(document.getElementById('bikeRate12h').value) || 600;
+      const helmets = document.getElementById('bikeHelmets').value.trim() || '2 Helmets';
+
+      if (!regNo || !model) {
+        showAdminToast('Please provide registration number and model.', 'error');
+        return;
+      }
+
+      if (editId) {
+        const idx = bikeFleet.findIndex(x => String(x.id) === String(editId));
+        if (idx !== -1) {
+          bikeFleet[idx] = { ...bikeFleet[idx], reg_no: regNo, model, category, status, rate_6h: rate6h, rate_12h: rate12h, helmets };
+        }
+      } else {
+        const bikeId = 'BIKE-' + String(bikeFleet.length + 1).padStart(2, '0');
+        bikeFleet.push({
+          id: bikeId,
+          reg_no: regNo,
+          model,
+          category,
+          status,
+          rate_6h: rate6h,
+          rate_12h: rate12h,
+          helmets
+        });
+      }
+
+      localStorage.setItem('arn_custom_bike_fleet', JSON.stringify(bikeFleet));
+      renderBikeUI();
+      bootstrap.Modal.getInstance(document.getElementById('addBikeModal')).hide();
+      showAdminToast(`Bike "${regNo}" saved to fleet successfully!`, 'success');
+    }
+
+    function toggleBikeStatus(id, newStatus) {
+      const idx = bikeFleet.findIndex(x => String(x.id) === String(id));
+      if (idx !== -1) {
+        bikeFleet[idx].status = newStatus;
+        localStorage.setItem('arn_custom_bike_fleet', JSON.stringify(bikeFleet));
+        renderBikeUI();
+        showAdminToast(`${bikeFleet[idx].reg_no} is now marked as "${newStatus}".`, 'success');
+      }
+    }
+
+    function deleteBike(id, regNo) {
+      if (!confirm(`Are you sure you want to remove bike "${regNo}" from fleet?`)) return;
+      bikeFleet = bikeFleet.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('arn_custom_bike_fleet', JSON.stringify(bikeFleet));
+      renderBikeUI();
+      showAdminToast(`Removed "${regNo}" from fleet.`, 'warning');
+    }
+
+    function openBikeTariffModal() {
+      document.getElementById('tariffRate6h').value = bikeTariffs.rate_6h || 300;
+      document.getElementById('tariffRate12h').value = bikeTariffs.rate_12h || 600;
+      document.getElementById('tariffRate24h').value = bikeTariffs.rate_24h || 1000;
+      document.getElementById('tariffExtraHour').value = bikeTariffs.extra_hour || 50;
+      document.getElementById('tariffDeposit').value = bikeTariffs.deposit || 'Valid Driving License & Original Govt ID required at pickup.';
+
+      new bootstrap.Modal(document.getElementById('bikeTariffModal')).show();
+    }
+
+    function saveBikeTariffs(e) {
+      e.preventDefault();
+      bikeTariffs = {
+        rate_6h: parseFloat(document.getElementById('tariffRate6h').value) || 300,
+        rate_12h: parseFloat(document.getElementById('tariffRate12h').value) || 600,
+        rate_24h: parseFloat(document.getElementById('tariffRate24h').value) || 1000,
+        extra_hour: parseFloat(document.getElementById('tariffExtraHour').value) || 50,
+        deposit: document.getElementById('tariffDeposit').value.trim()
+      };
+
+      localStorage.setItem('arn_custom_bike_tariffs', JSON.stringify(bikeTariffs));
+      invalidatePublicCatalogCache();
+      renderBikeUI();
+      bootstrap.Modal.getInstance(document.getElementById('bikeTariffModal')).hide();
+      showAdminToast('Bike rental tariff packages updated successfully!', 'success');
+    }
+  
+    /* ==========================================================================
+       TAXI & CAR RENTALS FLEET & TARIFF MANAGEMENT
+       ========================================================================== */
+    const DEFAULT_TAXI_FLEET = [
+      { id: 'TAXI-01', model: 'Maruti Suzuki Ertiga (6+1 Seater AC)', category: 'MUV / Family MPV', seats: 7, local_rate: 2800, outstation_km: 15, ac_type: 'Dual AC', is_active: true, notes: 'Ideal for 4-6 devotees with luggage' },
+      { id: 'TAXI-02', model: 'Toyota Innova Crysta (7+1 Seater AC)', category: 'Premium Luxury MPV', seats: 8, local_rate: 3600, outstation_km: 18, ac_type: 'Triple Zone AC', is_active: true, notes: 'VIP comfort, pushback seats' },
+      { id: 'TAXI-03', model: 'Swift Dzire / Sedan (4+1 Seater AC)', category: 'Sedan / Couple Pilgrims', seats: 5, local_rate: 2200, outstation_km: 12, ac_type: 'Front AC', is_active: true, notes: 'Economy & quick temple trips' },
+      { id: 'TAXI-04', model: 'Tempo Traveller (12/14 Seater AC)', category: 'Minibus / Joint Family', seats: 14, local_rate: 4800, outstation_km: 24, ac_type: 'Individual AC Vents', is_active: true, notes: 'Group pilgrimage & extended families' },
+      { id: 'TAXI-05', model: 'Toyota Innova Standard (7-Seater AC)', category: 'Executive MUV', seats: 7, local_rate: 3200, outstation_km: 16, ac_type: 'Dual AC', is_active: true, notes: 'Standard comfortable pilgrimage ride' }
+    ];
+
+    const DEFAULT_TAXI_PACKAGES = {
+      ertiga_local: 2800,
+      innova_local: 3600,
+      sedan_local: 2200,
+      tempo_local: 4800,
+      chennai_airport: 4800,
+      blr_airport: 6200,
+      pondicherry_trip: 4200,
+      vellore_temple_trip: 3400
+    };
+
+    let taxiFleetList = [];
+    let taxiTariffSettings = DEFAULT_TAXI_PACKAGES;
+
+    function loadTaxiCatalog() {
+      try {
+        const rawF = localStorage.getItem('arn_custom_taxi_fleet');
+        taxiFleetList = rawF ? JSON.parse(rawF) : DEFAULT_TAXI_FLEET;
+      } catch (e) {
+        taxiFleetList = DEFAULT_TAXI_FLEET;
+      }
+
+      try {
+        const rawT = localStorage.getItem('arn_custom_taxi_tariffs');
+        taxiTariffSettings = rawT ? JSON.parse(rawT) : DEFAULT_TAXI_PACKAGES;
+      } catch (e) {
+        taxiTariffSettings = DEFAULT_TAXI_PACKAGES;
+      }
+
+      renderTaxiUI();
+    }
+
+    function renderTaxiUI() {
+      const tbody = document.getElementById('taxiTableBody');
+      const tabCount = document.getElementById('taxiCountTab');
+      const kpiActive = document.getElementById('kpiTaxiActive');
+      const tariffContainer = document.getElementById('taxiTariffCards');
+
+      if (tabCount) tabCount.textContent = taxiFleetList.length;
+      if (kpiActive) kpiActive.textContent = taxiFleetList.filter(x => x.is_active !== false).length;
+
+      // Render Tariffs Cards
+      if (tariffContainer) {
+        const t = taxiTariffSettings;
+        tariffContainer.innerHTML = `
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded-3 border text-center h-100">
+              <span class="badge bg-primary-subtle text-primary mb-1">Airport Transfer</span>
+              <h6 class="fw-bold mb-1">Chennai Airport (MAA)</h6>
+              <div class="fs-5 fw-bold text-success">₹${Number(t.chennai_airport || 4800).toLocaleString('en-IN')}</div>
+              <small class="text-muted">Door-to-door In Innova / MPV</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded-3 border text-center h-100">
+              <span class="badge bg-info-subtle text-info mb-1">Airport Transfer</span>
+              <h6 class="fw-bold mb-1">Bengaluru Airport (BLR)</h6>
+              <div class="fs-5 fw-bold text-success">₹${Number(t.blr_airport || 6200).toLocaleString('en-IN')}</div>
+              <small class="text-muted">Door-to-door In Innova / MPV</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded-3 border text-center h-100">
+              <span class="badge bg-warning-subtle text-dark mb-1">Outstation Tour</span>
+              <h6 class="fw-bold mb-1">Pondicherry Day Trip</h6>
+              <div class="fs-5 fw-bold text-success">₹${Number(t.pondicherry_trip || 4200).toLocaleString('en-IN')}</div>
+              <small class="text-muted">Auroville &amp; French Town</small>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="p-3 bg-light rounded-3 border text-center h-100">
+              <span class="badge bg-success-subtle text-success mb-1">Temple Tour</span>
+              <h6 class="fw-bold mb-1">Vellore Golden Temple</h6>
+              <div class="fs-5 fw-bold text-success">₹${Number(t.vellore_temple_trip || 3400).toLocaleString('en-IN')}</div>
+              <small class="text-muted">Sripuram Darshan Day Tour</small>
+            </div>
+          </div>
+        `;
+      }
+
+      if (!tbody) return;
+      if (taxiFleetList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No vehicle models added. Click "Add Vehicle Model" above.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = taxiFleetList.map(v => `
+        <tr>
+          <td>
+            <div class="fw-bold text-maroon">${v.model}</div>
+            <small class="text-muted">ID: ${v.id}</small>
+          </td>
+          <td>
+            <span class="badge bg-light text-dark border"><i class="bi bi-people-fill text-gold me-1"></i>${v.seats || 7} Seats</span>
+            <div class="small text-muted mt-1">${v.category || 'MPV'}</div>
+          </td>
+          <td>
+            <div class="fw-bold text-success fs-6">₹${Number(v.local_rate || 2800).toLocaleString('en-IN')}</div>
+            <small class="text-muted">8h / 80km package</small>
+          </td>
+          <td>
+            <div class="fw-bold text-primary">₹${v.outstation_km || 15} / km</div>
+            <small class="text-muted">Driver beta extra</small>
+          </td>
+          <td>
+            <span class="small text-dark fw-semibold">${v.ac_type || 'AC'}</span>
+            <div class="small text-muted">${v.notes || ''}</div>
+          </td>
+          <td>${getStatusBadge(v.is_active !== false ? 'Active' : 'Inactive')}</td>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary" onclick="openTaxiVehicleModal('${v.id}')" title="Edit Vehicle">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-secondary" onclick="toggleTaxiVehicleActive('${v.id}')" title="Toggle Status">
+                ${v.is_active !== false ? 'Disable' : 'Enable'}
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteTaxiVehicle('${v.id}', '${String(v.model).replace(/'/g, "\\'")}')" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openTaxiVehicleModal(id = '') {
+      const form = document.getElementById('taxiVehicleForm');
+      form.reset();
+      document.getElementById('editTaxiVehicleId').value = id || '';
+
+      if (id) {
+        const v = taxiFleetList.find(x => String(x.id) === String(id));
+        if (!v) return;
+        document.getElementById('taxiVehicleModalTitle').textContent = 'Edit Vehicle: ' + v.model;
+        document.getElementById('taxiModelName').value = v.model || '';
+        document.getElementById('taxiCategory').value = v.category || '';
+        document.getElementById('taxiSeats').value = v.seats || 7;
+        document.getElementById('taxiLocalRate').value = v.local_rate || 2800;
+        document.getElementById('taxiOutstationKm').value = v.outstation_km || 15;
+        document.getElementById('taxiAcType').value = v.ac_type || '';
+        document.getElementById('taxiNotes').value = v.notes || '';
+        document.getElementById('taxiActive').checked = v.is_active !== false;
+      } else {
+        document.getElementById('taxiVehicleModalTitle').textContent = 'Add New Vehicle Model';
+        document.getElementById('taxiSeats').value = 7;
+        document.getElementById('taxiLocalRate').value = 2800;
+        document.getElementById('taxiOutstationKm').value = 15;
+        document.getElementById('taxiActive').checked = true;
+      }
+
+      new bootstrap.Modal(document.getElementById('taxiVehicleModal')).show();
+    }
+
+    function saveTaxiVehicle(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editTaxiVehicleId').value.trim();
+      const model = document.getElementById('taxiModelName').value.trim();
+      const category = document.getElementById('taxiCategory').value.trim();
+      const seats = parseInt(document.getElementById('taxiSeats').value) || 7;
+      const localRate = parseFloat(document.getElementById('taxiLocalRate').value) || 2800;
+      const outstationKm = parseFloat(document.getElementById('taxiOutstationKm').value) || 15;
+      const acType = document.getElementById('taxiAcType').value.trim();
+      const notes = document.getElementById('taxiNotes').value.trim();
+      const isActive = document.getElementById('taxiActive').checked;
+
+      if (!model) {
+        showAdminToast('Please provide a vehicle model name.', 'error');
+        return;
+      }
+
+      if (editId) {
+        const idx = taxiFleetList.findIndex(x => String(x.id) === String(editId));
+        if (idx !== -1) {
+          taxiFleetList[idx] = {
+            ...taxiFleetList[idx],
+            model, category, seats, local_rate: localRate, outstation_km: outstationKm, ac_type: acType, notes, is_active: isActive
+          };
+          showAdminToast(`Vehicle ${model} updated!`, 'success');
+        }
+      } else {
+        const newId = 'TAXI-' + String(taxiFleetList.length + 1).padStart(2, '0');
+        taxiFleetList.push({
+          id: newId,
+          model, category, seats, local_rate: localRate, outstation_km: outstationKm, ac_type: acType, notes, is_active: isActive
+        });
+        showAdminToast(`Vehicle ${model} added to fleet!`, 'success');
+      }
+
+      localStorage.setItem('arn_custom_taxi_fleet', JSON.stringify(taxiFleetList));
+      invalidatePublicCatalogCache();
+      renderTaxiUI();
+      bootstrap.Modal.getInstance(document.getElementById('taxiVehicleModal')).hide();
+    }
+
+    function toggleTaxiVehicleActive(id) {
+      const v = taxiFleetList.find(x => String(x.id) === String(id));
+      if (!v) return;
+      v.is_active = (v.is_active === false);
+      localStorage.setItem('arn_custom_taxi_fleet', JSON.stringify(taxiFleetList));
+      invalidatePublicCatalogCache();
+      renderTaxiUI();
+      showAdminToast(`Vehicle "${v.model}" is now ${v.is_active ? 'ACTIVE' : 'INACTIVE'}.`, 'success');
+    }
+
+    function deleteTaxiVehicle(id, name) {
+      if (!confirm(`Are you sure you want to remove vehicle "${name}" from the fleet catalog?`)) return;
+      taxiFleetList = taxiFleetList.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('arn_custom_taxi_fleet', JSON.stringify(taxiFleetList));
+      invalidatePublicCatalogCache();
+      renderTaxiUI();
+      showAdminToast(`Vehicle "${name}" removed.`, 'warning');
+    }
+
+    function openTaxiTariffModal() {
+      const t = taxiTariffSettings;
+      document.getElementById('tariffErtigaLocal').value = t.ertiga_local || 2800;
+      document.getElementById('tariffInnovaLocal').value = t.innova_local || 3600;
+      document.getElementById('tariffSedanLocal').value = t.sedan_local || 2200;
+      document.getElementById('tariffTempoLocal').value = t.tempo_local || 4800;
+      document.getElementById('tariffChennaiAirport').value = t.chennai_airport || 4800;
+      document.getElementById('tariffBlrAirport').value = t.blr_airport || 6200;
+      document.getElementById('tariffPondicherry').value = t.pondicherry_trip || 4200;
+      document.getElementById('tariffVellore').value = t.vellore_temple_trip || 3400;
+
+      new bootstrap.Modal(document.getElementById('taxiTariffModal')).show();
+    }
+
+    function saveTaxiTariff(e) {
+      e.preventDefault();
+      taxiTariffSettings = {
+        ertiga_local: parseFloat(document.getElementById('tariffErtigaLocal').value) || 2800,
+        innova_local: parseFloat(document.getElementById('tariffInnovaLocal').value) || 3600,
+        sedan_local: parseFloat(document.getElementById('tariffSedanLocal').value) || 2200,
+        tempo_local: parseFloat(document.getElementById('tariffTempoLocal').value) || 4800,
+        chennai_airport: parseFloat(document.getElementById('tariffChennaiAirport').value) || 4800,
+        blr_airport: parseFloat(document.getElementById('tariffBlrAirport').value) || 6200,
+        pondicherry_trip: parseFloat(document.getElementById('tariffPondicherry').value) || 4200,
+        vellore_temple_trip: parseFloat(document.getElementById('tariffVellore').value) || 3400
+      };
+
+      localStorage.setItem('arn_custom_taxi_tariffs', JSON.stringify(taxiTariffSettings));
+      invalidatePublicCatalogCache();
+      renderTaxiUI();
+      showAdminToast('Taxi outstation tariffs updated successfully!', 'success');
+      bootstrap.Modal.getInstance(document.getElementById('taxiTariffModal')).hide();
+    }
+
   </script>
 </body>
 </html>

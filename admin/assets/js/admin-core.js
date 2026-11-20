@@ -23,7 +23,11 @@ function renderAdminSidebar(activePage) {
 
     { header: 'INVENTORY & CATALOG' },
     { id: 'accommodation', label: 'Accommodation (17 Rooms)', icon: 'bi-building-fill', href: 'accommodation.html', module: 'accommodation' },
-    { id: 'services', label: 'Services & Tours', icon: 'bi-compass-fill', href: 'services.html', module: 'services' },
+    { id: 'darshan', label: 'Temple Darshan Catalog', icon: 'bi-flower1', href: 'services.html?tab=darshan', module: 'services' },
+    { id: 'bus', label: 'Bus Ticket Routes', icon: 'bi-bus-front-fill', href: 'services.html?tab=bus', module: 'services' },
+    { id: 'bikes', label: 'Bike Rentals Fleet', icon: 'bi-bicycle', href: 'services.html?tab=bikes', module: 'services' },
+    { id: 'taxi', label: 'Taxi & Car Rentals Fleet', icon: 'bi-car-front-fill', href: 'services.html?tab=taxi', module: 'services' },
+    { id: 'services', label: 'Tour Packages & Services', icon: 'bi-compass-fill', href: 'services.html?tab=packages', module: 'services' },
 
     { header: 'FINANCE (MANUAL)' },
     { id: 'payments', label: 'Manual Payments', icon: 'bi-cash-stack', href: 'payments.html', module: 'payments' },
@@ -203,10 +207,39 @@ function getStatusBadge(status) {
  * Open WhatsApp Deep Link and log attempt
  */
 async function openWhatsAppShare(phone, message, bookingCode = null, messageType = 'Custom') {
-  const cleanPhone = String(phone).replace(/[^0-9]/g, '');
+  const cleanPhone = String(phone || '').replace(/[^0-9]/g, '');
   const finalPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+  const nowIso = new Date().toISOString();
 
-  // Log message attempt to whatsapp_messages
+  // Create standardized log record
+  const logRecord = {
+    id: 'wa_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+    booking_code: bookingCode || '—',
+    recipient: finalPhone,
+    message_type: messageType || 'Direct Message',
+    message_content: message,
+    status: 'Sent / Opened',
+    sent_at: nowIso,
+    created_at: nowIso
+  };
+
+  // 1. Immediately persist to localStorage for instant local history availability
+  try {
+    const raw = localStorage.getItem('arn_whatsapp_logs');
+    const logs = raw ? JSON.parse(raw) : [];
+    logs.unshift(logRecord);
+    if (logs.length > 100) logs.length = 100;
+    localStorage.setItem('arn_whatsapp_logs', JSON.stringify(logs));
+  } catch (err) {
+    console.warn('Local WhatsApp log storage warning:', err);
+  }
+
+  // 2. If on the WhatsApp settings page, refresh the logs table live in real time
+  if (typeof loadWaLogs === 'function') {
+    try { loadWaLogs(); } catch (e) {}
+  }
+
+  // 3. Log message attempt to Supabase whatsapp_messages table
   if (window.adminSupabase) {
     try {
       await window.adminSupabase.from('whatsapp_messages').insert([{
@@ -217,7 +250,7 @@ async function openWhatsAppShare(phone, message, bookingCode = null, messageType
         status: 'WhatsApp Link Opened'
       }]);
     } catch (e) {
-      console.warn('WhatsApp log error:', e);
+      console.warn('Supabase WhatsApp log error:', e);
     }
   }
 

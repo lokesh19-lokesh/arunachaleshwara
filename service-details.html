@@ -91,12 +91,668 @@
     </section>
   </main>
 
+  <!-- Temple Darshan & Sevas Booking Modal -->
+  <div class="modal fade" id="darshanBookingModal" tabindex="-1" aria-labelledby="darshanBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #45120E 0%, #2A0B09 100%); border-bottom: 2px solid #FFC908;">
+          <div>
+            <h5 class="modal-title fw-bold" id="darshanBookingModalLabel">
+              <i class="bi bi-flower1 text-warning me-2"></i>Book Temple Darshan &amp; Sevas
+            </h5>
+            <small class="text-white-50">Arunachaleswarar Temple Darshan, Abhishekam, Archana &amp; Girivalam Support</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="darshanBookingForm" onsubmit="submitDarshanBooking(event)">
+            <div class="alert alert-warning py-2 px-3 small border-0 d-flex align-items-center gap-2 mb-3" style="background: #FFF8E1; color: #795548;">
+              <i class="bi bi-flower1 text-warning fs-5"></i>
+              <div><strong>Sacred Pilgrimage Assistance:</strong> Traditional offerings, priest coordination, and convenient temple entry for your family.</div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Select Darshan Seva / Ritual *</label>
+                <select id="darshanSevaSelect" class="form-select" onchange="calculateDarshanFare()">
+                  <option value="Abhishekam Seva" data-rate="1500" selected>Abhishekam Seva (₹1,500 - Holy Bathing &amp; Priest)</option>
+                  <option value="Archana Seva" data-rate="250">Archana Seva (₹250 - 108 / 1008 Names Chanting)</option>
+                  <option value="Quick Darshan Assistance" data-rate="500">Quick Darshan Assistance (₹500 - Priority Entry Escort)</option>
+                  <option value="Girivalam Pilgrimage Support" data-rate="800">Girivalam Pilgrimage Support (₹800 - 14km Sacred Path)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Preferred Darshan Date *</label>
+                <input type="date" id="darshanDate" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Preferred Time Slot *</label>
+                <select id="darshanSlot" class="form-select">
+                  <option value="Morning 06:00 AM - 08:30 AM (Abhishekam / Morning Pooja)">Morning 06:00 AM - 08:30 AM (Abhishekam / Morning Pooja)</option>
+                  <option value="Morning 09:00 AM - 11:30 AM (Uchikalam Pooja)">Morning 09:00 AM - 11:30 AM (Uchikalam Pooja)</option>
+                  <option value="Evening 04:30 PM - 07:00 PM (Sayarakshai Pooja)">Evening 04:30 PM - 07:00 PM (Sayarakshai Pooja)</option>
+                  <option value="Night 07:30 PM - 09:00 PM (Arthajama Pooja)">Night 07:30 PM - 09:00 PM (Arthajama Pooja)</option>
+                  <option value="Pournami / Special Festival Darshan">Pournami / Special Festival Darshan</option>
+                </select>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Adult Devotees *</label>
+                <input type="number" id="darshanAdultsCount" class="form-control" value="2" min="1" max="25" onchange="onDarshanCountsChanged()" required>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Children (&lt; 12 yrs)</label>
+                <input type="number" id="darshanChildrenCount" class="form-control" value="0" min="0" max="15" onchange="onDarshanCountsChanged()">
+              </div>
+
+              <!-- Individual Devotee Details (Dynamically Generated) -->
+              <div class="col-12">
+                <div id="darshanDynamicDevoteesContainer" class="row g-2"></div>
+              </div>
+
+              <!-- Primary Devotee / Contact Person -->
+              <div class="col-12 mt-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="fw-bold text-maroon mb-0"><i class="bi bi-person-lines-fill text-gold me-1"></i>Primary Devotee Contact Information</h6>
+                  <div class="form-check form-check-inline small mb-0">
+                    <input class="form-check-input" type="checkbox" id="darshanSameAsDevotee1" onchange="copyDevotee1ToContact()">
+                    <label class="form-check-label text-muted" for="darshanSameAsDevotee1">Same as Devotee 1</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Contact Person Full Name *</label>
+                <input type="text" id="darshanContactName" class="form-control" placeholder="Primary devotee / contact person" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Mobile / WhatsApp Number *</label>
+                <input type="tel" id="darshanContactMobile" class="form-control" placeholder="e.g. 9010515341" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Email Address</label>
+                <input type="email" id="darshanContactEmail" class="form-control" placeholder="name@example.com">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">City / Native Place</label>
+                <input type="text" id="darshanContactCity" class="form-control" placeholder="e.g. Hyderabad / Chennai / Bengaluru">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-dark">Special Ritual Requests / Gotram / Nakshatram</label>
+                <textarea id="darshanNotes" class="form-control" rows="2" placeholder="e.g. Devotee Gotram, Nakshatram, senior citizen wheelchair support, prasad distribution..."></textarea>
+              </div>
+
+              <!-- ID Document Upload Section -->
+              <div class="col-12">
+                <div id="darshanDocContainer"></div>
+              </div>
+
+              <!-- Estimated Fare Summary Box -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: #FAFAFA;">
+                  <div>
+                    <span class="small text-muted d-block">Estimated Seva Contribution</span>
+                    <strong class="text-maroon fs-5" id="darshanEstAmount">₹1,500</strong>
+                    <span class="small text-muted ms-1">(Prasadam included as per seva)</span>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Pay via Manual UPI / Desk</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submission Buttons -->
+            <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-whatsapp fw-semibold" onclick="sendDarshanBookingViaWhatsApp()">
+                  <i class="bi bi-whatsapp me-1"></i> Book via WhatsApp
+                </button>
+                <button type="submit" class="btn fw-bold px-4" style="background: #FFC908; color: #45120E;">
+                  <i class="bi bi-check-lg me-1"></i> Submit Darshan Booking
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success View -->
+          <div id="darshanSuccessBox" class="d-none text-center py-4">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-maroon mb-1">Darshan Booking Request Submitted!</h4>
+            <p class="text-muted mb-3">May Lord Arunachaleswarar shower His divine blessings upon you and your family.</p>
+            <div class="p-3 rounded-3 border bg-light d-inline-block text-start mb-3" style="min-width: 280px;">
+              <div><strong>Booking ID:</strong> <span class="text-primary fw-bold" id="darshanSuccessBookingId">—</span></div>
+              <div><strong>Seva:</strong> <span id="darshanSuccessSeva">—</span></div>
+              <div><strong>Date:</strong> <span id="darshanSuccessDate">—</span></div>
+              <div><strong>Total Devotees:</strong> <span id="darshanSuccessDevotees">—</span></div>
+              <div><strong>Status:</strong> <span class="badge bg-success">Under Review / Confirmed</span></div>
+            </div>
+            <div class="d-flex justify-content-center gap-2">
+              <a id="darshanSuccessWaBtn" href="#" target="_blank" class="btn btn-whatsapp fw-bold">
+                <i class="bi bi-whatsapp me-1"></i> Share Details on WhatsApp
+              </a>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bus Ticket Booking Modal -->
+  <div class="modal fade" id="busBookingModal" tabindex="-1" aria-labelledby="busBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #45120E 0%, #2A0B09 100%); border-bottom: 2px solid #FFC908;">
+          <div>
+            <h5 class="modal-title fw-bold" id="busBookingModalLabel">
+              <i class="bi bi-bus-front text-warning me-2"></i>Book Bus Tickets to Arunachalam
+            </h5>
+            <small class="text-white-50">Direct Daily Buses from Hyderabad &amp; Vijayawada to Tiruvannamalai</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="busBookingForm" onsubmit="submitBusBooking(event)">
+            <div class="alert alert-info py-2 px-3 small border-0 d-flex align-items-center gap-2 mb-3" style="background: #E3F2FD; color: #0D47A1;">
+              <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+              <div><strong>Confirmed Bus Ticket Reservations:</strong> AC Sleeper &amp; Seater departures matching notebook schedules. Direct pilgrimage pickup points.</div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Select Route *</label>
+                <select id="busRouteSelect" class="form-select" onchange="onBusRouteChange()">
+                  <option value="Hyderabad ↔ Arunachalam (Tiruvannamalai)" data-route="hyd" selected>Hyderabad ↔ Arunachalam (10 Daily Trips)</option>
+                  <option value="Vijayawada ↔ Arunachalam (Tiruvannamalai)" data-route="vja">Vijayawada ↔ Arunachalam (6 Daily Trips)</option>
+                  <option value="Tiruvannamalai Local / Other Route" data-route="other">Tiruvannamalai / Return Journey</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Journey Date *</label>
+                <input type="date" id="busTravelDate" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Departure Timing Schedule *</label>
+                <select id="busTimingSelect" class="form-select" required>
+                  <!-- Populated dynamically based on route -->
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Bus Coach Type *</label>
+                <select id="busCoachType" class="form-select" onchange="calculateBusFare()">
+                  <option value="AC Sleeper Coach" data-rate="1250" selected>AC Sleeper Coach (₹1,250 / seat)</option>
+                  <option value="AC Semi-Sleeper" data-rate="950">AC Semi-Sleeper (₹950 / seat)</option>
+                  <option value="Non-AC Sleeper Coach" data-rate="850">Non-AC Sleeper Coach (₹850 / seat)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Boarding / Pickup Point *</label>
+                <input type="text" id="busBoardingPoint" class="form-control" placeholder="e.g. MGBS, Ameerpet, LB Nagar, Vijayawada Bus Stand..." required>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Adult Passengers *</label>
+                <input type="number" id="busAdultsCount" class="form-control" value="2" min="1" max="30" onchange="onBusCountsChanged()" required>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Children (Seats)</label>
+                <input type="number" id="busChildrenCount" class="form-control" value="0" min="0" max="15" onchange="onBusCountsChanged()">
+              </div>
+
+              <!-- Individual Passenger Details (Dynamically Generated) -->
+              <div class="col-12">
+                <div id="busDynamicPassengersContainer" class="row g-2"></div>
+              </div>
+
+              <!-- Primary Passenger Contact -->
+              <div class="col-12 mt-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="fw-bold text-maroon mb-0"><i class="bi bi-person-lines-fill text-gold me-1"></i>Primary Contact / Booking Devotee</h6>
+                  <div class="form-check form-check-inline small mb-0">
+                    <input class="form-check-input" type="checkbox" id="busSameAsPassenger1" onchange="copyPassenger1ToContact()">
+                    <label class="form-check-label text-muted" for="busSameAsPassenger1">Same as Passenger 1</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Contact Person Full Name *</label>
+                <input type="text" id="busContactName" class="form-control" placeholder="Primary contact name" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Mobile / WhatsApp Number *</label>
+                <input type="tel" id="busContactMobile" class="form-control" placeholder="e.g. 9010515341" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Email Address</label>
+                <input type="email" id="busContactEmail" class="form-control" placeholder="name@example.com">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">City / Address</label>
+                <input type="text" id="busContactAddress" class="form-control" placeholder="Your residential address / city">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-dark">Preferred Seats / Special Requests</label>
+                <textarea id="busNotes" class="form-control" rows="2" placeholder="e.g. Lower berth preference, elderly passenger assistance, extra baggage..."></textarea>
+              </div>
+
+              <!-- ID Document Upload Section -->
+              <div class="col-12">
+                <div id="busDocContainer"></div>
+              </div>
+
+              <!-- Estimated Fare Summary Box -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: #FAFAFA;">
+                  <div>
+                    <span class="small text-muted d-block">Total Ticket Amount</span>
+                    <strong class="text-maroon fs-5" id="busEstFare">₹2,500</strong>
+                    <span class="small text-muted ms-1">(Calculated for all passengers)</span>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Pay via Manual UPI / GPay</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submission Buttons -->
+            <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-whatsapp fw-semibold" onclick="sendBusBookingViaWhatsApp()">
+                  <i class="bi bi-whatsapp me-1"></i> Book via WhatsApp
+                </button>
+                <button type="submit" class="btn fw-bold px-4" style="background: #FFC908; color: #45120E;">
+                  <i class="bi bi-check-lg me-1"></i> Confirm Bus Booking
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success View -->
+          <div id="busSuccessBox" class="d-none text-center py-4">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-maroon mb-1">Bus Booking Request Received!</h4>
+            <p class="text-muted mb-3">Your bus seat reservation request has been registered.</p>
+            <div class="p-3 rounded-3 border bg-light d-inline-block text-start mb-3" style="min-width: 280px;">
+              <div><strong>Booking ID:</strong> <span class="text-primary fw-bold" id="busSuccessBookingId">—</span></div>
+              <div><strong>Route:</strong> <span id="busSuccessRoute">—</span></div>
+              <div><strong>Date &amp; Timing:</strong> <span id="busSuccessTiming">—</span></div>
+              <div><strong>Passengers:</strong> <span id="busSuccessPax">—</span></div>
+              <div><strong>Status:</strong> <span class="badge bg-success">Under Review / Confirmed</span></div>
+            </div>
+            <div class="d-flex justify-content-center gap-2">
+              <a id="busSuccessWaBtn" href="#" target="_blank" class="btn btn-whatsapp fw-bold">
+                <i class="bi bi-whatsapp me-1"></i> Share Details on WhatsApp
+              </a>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bike Rental Booking Modal -->
+  <div class="modal fade" id="bikeBookingModal" tabindex="-1" aria-labelledby="bikeBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #45120E 0%, #2A0B09 100%); border-bottom: 2px solid #FFC908;">
+          <div>
+            <h5 class="modal-title fw-bold" id="bikeBookingModalLabel">
+              <i class="bi bi-bicycle text-warning me-2"></i>Book Two-Wheeler / Bike Rental
+            </h5>
+            <small class="text-white-50">Easy scooter rentals in Tiruvannamalai for Girivalam and Temple Visits</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="bikeBookingForm" onsubmit="submitBikeBooking(event)">
+            <div class="alert alert-success py-2 px-3 small border-0 d-flex align-items-center gap-2 mb-3" style="background: #E8F5E9; color: #1B5E20;">
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+              <div><strong>Handwritten Tariff Policy:</strong> 6 Hours @ ₹300 | 12 Hours @ ₹600. Includes sanitized helmets. Valid Driving Licence mandatory.</div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Rental Package / Duration *</label>
+                <select id="bikePackageSelect" class="form-select" onchange="calculateBikeFare()">
+                  <option value="6 Hours Rental Package" data-rate="300" selected>6 Hours Rental — ₹300 (Temple &amp; Quick Girivalam)</option>
+                  <option value="12 Hours Rental Package" data-rate="600">12 Hours Rental — ₹600 (Full Day &amp; Ashrams)</option>
+                  <option value="24 Hours / Full Day" data-rate="1000">24 Hours / Full Day — ₹1,000 (Overnight Pilgrimage)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Select Bike / Scooter Model *</label>
+                <select id="bikeModelSelect" class="form-select">
+                  <option value="Honda Activa 6G (Automatic Scooter)" selected>Honda Activa 6G (Automatic Scooter)</option>
+                  <option value="TVS Jupiter 125 (Automatic Scooter)">TVS Jupiter 125 (Automatic Scooter)</option>
+                  <option value="Bajaj Pulsar 150 (Geared Motorcycle)">Bajaj Pulsar 150 (Geared Motorcycle)</option>
+                  <option value="Royal Enfield Classic 350">Royal Enfield Classic 350</option>
+                  <option value="Hero Splendor Plus">Hero Splendor Plus</option>
+                </select>
+              </div>
+
+              <div class="col-md-4 col-6">
+                <label class="form-label small fw-bold text-dark">Number of Bikes *</label>
+                <input type="number" id="bikeCount" class="form-control" value="1" min="1" max="10" onchange="calculateBikeFare()" required>
+              </div>
+
+              <div class="col-md-4 col-6">
+                <label class="form-label small fw-bold text-dark">Pickup Date &amp; Time *</label>
+                <input type="datetime-local" id="bikePickupDateTime" class="form-control" onchange="autoCalculateBikeReturn()" required>
+              </div>
+
+              <div class="col-md-4 col-12">
+                <label class="form-label small fw-bold text-dark">Expected Return Date &amp; Time</label>
+                <input type="datetime-local" id="bikeReturnDateTime" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Pickup Location *</label>
+                <select id="bikePickupLocation" class="form-select">
+                  <option value="Arunachaleshwara Main Desk / Office" selected>Arunachaleshwara Main Desk / Office</option>
+                  <option value="Arunachaleswarar Temple Rajagopuram">Arunachaleswarar Temple Rajagopuram</option>
+                  <option value="Tiruvannamalai Railway Station">Tiruvannamalai Railway Station</option>
+                  <option value="Hotel / Accommodation Delivery">Deliver to my Hotel / Room</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Return Location *</label>
+                <select id="bikeReturnLocation" class="form-select">
+                  <option value="Arunachaleshwara Main Desk / Office" selected>Arunachaleshwara Main Desk / Office</option>
+                  <option value="Hotel / Accommodation Pickup">Collect from my Hotel / Room</option>
+                  <option value="Same as Pickup Location">Same as Pickup Location</option>
+                </select>
+              </div>
+
+              <!-- Rider Contact Details -->
+              <div class="col-12 mt-2">
+                <h6 class="fw-bold text-maroon mb-0"><i class="bi bi-person-badge-fill text-gold me-1"></i>Rider Information (Must be 18+ with Driving Licence)</h6>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Rider Full Name *</label>
+                <input type="text" id="bikeRiderName" class="form-control" placeholder="Rider's full name as on DL" required>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Rider Age *</label>
+                <input type="number" id="bikeRiderAge" class="form-control" value="25" min="18" max="90" required>
+              </div>
+
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold text-dark">Helmets Required</label>
+                <select id="bikeHelmets" class="form-select">
+                  <option value="1 Helmet">1 Helmet (Rider)</option>
+                  <option value="2 Helmets" selected>2 Helmets (Rider + Pillion)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Mobile / WhatsApp Number *</label>
+                <input type="tel" id="bikeRiderMobile" class="form-control" placeholder="e.g. 9010515341" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Email Address</label>
+                <input type="email" id="bikeRiderEmail" class="form-control" placeholder="name@example.com">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-dark">Current Residential Address</label>
+                <input type="text" id="bikeRiderAddress" class="form-control" placeholder="Your residential address & city">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-dark">Special Requests / Notes</label>
+                <textarea id="bikeNotes" class="form-control" rows="2" placeholder="e.g. Extra helmet size, mobile holder on bike, specific pickup instructions..."></textarea>
+              </div>
+
+              <!-- Mandatory Driving Licence & ID Upload Section -->
+              <div class="col-12">
+                <div id="bikeDocContainer"></div>
+              </div>
+
+              <!-- Estimated Fare Summary Box -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: #FAFAFA;">
+                  <div>
+                    <span class="small text-muted d-block">Estimated Rental Amount</span>
+                    <strong class="text-maroon fs-5" id="bikeEstTotal">₹300</strong>
+                    <span class="small text-muted ms-1">(Security deposit refundable upon return)</span>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-shield-check me-1"></i>Pay on Handover / UPI</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submission Buttons -->
+            <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-whatsapp fw-semibold" onclick="sendBikeBookingViaWhatsApp()">
+                  <i class="bi bi-whatsapp me-1"></i> Book via WhatsApp
+                </button>
+                <button type="submit" class="btn fw-bold px-4" style="background: #FFC908; color: #45120E;">
+                  <i class="bi bi-check-lg me-1"></i> Confirm Bike Rental
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success View -->
+          <div id="bikeSuccessBox" class="d-none text-center py-4">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-maroon mb-1">Bike Rental Reserved!</h4>
+            <p class="text-muted mb-3">Your two-wheeler has been reserved for your pilgrimage in Tiruvannamalai.</p>
+            <div class="p-3 rounded-3 border bg-light d-inline-block text-start mb-3" style="min-width: 280px;">
+              <div><strong>Booking ID:</strong> <span class="text-primary fw-bold" id="bikeSuccessBookingId">—</span></div>
+              <div><strong>Vehicle:</strong> <span id="bikeSuccessModel">—</span></div>
+              <div><strong>Package:</strong> <span id="bikeSuccessDuration">—</span></div>
+              <div><strong>Pickup:</strong> <span id="bikeSuccessPickup">—</span></div>
+              <div><strong>Status:</strong> <span class="badge bg-success">Confirmed</span></div>
+            </div>
+            <div class="d-flex justify-content-center gap-2">
+              <a id="bikeSuccessWaBtn" href="#" target="_blank" class="btn btn-whatsapp fw-bold">
+                <i class="bi bi-whatsapp me-1"></i> Share Details on WhatsApp
+              </a>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taxi & Car Rental Booking Modal -->
+  <div class="modal fade" id="taxiBookingModal" tabindex="-1" aria-labelledby="taxiBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #45120E 0%, #2A0B09 100%); border-bottom: 2px solid #FFC908;">
+          <div>
+            <h5 class="modal-title fw-bold" id="taxiBookingModalLabel">
+              <i class="bi bi-car-front-fill text-warning me-2"></i>Book Taxi &amp; Car Rental
+            </h5>
+            <small class="text-white-50">Arunachaleshwara Tours &amp; Travels — 24/7 Pilgrimage &amp; Outstation Cabs</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="publicTaxiBookingForm" onsubmit="submitPublicTaxiBooking(event)">
+            <!-- Notice -->
+            <div class="alert alert-warning py-2 px-3 small border-0 d-flex align-items-center gap-2 mb-3" style="background: #FFF8E1; color: #795548;">
+              <i class="bi bi-shield-check text-warning fs-5"></i>
+              <div><strong>Instant Booking Confirmation:</strong> Clean AC vehicles with courteous pilgrimage drivers. Transparent pricing with NO hidden charges.</div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Select Vehicle Model *</label>
+                <select id="pubTaxiVehicle" class="form-select" onchange="updatePubTaxiFare()">
+                  <option value="Toyota Innova Crysta (7+1 Seater AC)" data-rate="3600">Toyota Innova Crysta (7+1 Seater AC)</option>
+                  <option value="Maruti Suzuki Ertiga (6+1 Seater AC)" data-rate="2800" selected>Maruti Suzuki Ertiga (6+1 Seater AC)</option>
+                  <option value="Swift Dzire / Sedan (4+1 Seater AC)" data-rate="2200">Swift Dzire / Sedan (4+1 Seater AC)</option>
+                  <option value="Tempo Traveller (12/14 Seater AC)" data-rate="4800">Tempo Traveller (12/14 Seater AC)</option>
+                  <option value="Toyota Innova Standard (7-Seater AC)" data-rate="3200">Toyota Innova Standard (7-Seater AC)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Trip Type / Route *</label>
+                <select id="pubTaxiTripType" class="form-select" onchange="updatePubTaxiFare()">
+                  <option value="Local Sightseeing & Girivalam (8h / 80km)" data-mul="1" selected>Local Sightseeing &amp; Girivalam (8h / 80km)</option>
+                  <option value="Local Half Day (4h / 40km)" data-mul="0.7">Local Half Day (4h / 40km)</option>
+                  <option value="Chennai Airport (MAA) ↔ Arunachalam" data-fixed="4800">Chennai Airport (MAA) ↔ Arunachalam</option>
+                  <option value="Bengaluru Airport (BLR) ↔ Arunachalam" data-fixed="6200">Bengaluru Airport (BLR) ↔ Arunachalam</option>
+                  <option value="Pondicherry Day Trip" data-fixed="4200">Pondicherry Day Trip</option>
+                  <option value="Vellore Golden Temple Day Trip" data-fixed="3400">Vellore Golden Temple Day Trip</option>
+                  <option value="Outstation Round Trip (Custom)">Outstation Round Trip (Custom)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Your Full Name *</label>
+                <input type="text" id="pubTaxiName" class="form-control" placeholder="Devotee / Passenger Name" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Mobile / WhatsApp Number *</label>
+                <input type="tel" id="pubTaxiMobile" class="form-control" placeholder="e.g. 9010515341" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Pickup Date &amp; Time *</label>
+                <input type="datetime-local" id="pubTaxiDateTime" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Number of Passengers (Pax) *</label>
+                <input type="number" id="pubTaxiPax" class="form-control" value="4" min="1" max="25" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Pickup Location / Hotel / Station *</label>
+                <input type="text" id="pubTaxiPickup" class="form-control" placeholder="e.g. Arunachaleshwara Accommodation / Railway Station" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Drop Location / Destination</label>
+                <input type="text" id="pubTaxiDrop" class="form-control" placeholder="e.g. Temple / Girivalam / Chennai Airport">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Email Address</label>
+                <input type="email" id="pubTaxiEmail" class="form-control" placeholder="name@example.com">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Residential Address / City</label>
+                <input type="text" id="pubTaxiAddress" class="form-control" placeholder="City / Native place">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-dark">Special Requests / Flight / Train Details</label>
+                <textarea id="pubTaxiNotes" class="form-control" rows="2" placeholder="e.g. Flight/train number, extra luggage space, senior citizen assistance..."></textarea>
+              </div>
+
+              <!-- ID Document Upload Section -->
+              <div class="col-12">
+                <div id="taxiDocContainer"></div>
+              </div>
+
+              <!-- Estimated Fare Summary Box -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: #FAFAFA;">
+                  <div>
+                    <span class="small text-muted d-block">Estimated Trip Fare</span>
+                    <strong class="text-maroon fs-5" id="pubTaxiEstFare">₹2,800</strong>
+                    <span class="small text-muted ms-1">(Tolls &amp; Parking as applicable)</span>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i>Pay Driver Directly or UPI</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submission Buttons -->
+            <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-whatsapp fw-semibold" onclick="sendTaxiBookingViaWhatsApp()">
+                  <i class="bi bi-whatsapp me-1"></i> Book via WhatsApp
+                </button>
+                <button type="submit" class="btn fw-bold px-4" style="background: #FFC908; color: #45120E;">
+                  <i class="bi bi-check-lg me-1"></i> Confirm Booking
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Success Confirmation View -->
+          <div id="pubTaxiSuccessBox" class="d-none text-center py-4">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-maroon mb-1">Taxi Booking Confirmed!</h4>
+            <p class="text-muted mb-3">Your pilgrimage cab reservation has been received.</p>
+            <div class="p-3 rounded-3 border bg-light d-inline-block text-start mb-3" style="min-width: 280px;">
+              <div><strong>Booking ID:</strong> <span class="text-primary fw-bold" id="pubSuccessBookingId">ARN-TAXI-2026-00001</span></div>
+              <div><strong>Vehicle:</strong> <span id="pubSuccessVehicle">Ertiga (6+1 Seater AC)</span></div>
+              <div><strong>Date &amp; Time:</strong> <span id="pubSuccessDate">—</span></div>
+              <div><strong>Status:</strong> <span class="badge bg-success">Confirmed</span></div>
+            </div>
+            <div class="d-flex justify-content-center gap-2">
+              <a id="pubSuccessWaBtn" href="#" target="_blank" class="btn btn-whatsapp fw-bold">
+                <i class="bi bi-whatsapp me-1"></i> Share Details on WhatsApp
+              </a>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Global Footer -->
   <div id="siteFooter"></div>
 
   <!-- Supabase Dynamic Data Layer -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/supabase-config.js"></script>
+
+  <!-- Dynamic Guest Manager & Secure Document Uploader -->
+  <script src="assets/js/booking-helpers.js" defer></script>
 
   <!-- Site Components & Data -->
   <script src="assets/js/navigation.js" defer></script>

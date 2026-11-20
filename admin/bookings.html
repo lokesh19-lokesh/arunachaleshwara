@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <title>Bookings Management – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css">
 </head>
+
 <body class="admin-body">
 
   <div class="admin-wrapper">
@@ -28,7 +32,8 @@
             <div class="row g-3 align-items-end">
               <div class="col-md-3">
                 <label class="form-label small fw-bold text-muted">Search Booking / Customer</label>
-                <input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Booking ID, Name, Phone...">
+                <input type="text" id="filterSearch" class="form-control form-control-sm"
+                  placeholder="Booking ID, Name, Phone...">
               </div>
               <div class="col-md-2">
                 <label class="form-label small fw-bold text-muted">Booking Status</label>
@@ -56,15 +61,50 @@
               </div>
               <div class="col-md-2">
                 <label class="form-label small fw-bold text-muted">Category</label>
-                <select id="filterType" class="form-select form-select-sm" onchange="loadBookings()">
+                <select id="filterType" class="form-select form-select-sm" onchange="onCategoryFilterChange()">
                   <option value="accommodation">Accommodation</option>
-                  <option value="service">Services & Tours</option>
+                  <option value="taxi-rentals">🚖 Taxi &amp; Car Rentals</option>
+                  <option value="temple-darshan">🕉️ Temple Darshan</option>
+                  <option value="bus-booking">🚌 Bus Tickets</option>
+                  <option value="bike-rentals">🛵 Bike Rentals</option>
+                  <option value="service">🗺️ Other Services &amp; Tours</option>
                 </select>
               </div>
               <div class="col-md-3 d-flex gap-2">
-                <button class="btn btn-sm btn-admin-primary flex-grow-1" onclick="loadBookings()"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
-                <button class="btn btn-sm btn-admin-yellow" onclick="openWalkinModal()"><i class="bi bi-plus-lg"></i> Walk-in</button>
+                <button class="btn btn-sm btn-admin-primary flex-grow-1" onclick="loadBookings()"><i
+                    class="bi bi-funnel-fill me-1"></i> Filter</button>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openWalkinModal()"><i class="bi bi-plus-lg"></i>
+                  Walk-in</button>
               </div>
+            </div>
+
+            <!-- Category Quick Switch Pills -->
+            <div class="d-flex flex-wrap gap-2 mt-3 pt-3 border-top align-items-center">
+              <span class="small fw-bold text-muted me-1"><i class="bi bi-grid-fill me-1"></i>Quick Switch:</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary active fw-semibold" id="pill_accommodation"
+                onclick="setBookingCategory('accommodation')">
+                <i class="bi bi-building me-1 text-warning"></i>Accommodation
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="pill_taxi-rentals"
+                onclick="setBookingCategory('taxi-rentals')">
+                <i class="bi bi-car-front-fill me-1 text-warning"></i>Taxi &amp; Car Rentals
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="pill_temple-darshan"
+                onclick="setBookingCategory('temple-darshan')">
+                <i class="bi bi-flower1 me-1 text-danger"></i>Temple Darshan
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="pill_bus-booking"
+                onclick="setBookingCategory('bus-booking')">
+                <i class="bi bi-bus-front me-1 text-primary"></i>Bus Tickets
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="pill_bike-rentals"
+                onclick="setBookingCategory('bike-rentals')">
+                <i class="bi bi-bicycle me-1 text-success"></i>Bike Rentals
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold" id="pill_service"
+                onclick="setBookingCategory('service')">
+                <i class="bi bi-compass me-1 text-info"></i>Other Services
+              </button>
             </div>
           </div>
         </div>
@@ -72,7 +112,8 @@
         <!-- Bookings Data Table -->
         <div class="admin-card">
           <div class="admin-card-header">
-            <h6 class="admin-card-title"><i class="bi bi-calendar-check-fill text-warning"></i> <span id="tableTitle">Accommodation Bookings</span></h6>
+            <h6 class="admin-card-title"><i class="bi bi-calendar-check-fill text-warning"></i> <span
+                id="tableTitle">Accommodation Bookings</span></h6>
             <span class="badge bg-secondary" id="bookingsCountBadge">0 bookings</span>
           </div>
           <div class="table-responsive">
@@ -81,15 +122,17 @@
                 <tr>
                   <th>Booking ID</th>
                   <th>Customer</th>
-                  <th>Accommodation / Details</th>
-                  <th>Dates / Guests</th>
+                  <th id="colTitleDetails">Accommodation / Details</th>
+                  <th id="colTitleDates">Dates / Guests</th>
                   <th>Financials</th>
                   <th>Status</th>
                   <th class="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody id="bookingsTableBody">
-                <tr><td colspan="7" class="text-center py-5 text-muted">Loading bookings from Supabase...</td></tr>
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">Loading bookings from Supabase...</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -103,7 +146,8 @@
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
         <div class="modal-header modal-header-admin">
-          <h5 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2 text-warning"></i>Manage Booking: <span id="modalBookingCode">—</span></h5>
+          <h5 class="modal-title fw-bold"><i class="bi bi-calendar-event me-2 text-warning"></i>Manage Booking: <span
+              id="modalBookingCode">—</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4" id="bookingModalBody">
@@ -118,17 +162,23 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content border-0 shadow-lg">
         <div class="modal-header modal-header-admin">
-          <h5 class="modal-title fw-bold" id="walkinModalTitle"><i class="bi bi-plus-circle me-2"></i>Create Walk-In / Phone Booking</h5>
+          <h5 class="modal-title fw-bold" id="walkinModalTitle"><i class="bi bi-plus-circle me-2"></i>Create Walk-In /
+            Phone Booking</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-4">
           <form id="walkinBookingForm">
             <div class="row g-3">
               <div class="col-12">
-                <label class="form-label small fw-bold">Booking Type *</label>
-                <select id="wBookingType" class="form-select" onchange="toggleWalkinBookingType()">
+                <label class="form-label small fw-bold">Booking Category *</label>
+                <select id="wBookingType" class="form-select fw-semibold" onchange="toggleWalkinBookingType()">
                   <option value="accommodation">Accommodation (Room Booking)</option>
-                  <option value="service">Services &amp; Tours (Darshan / Taxi / Packages / Tickets)</option>
+                  <option value="taxi-rentals">🚖 Taxi &amp; Car Rentals (Innova, Ertiga, Sedan, Tempo)</option>
+                  <option value="temple-darshan">🕉️ Temple Darshan Services (Abhishekam / Archana / Quick Darshan)
+                  </option>
+                  <option value="bus-booking">🚌 Bus Ticket Booking (Hyderabad &amp; Vijayawada)</option>
+                  <option value="bike-rentals">🛵 Bike Rentals (6 Hrs @ ₹300 / 12 Hrs @ ₹600)</option>
+                  <option value="service">🗺️ Tour Packages &amp; Other Services</option>
                 </select>
               </div>
               <div class="col-md-6">
@@ -154,11 +204,13 @@
                   <div class="row g-2 align-items-end">
                     <div class="col-md-6">
                       <label class="form-label small fw-bold mb-1">Custom Category Name *</label>
-                      <input type="text" id="wCustomCatName" class="form-control form-control-sm" placeholder="e.g. AC Family Suite / Group Hall">
+                      <input type="text" id="wCustomCatName" class="form-control form-control-sm"
+                        placeholder="e.g. AC Family Suite / Group Hall">
                     </div>
                     <div class="col-md-4">
                       <label class="form-label small fw-bold mb-1">Rate per Night (₹) *</label>
-                      <input type="number" id="wCustomCatPrice" class="form-control form-control-sm" placeholder="e.g. 2500" min="0" step="50">
+                      <input type="number" id="wCustomCatPrice" class="form-control form-control-sm"
+                        placeholder="e.g. 2500" min="0" step="50">
                     </div>
                     <div class="col-md-2">
                       <div class="form-check mt-2">
@@ -190,9 +242,185 @@
               <div class="col-12 d-none walkin-srv-field" id="wCustomServiceBox">
                 <div class="p-3 rounded-3 border bg-light">
                   <label class="form-label small fw-bold mb-1">Custom Service / Tour Name *</label>
-                  <input type="text" id="wCustomSrvName" class="form-control form-control-sm" placeholder="e.g. Special Girivalam Guided Tour / Airport Pickup">
+                  <input type="text" id="wCustomSrvName" class="form-control form-control-sm"
+                    placeholder="e.g. Special Girivalam Guided Tour / Airport Pickup">
                 </div>
               </div>
+
+              <!-- Temple Darshan-specific fields -->
+              <div class="col-md-6 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Temple Seva / Ritual *</label>
+                <select id="wDarshanSeva" class="form-select" onchange="calculateDarshanAmount()">
+                  <option value="Abhishekam Seva (Morning 06:00 AM)" data-price="1500" selected>Abhishekam Seva (₹1,500
+                    - Holy bathing with priest)</option>
+                  <option value="Archana Seva" data-price="250">Archana Seva (₹250 - 108/1008 divine names chanting)
+                  </option>
+                  <option value="Quick Darshan Assistance" data-price="500">Quick Darshan Assistance (₹500 - Priority
+                    entry escort)</option>
+                  <option value="Girivalam Pilgrimage Support" data-price="800">Girivalam Pilgrimage Support (₹800 - 14
+                    km guidance)</option>
+                  <option value="__custom__" data-price="500">+ Custom Seva / Ritual...</option>
+                </select>
+              </div>
+              <div class="col-md-3 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Darshan Date *</label>
+                <input type="date" id="wDarshanDate" class="form-control">
+              </div>
+              <div class="col-md-3 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Preferred Time Slot *</label>
+                <select id="wDarshanSlot" class="form-select">
+                  <option value="Morning 06:00 AM - 08:30 AM">Morning 06:00 AM - 08:30 AM</option>
+                  <option value="Morning 09:00 AM - 11:30 AM">Morning 09:00 AM - 11:30 AM</option>
+                  <option value="Evening 04:30 PM - 07:00 PM">Evening 04:30 PM - 07:00 PM</option>
+                  <option value="Night 07:30 PM - 09:00 PM">Night 07:30 PM - 09:00 PM</option>
+                  <option value="Pournami / Special Darshan">Pournami / Special Darshan</option>
+                </select>
+              </div>
+              <div class="col-md-4 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Number of Devotees *</label>
+                <input type="number" id="wDarshanDevotees" class="form-control" value="2" min="1" max="50"
+                  oninput="calculateDarshanAmount()">
+              </div>
+              <div class="col-md-4 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Total Estimated (₹) *</label>
+                <input type="number" id="wDarshanAmount" class="form-control" value="1500" min="0" step="50">
+              </div>
+              <div class="col-md-4 walkin-darshan-field d-none">
+                <label class="form-label small fw-bold">Meeting / Assembly Point</label>
+                <input type="text" id="wDarshanMeeting" class="form-control"
+                  placeholder="e.g. Arunachaleswarar Temple Rajagopuram">
+              </div>
+
+              <!-- Bus Ticket Booking-specific fields -->
+              <div class="col-md-6 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Bus Route *</label>
+                <select id="wBusRoute" class="form-select" onchange="onBusRouteChange()">
+                  <option value="Hyderabad ↔ Arunachalam (Round Trip)">Hyderabad ↔ Arunachalam (Round Trip)</option>
+                  <option value="Vijayawada ↔ Arunachalam (Round Trip)">Vijayawada ↔ Arunachalam (Round Trip)</option>
+                  <option value="__custom__">+ Custom Route...</option>
+                </select>
+              </div>
+              <div class="col-md-3 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Departure Timing *</label>
+                <select id="wBusTiming" class="form-select" onchange="calculateBusAmount()"></select>
+              </div>
+              <div class="col-md-3 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Travel Date *</label>
+                <input type="date" id="wBusDate" class="form-control">
+              </div>
+              <div class="col-md-4 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Coach / Seat Type *</label>
+                <select id="wBusCoach" class="form-select" onchange="calculateBusAmount()">
+                  <option value="AC Sleeper Coach" data-rate="1400">AC Sleeper Coach (₹1,400 / seat)</option>
+                  <option value="Non-AC Sleeper Coach" data-rate="1100" selected>Non-AC Sleeper Coach (₹1,100 / seat)
+                  </option>
+                  <option value="Semi-Sleeper Seater" data-rate="900">Semi-Sleeper Seater (₹900 / seat)</option>
+                </select>
+              </div>
+              <div class="col-md-4 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Seats (Pax) *</label>
+                <input type="number" id="wBusSeats" class="form-control" value="2" min="1" max="50"
+                  oninput="calculateBusAmount()">
+              </div>
+              <div class="col-md-4 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Total Fare (₹) *</label>
+                <input type="number" id="wBusAmount" class="form-control" value="2200" min="0" step="50">
+              </div>
+              <div class="col-12 walkin-bus-field d-none">
+                <label class="form-label small fw-bold">Boarding / Pickup Location</label>
+                <input type="text" id="wBusBoarding" class="form-control"
+                  placeholder="e.g. Hyderabad MGBS / Ameerpet or Vijayawada Benz Circle">
+              </div>
+
+              <!-- Taxi & Car Rentals-specific fields -->
+              <div class="col-md-6 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Vehicle Model &amp; Seating *</label>
+                <select id="wTaxiVehicle" class="form-select" onchange="calculateTaxiAmount()">
+                  <option value="Toyota Innova Crysta (7+1 Seater AC)" data-rate="3600">Toyota Innova Crysta (7+1 Seater
+                    AC)</option>
+                  <option value="Maruti Suzuki Ertiga (6+1 Seater AC)" data-rate="2800" selected>Maruti Suzuki Ertiga
+                    (6+1 Seater AC)</option>
+                  <option value="Swift Dzire / Sedan (4+1 Seater AC)" data-rate="2200">Swift Dzire / Sedan (4+1 Seater
+                    AC)</option>
+                  <option value="Tempo Traveller (12/14 Seater AC)" data-rate="4800">Tempo Traveller (12/14 Seater AC)
+                  </option>
+                  <option value="Toyota Innova Standard (7-Seater AC)" data-rate="3200">Toyota Innova Standard (7-Seater
+                    AC)</option>
+                </select>
+              </div>
+              <div class="col-md-6 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Trip Package / Route *</label>
+                <select id="wTaxiTripType" class="form-select" onchange="calculateTaxiAmount()">
+                  <option value="Local Sightseeing &amp; Girivalam (8h / 80km)" data-mul="1" selected>Local Sightseeing
+                    &amp; Girivalam (8h / 80km)</option>
+                  <option value="Local Half Day (4h / 40km)" data-mul="0.7">Local Half Day (4h / 40km)</option>
+                  <option value="Chennai Airport (MAA) Transfer" data-fixed="4800">Chennai Airport (MAA) Transfer
+                  </option>
+                  <option value="Bengaluru Airport (BLR) Transfer" data-fixed="6200">Bengaluru Airport (BLR) Transfer
+                  </option>
+                  <option value="Pondicherry Day Trip" data-fixed="4200">Pondicherry Day Trip</option>
+                  <option value="Vellore Golden Temple Day Trip" data-fixed="3400">Vellore Golden Temple Day Trip
+                  </option>
+                  <option value="Outstation Round Trip (Custom)">Outstation Round Trip (Custom)</option>
+                </select>
+              </div>
+              <div class="col-md-4 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Pickup Date &amp; Time *</label>
+                <input type="datetime-local" id="wTaxiPickupTime" class="form-control">
+              </div>
+              <div class="col-md-4 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Passengers (Pax) *</label>
+                <input type="number" id="wTaxiPassengers" class="form-control" value="4" min="1" max="25">
+              </div>
+              <div class="col-md-4 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Estimated Fare (₹) *</label>
+                <input type="number" id="wTaxiAmount" class="form-control" value="2800" min="0" step="50">
+              </div>
+              <div class="col-md-6 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Pickup Address / Point</label>
+                <input type="text" id="wTaxiPickupLoc" class="form-control"
+                  placeholder="e.g. Arunachaleshwara Accommodation / Bus Stand">
+              </div>
+              <div class="col-md-6 walkin-taxi-field d-none">
+                <label class="form-label small fw-bold">Drop Destination</label>
+                <input type="text" id="wTaxiDropLoc" class="form-control"
+                  placeholder="e.g. Girivalam / Chennai Airport">
+              </div>
+
+              <!-- Bike Rentals-specific fields -->
+              <div class="col-md-6 walkin-bike-field d-none">
+                <label class="form-label small fw-bold">Rental Duration Package *</label>
+                <select id="wBikeDuration" class="form-select" onchange="calculateBikeAmount()">
+                  <option value="6 Hours Rental — ₹300" data-rate="300" selected>6 Hours Rental — ₹300</option>
+                  <option value="12 Hours Rental — ₹600" data-rate="600">12 Hours Rental — ₹600</option>
+                  <option value="24 Hours / Full Day — ₹1,000" data-rate="1000">24 Hours / Full Day — ₹1,000</option>
+                  <option value="__custom__" data-rate="400">+ Custom Duration / Hours...</option>
+                </select>
+              </div>
+              <div class="col-md-3 walkin-bike-field d-none">
+                <label class="form-label small fw-bold">Number of Bikes *</label>
+                <input type="number" id="wBikeCount" class="form-control" value="1" min="1" max="20"
+                  oninput="calculateBikeAmount()">
+              </div>
+              <div class="col-md-3 walkin-bike-field d-none">
+                <label class="form-label small fw-bold">Total Rental (₹) *</label>
+                <input type="number" id="wBikeAmount" class="form-control" value="300" min="0" step="50">
+              </div>
+              <div class="col-md-6 walkin-bike-field d-none">
+                <label class="form-label small fw-bold">Two-Wheeler Model</label>
+                <select id="wBikeModel" class="form-select">
+                  <option value="Honda Activa 6G">Honda Activa 6G (Automatic Scooter)</option>
+                  <option value="TVS Jupiter 125">TVS Jupiter 125 (Comfort Scooter)</option>
+                  <option value="Hero Pleasure+">Hero Pleasure+ (Lightweight)</option>
+                  <option value="Royal Enfield Bullet 350">Royal Enfield Bullet 350 (Geared Motorcycle)</option>
+                </select>
+              </div>
+              <div class="col-md-6 walkin-bike-field d-none">
+                <label class="form-label small fw-bold">Pickup Date & Time *</label>
+                <input type="datetime-local" id="wBikePickupTime" class="form-control">
+              </div>
+
+              <!-- General Service fields -->
               <div class="col-md-4 walkin-srv-field d-none">
                 <label class="form-label small fw-bold">Travel / Service Date *</label>
                 <input type="date" id="wTravelDate" class="form-control">
@@ -207,7 +435,8 @@
               </div>
               <div class="col-md-6 walkin-srv-field d-none">
                 <label class="form-label small fw-bold">Pickup Location</label>
-                <input type="text" id="wPickupLocation" class="form-control" placeholder="e.g. Tiruvannamalai Temple / Bus Stand">
+                <input type="text" id="wPickupLocation" class="form-control"
+                  placeholder="e.g. Tiruvannamalai Temple / Bus Stand">
               </div>
               <div class="col-md-6 walkin-srv-field d-none">
                 <label class="form-label small fw-bold">Vehicle Type</label>
@@ -315,50 +544,135 @@
       }
     }
 
+    const BUS_TIMINGS = {
+      'hyderabad': [
+        '03:20 PM', '04:00 PM', '05:10 PM', '05:30 PM', '06:00 PM',
+        '06:40 PM', '07:00 PM', '08:20 PM', '09:10 PM', '10:00 PM'
+      ],
+      'vijayawada': [
+        '06:30 PM', '07:00 PM', '07:30 PM', '08:40 PM', '10:00 PM', '11:00 PM'
+      ]
+    };
+
+    function setBookingCategory(cat) {
+      document.getElementById('filterType').value = cat;
+      onCategoryFilterChange();
+    }
+
+    function onCategoryFilterChange() {
+      const cat = document.getElementById('filterType').value;
+      ['accommodation', 'temple-darshan', 'bus-booking', 'bike-rentals', 'service'].forEach(c => {
+        const el = document.getElementById('pill_' + c);
+        if (el) el.classList.toggle('active', c === cat);
+      });
+      loadBookings();
+    }
+
+    function onBusRouteChange() {
+      const routeVal = (document.getElementById('wBusRoute')?.value || '').toLowerCase();
+      const timingSelect = document.getElementById('wBusTiming');
+      if (!timingSelect) return;
+      const list = routeVal.includes('vijayawada') ? BUS_TIMINGS['vijayawada'] : BUS_TIMINGS['hyderabad'];
+      timingSelect.innerHTML = list.map(t => `<option value="${t}">${t}</option>`).join('');
+      calculateBusAmount();
+    }
+
+    function calculateBusAmount() {
+      const coachSelect = document.getElementById('wBusCoach');
+      const opt = coachSelect?.options[coachSelect.selectedIndex];
+      const rate = parseFloat(opt?.dataset.rate || 1100);
+      const seats = parseInt(document.getElementById('wBusSeats')?.value) || 1;
+      const amountEl = document.getElementById('wBusAmount');
+      if (amountEl) amountEl.value = rate * seats;
+    }
+
+    function calculateDarshanAmount() {
+      const sevaSelect = document.getElementById('wDarshanSeva');
+      const opt = sevaSelect?.options[sevaSelect.selectedIndex];
+      const price = parseFloat(opt?.dataset.price || 1500);
+      const amountEl = document.getElementById('wDarshanAmount');
+      if (amountEl) amountEl.value = price;
+    }
+
+    function calculateBikeAmount() {
+      const durationSelect = document.getElementById('wBikeDuration');
+      const opt = durationSelect?.options[durationSelect.selectedIndex];
+      const rate = parseFloat(opt?.dataset.rate || 300);
+      const count = parseInt(document.getElementById('wBikeCount')?.value) || 1;
+      const amountEl = document.getElementById('wBikeAmount');
+      if (amountEl) amountEl.value = rate * count;
+    }
+
     function openWalkinModal() {
       const currentFilter = document.getElementById('filterType').value;
-      document.getElementById('wBookingType').value = currentFilter === 'service' ? 'service' : 'accommodation';
+      document.getElementById('wBookingType').value = currentFilter;
       toggleWalkinBookingType();
       new bootstrap.Modal(document.getElementById('newBookingModal')).show();
     }
 
     function toggleWalkinBookingType() {
       const type = document.getElementById('wBookingType').value;
-      const isAcc = type === 'accommodation';
 
-      document.getElementById('walkinModalTitle').innerHTML = isAcc
-        ? '<i class="bi bi-building-add me-2"></i>Create Walk-In / Phone Room Booking'
-        : '<i class="bi bi-compass me-2"></i>Create Service / Tour Package Booking';
+      const titles = {
+        'accommodation': '<i class="bi bi-building-add me-2 text-warning"></i>Create Accommodation / Room Booking',
+        'temple-darshan': '<i class="bi bi-flower1 me-2 text-danger"></i>Book Temple Darshan / Seva Assistance',
+        'bus-booking': '<i class="bi bi-bus-front me-2 text-primary"></i>Book Bus Tickets (Hyderabad &amp; Vijayawada)',
+        'bike-rentals': '<i class="bi bi-bicycle me-2 text-success"></i>Book Two-Wheeler / Bike Rental',
+        'service': '<i class="bi bi-compass me-2 text-info"></i>Create Tour Package / Service Booking'
+      };
+      document.getElementById('walkinModalTitle').innerHTML = titles[type] || titles['accommodation'];
 
-      document.querySelectorAll('.walkin-acc-field').forEach(el => {
-        if (el.id === 'wCustomCategoryBox') return;
-        el.classList.toggle('d-none', !isAcc);
-      });
-      document.querySelectorAll('.walkin-srv-field').forEach(el => {
-        if (el.id === 'wCustomServiceBox') return;
-        el.classList.toggle('d-none', isAcc);
-      });
+      // Hide all specific sections
+      document.querySelectorAll('.walkin-acc-field').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.walkin-darshan-field').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.walkin-bus-field').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.walkin-bike-field').forEach(el => el.classList.add('d-none'));
+      document.querySelectorAll('.walkin-srv-field').forEach(el => el.classList.add('d-none'));
 
-      // Toggle required attributes appropriately
-      document.getElementById('wCategory').required = isAcc;
-      document.getElementById('wCheckIn').required = isAcc;
-      document.getElementById('wCheckOut').required = isAcc;
-      document.getElementById('wGuests').required = isAcc;
+      // Reset required attributes
+      document.getElementById('wCategory').required = false;
+      document.getElementById('wCheckIn').required = false;
+      document.getElementById('wCheckOut').required = false;
+      document.getElementById('wGuests').required = false;
 
-      document.getElementById('wServiceSelect').required = !isAcc;
-      document.getElementById('wTravelDate').required = !isAcc;
-      document.getElementById('wPassengers').required = !isAcc;
-      document.getElementById('wServiceAmount').required = !isAcc;
-
-      if (isAcc) {
-        document.getElementById('wCustomServiceBox').classList.add('d-none');
-        document.getElementById('wCustomSrvName').required = false;
+      if (type === 'accommodation') {
+        document.querySelectorAll('.walkin-acc-field').forEach(el => {
+          if (el.id === 'wCustomCategoryBox') return;
+          el.classList.remove('d-none');
+        });
+        document.getElementById('wCategory').required = true;
+        document.getElementById('wCheckIn').required = true;
+        document.getElementById('wCheckOut').required = true;
+        document.getElementById('wGuests').required = true;
         toggleWalkinCustomCategory();
+      } else if (type === 'temple-darshan') {
+        document.querySelectorAll('.walkin-darshan-field').forEach(el => el.classList.remove('d-none'));
+        if (!document.getElementById('wDarshanDate').value) {
+          document.getElementById('wDarshanDate').value = new Date().toISOString().split('T')[0];
+        }
+        calculateDarshanAmount();
+      } else if (type === 'bus-booking') {
+        document.querySelectorAll('.walkin-bus-field').forEach(el => el.classList.remove('d-none'));
+        if (!document.getElementById('wBusDate').value) {
+          document.getElementById('wBusDate').value = new Date().toISOString().split('T')[0];
+        }
+        onBusRouteChange();
+      } else if (type === 'bike-rentals') {
+        document.querySelectorAll('.walkin-bike-field').forEach(el => el.classList.remove('d-none'));
+        if (!document.getElementById('wBikePickupTime').value) {
+          const now = new Date();
+          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+          document.getElementById('wBikePickupTime').value = now.toISOString().slice(0, 16);
+        }
+        calculateBikeAmount();
       } else {
-        document.getElementById('wCustomCategoryBox').classList.add('d-none');
-        document.getElementById('wCustomCatName').required = false;
-        document.getElementById('wCustomCatPrice').required = false;
-        toggleWalkinCustomService();
+        document.querySelectorAll('.walkin-srv-field').forEach(el => {
+          if (el.id === 'wCustomServiceBox') return;
+          el.classList.remove('d-none');
+        });
+        if (!document.getElementById('wTravelDate').value) {
+          document.getElementById('wTravelDate').value = new Date().toISOString().split('T')[0];
+        }
       }
     }
 
@@ -389,20 +703,212 @@
       const payStatus = document.getElementById('filterPayment').value;
       const search = document.getElementById('filterSearch').value.trim().toLowerCase();
 
-      document.getElementById('tableTitle').textContent = type === 'accommodation' ? 'Accommodation Bookings' : 'Service & Tour Bookings';
-      const table = type === 'accommodation' ? 'accommodation_bookings' : 'service_bookings';
+      // Dynamic titles and column names
+      const titles = {
+        'accommodation': 'Accommodation Bookings',
+        'temple-darshan': '🕉️ Temple Darshan Bookings',
+        'bus-booking': '🚌 Bus Ticket Bookings',
+        'bike-rentals': '🛵 Bike Rental Bookings',
+        'service': '🗺️ Services & Tour Bookings'
+      };
+      const colDetails = {
+        'accommodation': 'Accommodation / Room',
+        'temple-darshan': 'Darshan Seva / Ritual',
+        'bus-booking': 'Bus Route & Timing',
+        'bike-rentals': 'Rental Package & Model',
+        'service': 'Service / Tour Details'
+      };
+      const colDates = {
+        'accommodation': 'Stay Dates / Guests',
+        'temple-darshan': 'Darshan Date • Devotees',
+        'bus-booking': 'Travel Date • Seats (Pax)',
+        'bike-rentals': 'Pickup Date & Time • Bikes',
+        'service': 'Travel Date • Pax'
+      };
 
-      let query = sb.from(table).select('*').order('created_at', { ascending: false });
-      if (status !== 'all') query = query.eq('booking_status', status);
-      if (payStatus !== 'all') query = query.eq('payment_status', payStatus);
+      document.getElementById('tableTitle').textContent = titles[type] || 'Bookings';
+      if (document.getElementById('colTitleDetails')) document.getElementById('colTitleDetails').textContent = colDetails[type] || 'Details';
+      if (document.getElementById('colTitleDates')) document.getElementById('colTitleDates').textContent = colDates[type] || 'Dates';
 
-      const { data, error } = await query;
-      if (error) {
-        showAdminToast('Error fetching bookings: ' + error.message, 'error');
-        return;
+      let rows = [];
+
+      if (type === 'accommodation') {
+        if (sb) {
+          try {
+            let query = sb.from('accommodation_bookings').select('*').order('created_at', { ascending: false });
+            if (status !== 'all') query = query.eq('booking_status', status);
+            if (payStatus !== 'all') query = query.eq('payment_status', payStatus);
+            const { data, error } = await query;
+            if (!error && Array.isArray(data)) rows = data;
+          } catch (e) {
+            console.warn('Accommodation fetch error:', e);
+          }
+        }
+      } else {
+        // Fetch from service_bookings
+        let dbRows = [];
+        if (sb) {
+          try {
+            let query = sb.from('service_bookings').select('*').order('created_at', { ascending: false });
+            if (status !== 'all') query = query.eq('booking_status', status);
+            if (payStatus !== 'all') query = query.eq('payment_status', payStatus);
+            const { data, error } = await query;
+            if (!error && Array.isArray(data) && data.length > 0) dbRows = data;
+          } catch (e) {
+            console.warn('Service bookings fetch error:', e);
+          }
+        }
+
+        // Combine with local service bookings
+        let localSrv = [];
+        try {
+          const raw = localStorage.getItem('arn_service_bookings');
+          if (raw) localSrv = JSON.parse(raw);
+        } catch (e) { }
+
+        // If both are empty, seed baseline records matching the handwritten notes!
+        if ((!dbRows || dbRows.length === 0) && (!localSrv || localSrv.length === 0)) {
+          localSrv = [
+            {
+              id: 'seed-srv-1',
+              booking_id: 'ARN-DARSHAN-2026-00001',
+              service_id: 'temple-darshan',
+              service_title: 'Abhishekam Seva (Morning 06:00 AM)',
+              customer_name: 'Maddiboina Lokesh',
+              mobile: '7995214006',
+              email: 'lokesh@gmail.com',
+              travel_date: '2026-11-21',
+              passengers: 2,
+              vehicle_type: 'Morning 06:00 AM - 08:30 AM',
+              pickup_location: 'Arunachaleswarar Temple Rajagopuram',
+              estimated_amount: 1500,
+              amount_paid: 1500,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 5).toISOString()
+            },
+            {
+              id: 'seed-srv-2',
+              booking_id: 'ARN-DARSHAN-2026-00002',
+              service_id: 'temple-darshan',
+              service_title: 'Archana Seva & Quick Darshan',
+              customer_name: 'Devotee Ananya',
+              mobile: '919010515341',
+              email: 'ananya@devotee.com',
+              travel_date: '2026-11-22',
+              passengers: 4,
+              vehicle_type: 'Morning 09:00 AM - 11:30 AM',
+              pickup_location: 'Arunachaleswarar Temple East Gate',
+              estimated_amount: 750,
+              amount_paid: 750,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 12).toISOString()
+            },
+            {
+              id: 'seed-srv-3',
+              booking_id: 'ARN-BUS-2026-00001',
+              service_id: 'bus-ticket-booking',
+              service_title: 'Hyderabad ↔ Arunachalam (03:20 PM)',
+              customer_name: 'gujjarlapudi andhra jyothi',
+              mobile: '9989646627',
+              email: 'jyothi@gmail.com',
+              travel_date: '2026-11-23',
+              passengers: 2,
+              vehicle_type: 'AC Sleeper Coach | 03:20 PM',
+              pickup_location: 'Hyderabad MGBS Bus Stand',
+              estimated_amount: 2800,
+              amount_paid: 1400,
+              balance_amount: 1400,
+              booking_status: 'Confirmed',
+              payment_status: 'Partially Paid',
+              created_at: new Date(Date.now() - 3600000 * 20).toISOString()
+            },
+            {
+              id: 'seed-srv-4',
+              booking_id: 'ARN-BUS-2026-00002',
+              service_id: 'bus-ticket-booking',
+              service_title: 'Vijayawada ↔ Arunachalam (06:30 PM)',
+              customer_name: 'Devotee Ramesh',
+              mobile: '9876543210',
+              email: 'ramesh@devotee.com',
+              travel_date: '2026-11-24',
+              passengers: 1,
+              vehicle_type: 'Non-AC Sleeper Coach | 06:30 PM',
+              pickup_location: 'Vijayawada Pandit Nehru Bus Station',
+              estimated_amount: 1100,
+              amount_paid: 1100,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 30).toISOString()
+            },
+            {
+              id: 'seed-srv-5',
+              booking_id: 'ARN-BIKE-2026-00001',
+              service_id: 'bike-rentals',
+              service_title: '12 Hours Rental (₹600)',
+              customer_name: 'Devotee Suresh',
+              mobile: '9010515341',
+              email: 'suresh@devotee.com',
+              travel_date: '2026-11-20',
+              passengers: 1,
+              vehicle_type: 'Honda Activa 6G (TN-25-BK-101)',
+              pickup_location: 'Tiruvannamalai Office Desk',
+              estimated_amount: 600,
+              amount_paid: 600,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+            },
+            {
+              id: 'seed-srv-6',
+              booking_id: 'ARN-BIKE-2026-00002',
+              service_id: 'bike-rentals',
+              service_title: '6 Hours Rental (₹300)',
+              customer_name: 'Devotee Vignesh',
+              mobile: '9840123456',
+              email: 'vignesh@gmail.com',
+              travel_date: '2026-11-20',
+              passengers: 2,
+              vehicle_type: 'TVS Jupiter 125 (TN-25-BK-102)',
+              pickup_location: 'Tiruvannamalai Railway Station',
+              estimated_amount: 600,
+              amount_paid: 0,
+              balance_amount: 600,
+              booking_status: 'Pending Request',
+              payment_status: 'Not Paid',
+              created_at: new Date(Date.now() - 3600000 * 4).toISOString()
+            }
+          ];
+          try { localStorage.setItem('arn_service_bookings', JSON.stringify(localSrv)); } catch (e) { }
+        }
+
+        // Merge DB and local
+        const allSrv = [...dbRows];
+        const existingIds = new Set(allSrv.map(r => r.booking_id));
+        localSrv.forEach(l => {
+          if (!existingIds.has(l.booking_id)) allSrv.push(l);
+        });
+
+        // Filter by specific category
+        if (type === 'temple-darshan') {
+          rows = allSrv.filter(r => r.service_id === 'temple-darshan' || (r.service_title || '').toLowerCase().includes('darshan') || (r.service_title || '').toLowerCase().includes('seva') || (r.service_title || '').toLowerCase().includes('abhishekam') || (r.service_title || '').toLowerCase().includes('archana'));
+        } else if (type === 'bus-booking') {
+          rows = allSrv.filter(r => r.service_id === 'bus-ticket-booking' || (r.service_title || '').toLowerCase().includes('bus') || (r.service_title || '').toLowerCase().includes('ticket') || (r.service_title || '').toLowerCase().includes('hyderabad') || (r.service_title || '').toLowerCase().includes('vijayawada'));
+        } else if (type === 'bike-rentals') {
+          rows = allSrv.filter(r => r.service_id === 'bike-rentals' || (r.service_title || '').toLowerCase().includes('bike') || (r.service_title || '').toLowerCase().includes('rental') || (r.service_title || '').toLowerCase().includes('hours'));
+        } else {
+          rows = allSrv;
+        }
+
+        if (status !== 'all') rows = rows.filter(r => r.booking_status === status);
+        if (payStatus !== 'all') rows = rows.filter(r => r.payment_status === payStatus);
       }
 
-      let rows = data || [];
       if (search) {
         rows = rows.filter(r =>
           (r.booking_id || '').toLowerCase().includes(search) ||
@@ -416,18 +922,30 @@
 
       const tbody = document.getElementById('bookingsTableBody');
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">No bookings match your current filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-3 d-block text-secondary mb-2"></i>No bookings match your current filters.</td></tr>';
         return;
       }
 
       tbody.innerHTML = rows.map(b => {
-        const roomDesc = type === 'accommodation'
-          ? `<strong>${b.category_name || 'Room'}</strong><br><small class="text-muted">${b.allocated_room_number ? 'Room #' + b.allocated_room_number : 'Unallocated'}</small>`
-          : `<strong>${b.service_title || 'Service'}</strong><br><small class="text-muted">${b.vehicle_type || b.pickup_location || ''}</small>`;
+        let itemDesc = '';
+        let dateDesc = '';
 
-        const dateDesc = type === 'accommodation'
-          ? `<span>${formatDate(b.check_in)} → ${formatDate(b.check_out)}</span><br><small class="text-muted">${b.nights} Night(s) • ${b.guests} Guests</small>`
-          : `<span>${formatDate(b.travel_date)}</span><br><small class="text-muted">${b.passengers || 1} Pax</small>`;
+        if (type === 'accommodation') {
+          itemDesc = `<strong>${b.category_name || 'Room'}</strong><br><small class="text-muted">${b.allocated_room_number ? 'Room #' + b.allocated_room_number : '<span class="text-danger">Unallocated</span>'}</small>`;
+          dateDesc = `<span>${formatDate(b.check_in)} → ${formatDate(b.check_out)}</span><br><small class="text-muted">${b.nights} Night(s) • ${b.guests} Guests</small>`;
+        } else if (type === 'temple-darshan') {
+          itemDesc = `<strong class="text-maroon"><i class="bi bi-flower1 text-danger me-1"></i>${b.service_title}</strong><br><small class="badge bg-light text-dark border">${b.vehicle_type || 'Morning Slot'}</small>`;
+          dateDesc = `<span><i class="bi bi-calendar-event me-1 text-primary"></i>${formatDate(b.travel_date)}</span><br><small class="text-muted">${b.passengers || 1} Devotee(s)</small>`;
+        } else if (type === 'bus-booking') {
+          itemDesc = `<strong class="text-primary"><i class="bi bi-bus-front text-primary me-1"></i>${b.service_title}</strong><br><small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${b.pickup_location || 'Boarding Point'}</small>`;
+          dateDesc = `<span><i class="bi bi-calendar-event me-1 text-primary"></i>${formatDate(b.travel_date)}</span><br><small class="badge bg-primary-subtle text-primary border border-primary-subtle">${b.passengers || 1} Seat(s)</small>`;
+        } else if (type === 'bike-rentals') {
+          itemDesc = `<strong class="text-success"><i class="bi bi-bicycle text-success me-1"></i>${b.service_title}</strong><br><small class="text-muted">${b.vehicle_type || 'Activa 6G'}</small>`;
+          dateDesc = `<span><i class="bi bi-calendar-event me-1 text-primary"></i>${formatDate(b.travel_date)}</span><br><small class="badge bg-success-subtle text-success border border-success-subtle">${b.passengers || 1} Two-Wheeler(s)</small>`;
+        } else {
+          itemDesc = `<strong>${b.service_title || 'Service'}</strong><br><small class="text-muted">${b.vehicle_type || b.pickup_location || ''}</small>`;
+          dateDesc = `<span>${formatDate(b.travel_date)}</span><br><small class="text-muted">${b.passengers || 1} Pax</small>`;
+        }
 
         return `
           <tr>
@@ -439,7 +957,7 @@
               <div class="fw-semibold">${b.customer_name}</div>
               <div class="small text-muted"><i class="bi bi-telephone me-1"></i>${b.mobile}</div>
             </td>
-            <td>${roomDesc}</td>
+            <td>${itemDesc}</td>
             <td>${dateDesc}</td>
             <td>
               <div class="fw-bold">${formatINR(b.estimated_amount)}</div>
@@ -487,8 +1005,8 @@
                   <td>${getStatusBadge(t.status)}</td>
                   <td>
                     ${t.status === 'Pending Verification'
-                      ? `<button class="btn btn-xs btn-success py-0 px-2 small" onclick="verifyPayment('${t.id}', '${b.id}', ${t.amount})">Verify</button>`
-                      : '<span class="small text-muted">Done</span>'}
+            ? `<button class="btn btn-xs btn-success py-0 px-2 small" onclick="verifyPayment('${t.id}', '${b.id}', ${t.amount})">Verify</button>`
+            : '<span class="small text-muted">Done</span>'}
                   </td>
                 </tr>`).join('')}
             </tbody>
@@ -522,17 +1040,44 @@
               </div>
               <hr class="my-2">
               <div class="row g-2 small">
-                <div class="col-6"><strong>Category:</strong> ${b.category_name || b.service_title}</div>
-                <div class="col-6"><strong>Allocated Room:</strong> ${b.allocated_room_number ? '<span class="badge bg-success">Room ' + b.allocated_room_number + '</span>' : '<span class="text-danger">Not Allocated Yet</span>'}</div>
                 ${type === 'accommodation' ? `
+                <div class="col-6"><strong>Room Category:</strong> ${b.category_name || 'Standard'}</div>
+                <div class="col-6"><strong>Allocated Room:</strong> ${b.allocated_room_number ? '<span class="badge bg-success">Room ' + b.allocated_room_number + '</span>' : '<span class="text-danger">Unallocated</span>'}</div>
                 <div class="col-6"><strong>Check-in:</strong> ${formatDate(b.check_in)}</div>
                 <div class="col-6"><strong>Check-out:</strong> ${formatDate(b.check_out)} (${b.nights} Nights)</div>
                 <div class="col-6"><strong>Guests:</strong> ${b.guests} Persons</div>
-                ` : `
+                ` : type === 'taxi-rentals' ? `
+                <div class="col-6"><strong>Vehicle Model:</strong> <span class="text-warning-emphasis fw-bold">${b.vehicle_type || b.service_title || 'Taxi / Car'}</span></div>
+                <div class="col-6"><strong>Trip Type:</strong> <span class="badge bg-warning-subtle text-dark border">${b.service_title || 'Outstation / Local'}</span></div>
+                <div class="col-6"><strong>Pickup Date / Time:</strong> ${formatDate(b.travel_date)}</div>
+                <div class="col-6"><strong>Passengers:</strong> ${b.passengers || 1} Person(s)</div>
+                <div class="col-12"><strong>Pickup &amp; Drop:</strong> ${b.pickup_location || 'Tiruvannamalai'}</div>
+                ` : type === 'temple-darshan' ? `
+                <div class="col-6"><strong>Darshan Seva:</strong> <span class="text-maroon fw-bold">${b.service_title}</span></div>
+                <div class="col-6"><strong>Time Slot:</strong> <span class="badge bg-light text-dark border">${b.vehicle_type || 'Morning Slot'}</span></div>
+                <div class="col-6"><strong>Darshan Date:</strong> ${formatDate(b.travel_date)}</div>
+                <div class="col-6"><strong>Devotees:</strong> ${b.passengers || 1} Person(s)</div>
+                <div class="col-12"><strong>Assembly / Meeting Point:</strong> ${b.pickup_location || 'Arunachaleswarar Temple Rajagopuram'}</div>
+                ` : type === 'bus-booking' ? `
+                <div class="col-6"><strong>Bus Route:</strong> <span class="text-primary fw-bold">${b.service_title}</span></div>
+                <div class="col-6"><strong>Timing &amp; Coach:</strong> <span class="badge bg-primary-subtle text-primary border">${b.vehicle_type || 'Direct Bus'}</span></div>
                 <div class="col-6"><strong>Travel Date:</strong> ${formatDate(b.travel_date)}</div>
-                <div class="col-6"><strong>Pickup:</strong> ${b.pickup_location || 'Tiruvannamalai'}</div>
+                <div class="col-6"><strong>Seats (Pax):</strong> ${b.passengers || 1} Seat(s)</div>
+                <div class="col-12"><strong>Boarding Point:</strong> ${b.pickup_location || 'Bus Stand / Boarding Point'}</div>
+                ` : type === 'bike-rentals' ? `
+                <div class="col-6"><strong>Rental Package:</strong> <span class="text-success fw-bold">${b.service_title}</span></div>
+                <div class="col-6"><strong>Vehicle &amp; Duration:</strong> <span class="badge bg-success-subtle text-success border">${b.vehicle_type || 'Honda Activa 6G'}</span></div>
+                <div class="col-6"><strong>Pickup Date / Time:</strong> ${formatDate(b.travel_date)}</div>
+                <div class="col-6"><strong>Bikes Count:</strong> ${b.passengers || 1} Two-Wheeler(s)</div>
+                <div class="col-12"><strong>Pickup Spot:</strong> ${b.pickup_location || 'Tiruvannamalai Office Desk'}</div>
+                ` : `
+                <div class="col-6"><strong>Service:</strong> <span class="fw-bold">${b.service_title || 'Pilgrimage Service'}</span></div>
+                <div class="col-6"><strong>Vehicle / Category:</strong> <span class="badge bg-light text-dark border">${b.vehicle_type || 'Standard'}</span></div>
+                <div class="col-6"><strong>Date:</strong> ${formatDate(b.travel_date)}</div>
+                <div class="col-6"><strong>Pax:</strong> ${b.passengers || 1} Person(s)</div>
+                <div class="col-12"><strong>Location:</strong> ${b.pickup_location || 'Tiruvannamalai'}</div>
                 `}
-                <div class="col-12"><strong>Special Notes:</strong> ${b.special_requirements || b.special_requests || 'None'}</div>
+                <div class="col-12 mt-2 pt-1 border-top"><strong>Special Notes / Requests:</strong> ${b.special_requirements || b.special_requests || 'None'}</div>
               </div>
             </div>
 
@@ -1191,56 +1736,144 @@
       const sb = window.adminSupabase;
       const bookingType = document.getElementById('wBookingType').value;
 
-      if (bookingType === 'service') {
-        const srvSel = document.getElementById('wServiceSelect');
-        const srvOpt = srvSel.options[srvSel.selectedIndex];
-        let serviceId = srvSel.value;
-        let serviceTitle = (srvOpt && srvOpt.dataset.title) || 'Travel Service';
+      if (bookingType !== 'accommodation') {
+        let serviceId = bookingType;
+        let serviceTitle = '';
+        let travelDate = null;
+        let passengers = 1;
+        let vehicleType = '';
+        let pickupLoc = 'Tiruvannamalai';
+        let estAmount = 0;
 
-        if (serviceId === '__custom__') {
-          serviceTitle = document.getElementById('wCustomSrvName').value.trim();
-          serviceId = 'custom';
-          if (!serviceTitle) {
-            showAdminToast('Please enter a custom service or tour name.', 'error');
-            return;
+        if (bookingType === 'temple-darshan') {
+          serviceId = 'temple-darshan';
+          serviceTitle = document.getElementById('wDarshanSeva').value;
+          travelDate = document.getElementById('wDarshanDate').value || new Date().toISOString().split('T')[0];
+          passengers = parseInt(document.getElementById('wDarshanDevotees').value) || 1;
+          vehicleType = document.getElementById('wDarshanSlot').value;
+          pickupLoc = document.getElementById('wDarshanMeeting').value.trim() || 'Arunachaleswarar Temple Rajagopuram';
+          estAmount = parseFloat(document.getElementById('wDarshanAmount').value) || 1500;
+        } else if (bookingType === 'bus-booking') {
+          serviceId = 'bus-ticket-booking';
+          const route = document.getElementById('wBusRoute').value;
+          const timing = document.getElementById('wBusTiming').value || '03:20 PM';
+          serviceTitle = `${route} (${timing})`;
+          travelDate = document.getElementById('wBusDate').value || new Date().toISOString().split('T')[0];
+          passengers = parseInt(document.getElementById('wBusSeats').value) || 1;
+          vehicleType = `${document.getElementById('wBusCoach').value} | ${timing}`;
+          pickupLoc = document.getElementById('wBusBoarding').value.trim() || 'Bus Boarding Point';
+          estAmount = parseFloat(document.getElementById('wBusAmount').value) || 1100;
+        } else if (bookingType === 'bike-rentals') {
+          serviceId = 'bike-rentals';
+          serviceTitle = `Bike Rental: ${document.getElementById('wBikeDuration').value}`;
+          const pickupTime = document.getElementById('wBikePickupTime').value;
+          travelDate = pickupTime ? pickupTime.slice(0, 10) : new Date().toISOString().split('T')[0];
+          passengers = parseInt(document.getElementById('wBikeCount').value) || 1;
+          vehicleType = `${document.getElementById('wBikeModel').value} | ${document.getElementById('wBikeDuration').value}`;
+          pickupLoc = 'Tiruvannamalai Office / Desk';
+          estAmount = parseFloat(document.getElementById('wBikeAmount').value) || 300;
+        } else {
+          // Tour package or generic service
+          const srvSel = document.getElementById('wServiceSelect');
+          const srvOpt = srvSel.options[srvSel.selectedIndex];
+          serviceId = srvSel.value;
+          serviceTitle = (srvOpt && srvOpt.dataset.title) || 'Travel Service';
+
+          if (serviceId === '__custom__') {
+            serviceTitle = document.getElementById('wCustomSrvName').value.trim();
+            serviceId = 'custom';
+            if (!serviceTitle) {
+              showAdminToast('Please enter a custom service or tour name.', 'error');
+              return;
+            }
           }
+
+          travelDate = document.getElementById('wTravelDate').value || null;
+          passengers = parseInt(document.getElementById('wPassengers').value) || 1;
+          vehicleType = document.getElementById('wVehicleType').value;
+          pickupLoc = document.getElementById('wPickupLocation').value.trim() || 'Tiruvannamalai';
+          estAmount = parseFloat(document.getElementById('wServiceAmount').value) || 0;
         }
 
-        const estAmount = parseFloat(document.getElementById('wServiceAmount').value) || 0;
-        const { data, error } = await sb.from('service_bookings').insert([{
+        const prefixMap = {
+          'temple-darshan': 'ARN-DARSHAN',
+          'bus-booking': 'ARN-BUS',
+          'bike-rentals': 'ARN-BIKE'
+        };
+        const bookingPrefix = prefixMap[bookingType] || 'ARN-SRV';
+        const customBookingId = `${bookingPrefix}-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+
+        const newRecord = {
+          id: 'srv-local-' + Date.now(),
+          booking_id: customBookingId,
           service_id: serviceId,
           service_title: serviceTitle,
           customer_name: document.getElementById('wName').value.trim(),
           mobile: document.getElementById('wMobile').value.trim(),
           whatsapp_number: document.getElementById('wMobile').value.trim(),
           email: document.getElementById('wEmail').value.trim() || null,
-          travel_date: document.getElementById('wTravelDate').value || null,
-          pickup_location: document.getElementById('wPickupLocation').value.trim() || 'Tiruvannamalai',
-          passengers: parseInt(document.getElementById('wPassengers').value) || 1,
-          vehicle_type: document.getElementById('wVehicleType').value,
+          travel_date: travelDate,
+          pickup_location: pickupLoc,
+          passengers: passengers,
+          vehicle_type: vehicleType,
           estimated_amount: estAmount,
+          amount_paid: 0,
           balance_amount: estAmount,
-          special_requests: document.getElementById('wNotes').value.trim()
-        }]).select().single();
+          booking_status: 'Confirmed',
+          payment_status: 'Not Paid',
+          special_requests: document.getElementById('wNotes').value.trim(),
+          created_at: new Date().toISOString()
+        };
 
-        if (error) {
-          showAdminToast('Error creating service booking: ' + error.message, 'error');
-          return;
+        // 1. Immediately persist to localStorage for instant 0ms offline availability
+        try {
+          const raw = localStorage.getItem('arn_service_bookings');
+          const list = raw ? JSON.parse(raw) : [];
+          list.unshift(newRecord);
+          localStorage.setItem('arn_service_bookings', JSON.stringify(list));
+        } catch (e) { }
+
+        // 2. Insert to Supabase if online
+        if (sb) {
+          try {
+            await sb.from('service_bookings').insert([{
+              booking_id: newRecord.booking_id,
+              service_id: newRecord.service_id,
+              service_title: newRecord.service_title,
+              customer_name: newRecord.customer_name,
+              mobile: newRecord.mobile,
+              whatsapp_number: newRecord.whatsapp_number,
+              email: newRecord.email,
+              travel_date: newRecord.travel_date,
+              pickup_location: newRecord.pickup_location,
+              passengers: newRecord.passengers,
+              vehicle_type: newRecord.vehicle_type,
+              estimated_amount: newRecord.estimated_amount,
+              balance_amount: newRecord.balance_amount,
+              booking_status: newRecord.booking_status,
+              payment_status: newRecord.payment_status,
+              special_requests: newRecord.special_requests
+            }]);
+          } catch (e) {
+            console.warn('Supabase service_bookings insert error:', e);
+          }
+
+          try {
+            await sb.from('customers').upsert({
+              full_name: newRecord.customer_name,
+              mobile: newRecord.mobile,
+              whatsapp_number: newRecord.whatsapp_number,
+              email: newRecord.email
+            }, { onConflict: 'mobile' });
+          } catch (e) { }
         }
 
-        await sb.from('customers').upsert({
-          full_name: data.customer_name,
-          mobile: data.mobile,
-          whatsapp_number: data.whatsapp_number,
-          email: data.email
-        }, { onConflict: 'mobile' });
-
-        await logAdminActivity('CREATE_SERVICE_BOOKING', 'service_bookings', data.booking_id, { service: serviceTitle });
-        showAdminToast(`Service Booking ${data.booking_id} created!`, 'success');
+        await logAdminActivity('CREATE_SERVICE_BOOKING', 'service_bookings', newRecord.booking_id, { service: serviceTitle });
+        showAdminToast(`Booking ${newRecord.booking_id} created successfully!`, 'success');
         bootstrap.Modal.getInstance(document.getElementById('newBookingModal')).hide();
         e.target.reset();
-        document.getElementById('filterType').value = 'service';
-        await loadBookings();
+        document.getElementById('filterType').value = bookingType;
+        onCategoryFilterChange();
         return;
       }
 
@@ -1326,5 +1959,5 @@
     });
   </script>
 </body>
-</html>
 
+</html>

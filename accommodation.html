@@ -164,17 +164,83 @@
           <div id="bookingFormSection">
             <form id="accommodationBookingForm">
               <div class="row g-3">
-                <div class="col-12">
+                <div class="col-md-8 col-12">
                   <label class="form-label small fw-bold text-maroon">Selected Room Category *</label>
-                  <select id="bCategorySelect" class="form-select" required></select>
+                  <select id="bCategorySelect" class="form-select fw-semibold" required></select>
+                </div>
+                <div class="col-md-4 col-12">
+                  <label class="form-label small fw-bold text-maroon">Number of Rooms *</label>
+                  <input type="number" id="bNumRooms" class="form-control" value="1" min="1" max="10" required>
+                </div>
+
+                <div class="col-md-6 col-12">
+                  <label class="form-label small fw-bold text-maroon">Check-In Date *</label>
+                  <input type="date" id="bCheckIn" class="form-control" required>
+                </div>
+                <div class="col-md-6 col-12">
+                  <label class="form-label small fw-bold text-maroon">Check-Out Date *</label>
+                  <input type="date" id="bCheckOut" class="form-control" required>
+                </div>
+
+                <!-- Guest Counts -->
+                <div class="col-md-6 col-12">
+                  <label class="form-label small fw-bold text-maroon">
+                    <i class="bi bi-people-fill text-gold me-1"></i> Number of Adults (12+ yrs) *
+                  </label>
+                  <select id="bAdultsCount" class="form-select fw-semibold" onchange="onAccGuestCountsChanged()" required>
+                    <option value="1">1 Adult</option>
+                    <option value="2" selected>2 Adults</option>
+                    <option value="3">3 Adults</option>
+                    <option value="4">4 Adults</option>
+                    <option value="5">5 Adults</option>
+                    <option value="6">6 Adults</option>
+                    <option value="7">7 Adults</option>
+                    <option value="8">8 Adults</option>
+                    <option value="9">9 Adults</option>
+                    <option value="10">10 Adults</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6 col-12">
+                  <label class="form-label small fw-bold text-maroon">
+                    <i class="bi bi-person-hearts text-gold me-1"></i> Number of Children (Below 12 yrs)
+                  </label>
+                  <select id="bChildrenCount" class="form-select fw-semibold" onchange="onAccGuestCountsChanged()">
+                    <option value="0" selected>0 Children</option>
+                    <option value="1">1 Child</option>
+                    <option value="2">2 Children</option>
+                    <option value="3">3 Children</option>
+                    <option value="4">4 Children</option>
+                    <option value="5">5 Children</option>
+                  </select>
+                </div>
+
+                <!-- Priority Requirement: Dynamic Individual Guest Information Fields -->
+                <div class="col-12" id="accDynamicGuestsWrapper">
+                  <div class="row g-2" id="accDynamicGuestsContainer">
+                    <!-- Populated dynamically based on adults and children counts -->
+                  </div>
+                </div>
+
+                <!-- Primary Customer / Contact Information -->
+                <div class="col-12 mt-3 pt-2 border-top">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-maroon mb-0">
+                      <i class="bi bi-person-badge-fill text-gold me-1"></i> Primary Contact Person Details
+                    </h6>
+                    <div class="form-check form-check-inline small mb-0">
+                      <input class="form-check-input" type="checkbox" id="bCopyAdult1" onchange="copyAdult1ToContact(this)">
+                      <label class="form-check-label text-muted small" for="bCopyAdult1">Same as Adult 1</label>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label small fw-bold text-maroon">Full Name *</label>
-                  <input type="text" id="bFullName" class="form-control" placeholder="Enter your full name" required>
+                  <label class="form-label small fw-bold text-maroon">Primary Contact Full Name *</label>
+                  <input type="text" id="bFullName" class="form-control" placeholder="Enter contact person's full name" required>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-bold text-maroon">Mobile Number *</label>
+                  <label class="form-label small fw-bold text-maroon">Mobile Number (Calling) *</label>
                   <input type="tel" id="bMobile" class="form-control" placeholder="10-digit mobile number" required>
                 </div>
 
@@ -187,22 +253,19 @@
                   <input type="email" id="bEmail" class="form-control" placeholder="yourname@email.com">
                 </div>
 
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-maroon">Check-In Date *</label>
-                  <input type="date" id="bCheckIn" class="form-control" required>
+                <div class="col-12">
+                  <label class="form-label small fw-bold text-maroon">Complete Postal Address *</label>
+                  <input type="text" id="bAddress" class="form-control" placeholder="City, State, Country (e.g. Hyderabad, Telangana)" required>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-maroon">Check-Out Date *</label>
-                  <input type="date" id="bCheckOut" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-bold text-maroon">Number of Guests *</label>
-                  <input type="number" id="bGuests" class="form-control" value="2" min="1" max="10" required>
+
+                <!-- Document Upload Section -->
+                <div class="col-12" id="accDocUploaderWrapper">
+                  <div id="accDocUploaderContainer"></div>
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label small fw-bold text-maroon">Additional Requirements / Notes</label>
-                  <textarea id="bRequirements" class="form-control" rows="2" placeholder="e.g. Early arrival time, extra mattress request, elderly pilgrim ground floor preference..."></textarea>
+                  <label class="form-label small fw-bold text-maroon">Additional Requirements / Special Notes</label>
+                  <textarea id="bRequirements" class="form-control" rows="2" placeholder="e.g. Early check-in time, ground floor room for seniors, extra mattress request..."></textarea>
                 </div>
 
                 <!-- Live Estimated Calculation Box -->
@@ -212,9 +275,13 @@
                       <span class="text-muted">Stay Duration:</span>
                       <span class="fw-bold text-dark" id="calcNights">1 Night</span>
                     </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                      <span class="text-muted">Room Category &amp; Count:</span>
+                      <span class="fw-bold text-dark" id="calcRate">1 Room × ₹1,200 / night</span>
+                    </div>
                     <div class="d-flex justify-content-between small mb-2">
-                      <span class="text-muted">Room Rate:</span>
-                      <span class="fw-bold text-dark" id="calcRate">₹1,200 / night</span>
+                      <span class="text-muted">Total Guests:</span>
+                      <span class="fw-bold text-dark" id="calcGuestsSummary">2 Adults, 0 Children (2 Guests)</span>
                     </div>
                     <hr class="my-2">
                     <div class="d-flex justify-content-between align-items-center">
@@ -223,7 +290,7 @@
                     </div>
                     <div class="small text-muted mt-2">
                       <i class="bi bi-info-circle-fill text-gold me-1"></i>
-                      <strong>No online payment required now.</strong> Submitting this request does not confirm a room until payment is manually verified by our team.
+                      <strong>No online payment required now.</strong> Submitting this request places your booking under review. Payment details will be shared on WhatsApp.
                     </div>
                   </div>
                 </div>
@@ -232,7 +299,7 @@
                   <div class="form-check small">
                     <input class="form-check-input" type="checkbox" id="bConsent" required checked>
                     <label class="form-check-label text-muted" for="bConsent">
-                      I consent to be contacted by Arunachaleshwara Tours &amp; Travels via WhatsApp / Phone regarding availability and payment instructions.
+                      I confirm that all guest details are accurate and agree to present government photo ID at check-in.
                     </label>
                   </div>
                 </div>
@@ -299,6 +366,7 @@
 
   <!-- Site Scripts -->
   <script src="assets/js/navigation.js" defer></script>
+  <script src="assets/js/booking-helpers.js" defer></script>
   <script src="assets/js/accommodation.js" defer></script>
 
   <!-- Vendor Scripts -->

@@ -212,10 +212,26 @@ function openBookingRequestModal(categorySlug) {
     `<option value="${c.id}" data-slug="${c.slug}" data-name="${c.name}" data-price="${c.base_price}" ${c.slug === categorySlug ? 'selected' : ''}>${c.name} – ₹${Number(c.base_price).toLocaleString('en-IN')}/night</option>`
   ).join('');
 
-  // Carry over filter dates & guests
+  // Carry over filter dates
   document.getElementById('bCheckIn').value = document.getElementById('filterCheckIn')?.value || '';
   document.getElementById('bCheckOut').value = document.getElementById('filterCheckOut')?.value || '';
-  document.getElementById('bGuests').value = document.getElementById('filterGuests')?.value || '2';
+
+  // Initialize guest counts & dynamic fields
+  const adultsSelect = document.getElementById('bAdultsCount');
+  if (adultsSelect) adultsSelect.value = document.getElementById('filterGuests')?.value || '2';
+  const childSelect = document.getElementById('bChildrenCount');
+  if (childSelect) childSelect.value = '0';
+
+  onAccGuestCountsChanged();
+
+  // Initialize Document Uploader
+  if (typeof BookingDocUploader !== 'undefined') {
+    window['accDocUploader'] = new BookingDocUploader('accDocUploaderContainer', 'accommodation', {
+      title: 'Guest Identification Documents (Aadhaar / Passport / Govt ID)',
+      description: 'Upload valid ID proof for guests (PDF, JPG, or PNG under 5 MB).',
+      mandatory: false
+    });
+  }
 
   calculateBookingEstimate();
 
@@ -223,13 +239,44 @@ function openBookingRequestModal(categorySlug) {
   modal.show();
 }
 
+function onAccGuestCountsChanged() {
+  const numAdults = parseInt(document.getElementById('bAdultsCount')?.value) || 2;
+  const numChildren = parseInt(document.getElementById('bChildrenCount')?.value) || 0;
+
+  if (typeof renderDynamicGuests === 'function') {
+    renderDynamicGuests('accDynamicGuestsContainer', numAdults, numChildren, {
+      adultLabel: 'Adult',
+      childLabel: 'Child',
+      showGender: true
+    });
+  }
+
+  const sumEl = document.getElementById('calcGuestsSummary');
+  if (sumEl) {
+    sumEl.textContent = `${numAdults} Adult${numAdults > 1 ? 's' : ''}, ${numChildren} Child${numChildren === 1 ? '' : 'ren'} (${numAdults + numChildren} Guests)`;
+  }
+
+  calculateBookingEstimate();
+}
+
+function copyAdult1ToContact(chk) {
+  if (!chk || !chk.checked) return;
+  const adult1Input = document.querySelector('[data-guest-field="adult-1-name"]');
+  if (adult1Input && adult1Input.value.trim()) {
+    const contactInput = document.getElementById('bFullName');
+    if (contactInput) contactInput.value = adult1Input.value.trim();
+  }
+}
+
 function calculateBookingEstimate() {
   const select = document.getElementById('bCategorySelect');
+  if (!select) return;
   const opt = select.options[select.selectedIndex];
   const pricePerNight = parseFloat(opt?.dataset?.price || 1200);
 
-  const checkIn = document.getElementById('bCheckIn').value;
-  const checkOut = document.getElementById('bCheckOut').value;
+  const checkIn = document.getElementById('bCheckIn')?.value;
+  const checkOut = document.getElementById('bCheckOut')?.value;
+  const numRooms = parseInt(document.getElementById('bNumRooms')?.value) || 1;
 
   let nights = 1;
   if (checkIn && checkOut) {
@@ -237,11 +284,15 @@ function calculateBookingEstimate() {
     nights = diff > 0 ? Math.round(diff) : 1;
   }
 
-  const total = nights * pricePerNight;
+  const total = nights * pricePerNight * numRooms;
 
-  document.getElementById('calcNights').textContent = `${nights} Night${nights > 1 ? 's' : ''}`;
-  document.getElementById('calcRate').textContent = `₹${pricePerNight.toLocaleString('en-IN')} / night`;
-  document.getElementById('calcTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
+  const nightsEl = document.getElementById('calcNights');
+  const rateEl = document.getElementById('calcRate');
+  const totalEl = document.getElementById('calcTotal');
+
+  if (nightsEl) nightsEl.textContent = `${nights} Night${nights > 1 ? 's' : ''}`;
+  if (rateEl) rateEl.textContent = `${numRooms} Room${numRooms > 1 ? 's' : ''} × ₹${pricePerNight.toLocaleString('en-IN')} / night`;
+  if (totalEl) totalEl.textContent = `₹${total.toLocaleString('en-IN')}`;
 }
 
 async function handleBookingRequestSubmit(e) {
@@ -261,7 +312,13 @@ async function handleBookingRequestSubmit(e) {
     const mobile = document.getElementById('bMobile').value.trim();
     const whatsapp = document.getElementById('bWhatsapp').value.trim() || mobile;
     const email = document.getElementById('bEmail').value.trim();
-    const guests = parseInt(document.getElementById('bGuests').value) || 2;
+    const address = document.getElementById('bAddress')?.value.trim() || '';
+
+    const numAdults = parseInt(document.getElementById('bAdultsCount')?.value) || 2;
+    const numChildren = parseInt(document.getElementById('bChildrenCount')?.value) || 0;
+    const totalGuests = numAdults + numChildren;
+    const numRooms = parseInt(document.getElementById('bNumRooms')?.value) || 1;
+
     const checkIn = document.getElementById('bCheckIn').value;
     const checkOut = document.getElementById('bCheckOut').value;
     const requirements = document.getElementById('bRequirements').value.trim();
@@ -273,83 +330,225 @@ async function handleBookingRequestSubmit(e) {
       return;
     }
 
-    const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
-    const estimatedAmount = nights * pricePerNight;
+    // 1. Collect and validate all individual guest records
+    let individualGuests = [];
+    if (typeof collectDynamicGuests === 'function') {
+      individualGuests = collectDynamicGuests('accDynamicGuestsContainer');
+    }
 
-    let generatedBookingId = 'ARN-2026-' + String(Math.floor(10000 + Math.random() * 90000));
-
-    if (window.supabaseClient) {
-      // 1. Upsert customer
-      const { data: custData } = await window.supabaseClient
-        .from('customers')
-        .upsert({
-          full_name: fullName,
-          mobile: mobile,
-          whatsapp_number: whatsapp,
-          email: email || null
-        }, { onConflict: 'mobile' })
-        .select('id')
-        .maybeSingle();
-
-      // 2. Insert booking request (Postgres sequence generates ARN-2026-XXXXX automatically!)
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(catId);
-      const { data: bookingRow, error: bookErr } = await window.supabaseClient
-        .from('accommodation_bookings')
-        .insert([{
-          customer_id: custData ? custData.id : null,
-          customer_name: fullName,
-          mobile: mobile,
-          whatsapp_number: whatsapp,
-          email: email || null,
-          category_id: isUuid ? catId : null,
-          category_name: catName,
-          check_in: checkIn,
-          check_out: checkOut,
-          nights: nights,
-          guests: guests,
-          estimated_amount: estimatedAmount,
-          balance_amount: estimatedAmount,
-          booking_status: 'Pending Request',
-          payment_status: 'Not Paid',
-          special_requirements: requirements || null
-        }])
-        .select('booking_id')
-        .single();
-
-      if (bookErr) {
-        console.error('Supabase booking insert error:', bookErr);
-      } else if (bookingRow && bookingRow.booking_id) {
-        generatedBookingId = bookingRow.booking_id;
+    // Ensure all guests have full name and age
+    for (const g of individualGuests) {
+      if (!g.full_name) {
+        alert(`Please enter full name for ${g.guest_type === 'adult' ? 'Adult' : 'Child'} ${g.guest_index}.`);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-check-fill me-1"></i> SUBMIT BOOKING REQUEST';
+        return;
+      }
+      if (isNaN(g.age) || g.age < 0) {
+        alert(`Please enter valid age for ${g.full_name}.`);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-check-fill me-1"></i> SUBMIT BOOKING REQUEST';
+        return;
       }
     }
 
-    // Build exact formatted WhatsApp Message per Section 8 specification
+    // 2. Collect uploaded identification documents
+    let uploadedDocs = [];
+    if (window['accDocUploader'] && typeof window['accDocUploader'].getDocuments === 'function') {
+      uploadedDocs = window['accDocUploader'].getDocuments();
+    }
+
+    const nights = Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000));
+    const estimatedAmount = nights * pricePerNight * numRooms;
+
+    let generatedBookingId = 'ARN-' + new Date().getFullYear() + '-' + String(Math.floor(10000 + Math.random() * 90000));
+
+    // Construct full booking record
+    const bookingRecord = {
+      id: 'acc-local-' + Date.now(),
+      booking_id: generatedBookingId,
+      customer_name: fullName,
+      mobile: mobile,
+      whatsapp_number: whatsapp,
+      email: email || null,
+      address: address,
+      category_id: catId,
+      category_name: catName,
+      check_in: checkIn,
+      check_out: checkOut,
+      nights: nights,
+      rooms: numRooms,
+      adults: numAdults,
+      children: numChildren,
+      guests: totalGuests,
+      guest_details: individualGuests, // Array of { guest_type, guest_index, full_name, age, gender }
+      documents: uploadedDocs, // Array of { document_type, file_name, file_url, file_size }
+      estimated_amount: estimatedAmount,
+      amount_paid: 0,
+      balance_amount: estimatedAmount,
+      booking_status: 'Pending Request',
+      payment_status: 'Not Paid',
+      special_requirements: requirements || null,
+      created_at: new Date().toISOString()
+    };
+
+    // Save to localStorage for instant reliable sync with Admin Panel
+    try {
+      const rawAcc = localStorage.getItem('arn_accommodation_bookings');
+      const accList = rawAcc ? JSON.parse(rawAcc) : [];
+      accList.unshift(bookingRecord);
+      localStorage.setItem('arn_accommodation_bookings', JSON.stringify(accList));
+
+      // Also persist separate guest records
+      const rawGuests = localStorage.getItem('arn_booking_guests');
+      const allGuests = rawGuests ? JSON.parse(rawGuests) : [];
+      individualGuests.forEach(g => {
+        allGuests.push({
+          id: 'guest-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          booking_id: generatedBookingId,
+          service_type: 'accommodation',
+          guest_type: g.guest_type,
+          guest_index: g.guest_index,
+          full_name: g.full_name,
+          age: g.age,
+          gender: g.gender,
+          created_at: new Date().toISOString()
+        });
+      });
+      localStorage.setItem('arn_booking_guests', JSON.stringify(allGuests));
+
+      // Also persist separate document records
+      if (uploadedDocs.length > 0) {
+        const rawDocs = localStorage.getItem('arn_booking_documents');
+        const allDocs = rawDocs ? JSON.parse(rawDocs) : [];
+        uploadedDocs.forEach(d => {
+          allDocs.push({
+            id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            booking_id: generatedBookingId,
+            service_type: 'accommodation',
+            document_type: d.document_type,
+            file_name: d.file_name,
+            file_url: d.file_url,
+            file_size: d.file_size,
+            uploaded_at: new Date().toISOString()
+          });
+        });
+        localStorage.setItem('arn_booking_documents', JSON.stringify(allDocs));
+      }
+    } catch (localErr) {
+      console.warn('LocalStorage save error:', localErr);
+    }
+
+    // Save to Supabase
+    if (window.supabaseClient) {
+      try {
+        // 1. Upsert customer
+        const { data: custData } = await window.supabaseClient
+          .from('customers')
+          .upsert({
+            full_name: fullName,
+            mobile: mobile,
+            whatsapp_number: whatsapp,
+            email: email || null,
+            address: address || null
+          }, { onConflict: 'mobile' })
+          .select('id')
+          .maybeSingle();
+
+        // 2. Insert booking request
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(catId);
+        const { data: bookingRow, error: bookErr } = await window.supabaseClient
+          .from('accommodation_bookings')
+          .insert([{
+            customer_id: custData ? custData.id : null,
+            customer_name: fullName,
+            mobile: mobile,
+            whatsapp_number: whatsapp,
+            email: email || null,
+            category_id: isUuid ? catId : null,
+            category_name: catName,
+            check_in: checkIn,
+            check_out: checkOut,
+            nights: nights,
+            guests: totalGuests,
+            estimated_amount: estimatedAmount,
+            balance_amount: estimatedAmount,
+            booking_status: 'Pending Request',
+            payment_status: 'Not Paid',
+            special_requirements: requirements || null
+          }])
+          .select('booking_id, id')
+          .single();
+
+        if (!bookErr && bookingRow) {
+          if (bookingRow.booking_id) generatedBookingId = bookingRow.booking_id;
+
+          // 3. Insert individual guests into booking_guests table
+          if (individualGuests.length > 0) {
+            const guestRows = individualGuests.map(g => ({
+              booking_id: generatedBookingId,
+              service_type: 'accommodation',
+              guest_type: g.guest_type,
+              guest_index: g.guest_index,
+              full_name: g.full_name,
+              age: g.age,
+              gender: g.gender
+            }));
+            await window.supabaseClient.from('booking_guests').insert(guestRows);
+          }
+
+          // 4. Insert uploaded documents into booking_documents table
+          if (uploadedDocs.length > 0) {
+            const docRows = uploadedDocs.map(d => ({
+              booking_id: generatedBookingId,
+              service_type: 'accommodation',
+              document_type: d.document_type,
+              file_name: d.file_name,
+              file_url: d.file_url,
+              file_size: d.file_size
+            }));
+            await window.supabaseClient.from('booking_documents').insert(docRows);
+          }
+        }
+      } catch (sbEx) {
+        console.warn('Supabase booking persistence exception:', sbEx);
+      }
+    }
+
+    // Build rich formatted WhatsApp confirmation message
+    const guestsSummaryText = individualGuests.map((g, idx) =>
+      `  ${idx + 1}. ${g.full_name} (${g.guest_type === 'adult' ? 'Adult' : 'Child'}, ${g.age} yrs)`
+    ).join('\n');
+
     const waText =
-      `NEW ACCOMMODATION BOOKING REQUEST\n` +
-      `Booking ID: ${generatedBookingId}\n\n` +
-      `CUSTOMER DETAILS\n` +
-      `Name: ${fullName}\n` +
-      `Mobile: ${mobile}\n` +
-      `Email: ${email || 'Not Provided'}\n\n` +
-      `ACCOMMODATION DETAILS\n` +
-      `Room: ${catName}\n` +
-      `Check-in: ${checkIn}\n` +
-      `Check-out: ${checkOut}\n` +
-      `Guests: ${guests}\n` +
-      `Nights: ${nights}\n\n` +
-      `PAYMENT DETAILS\n` +
-      `Estimated Amount: ₹${estimatedAmount.toLocaleString('en-IN')}\n` +
-      `Payment Status: NOT PAID\n` +
-      `Special Requirements: ${requirements || 'None'}\n\n` +
-      `Please confirm availability and share payment instructions.`;
+      `*NEW ACCOMMODATION BOOKING REQUEST*\n` +
+      `*Booking ID:* ${generatedBookingId}\n\n` +
+      `*CUSTOMER DETAILS*\n` +
+      `*Name:* ${fullName}\n` +
+      `*Mobile:* ${mobile}\n` +
+      `*Email:* ${email || 'Not Provided'}\n` +
+      `*Address:* ${address || 'Not Provided'}\n\n` +
+      `*STAY DETAILS*\n` +
+      `*Room Category:* ${catName}\n` +
+      `*Number of Rooms:* ${numRooms}\n` +
+      `*Check-in:* ${checkIn}\n` +
+      `*Check-out:* ${checkOut} (${nights} Night${nights > 1 ? 's' : ''})\n` +
+      `*Total Guests:* ${numAdults} Adult(s), ${numChildren} Child(ren)\n\n` +
+      `*INDIVIDUAL GUESTS LIST:*\n${guestsSummaryText}\n\n` +
+      `*PAYMENT DETAILS*\n` +
+      `*Estimated Amount:* ₹${estimatedAmount.toLocaleString('en-IN')}\n` +
+      `*Payment Status:* NOT PAID (Awaiting Verification)\n` +
+      `*ID Documents Attached:* ${uploadedDocs.length} document(s)\n` +
+      `*Special Requirements:* ${requirements || 'None'}\n\n` +
+      `Please confirm room allocation and share official payment instructions. Om Namah Shivaya!`;
 
     const cleanWaNum = String(WA_ACCOMMODATION_NUMBER).replace(/[^0-9]/g, '');
     const waLink = `https://wa.me/${cleanWaNum}?text=${encodeURIComponent(waText)}`;
 
     // Populate confirmation view
     document.getElementById('confBookingId').textContent = generatedBookingId;
-    document.getElementById('confSummaryRoom').textContent = `${catName} (${nights} Night${nights > 1 ? 's' : ''})`;
-    document.getElementById('confSummaryDates').textContent = `${checkIn} to ${checkOut} • ${guests} Guests`;
+    document.getElementById('confSummaryRoom').textContent = `${numRooms} Room(s) × ${catName} (${nights} Night${nights > 1 ? 's' : ''})`;
+    document.getElementById('confSummaryDates').textContent = `${checkIn} to ${checkOut} • ${numAdults} Adult(s), ${numChildren} Child(ren)`;
     document.getElementById('confSummaryAmount').textContent = `₹${estimatedAmount.toLocaleString('en-IN')}`;
     document.getElementById('confWhatsappBtn').href = waLink;
 
@@ -365,6 +564,16 @@ async function handleBookingRequestSubmit(e) {
   }
 }
 
+// Bind recalculation on number of rooms
+document.addEventListener('DOMContentLoaded', () => {
+  const numRoomsEl = document.getElementById('bNumRooms');
+  if (numRoomsEl) numRoomsEl.addEventListener('input', calculateBookingEstimate);
+});
+
 window.initAccommodationPage = initAccommodationPage;
 window.openBookingRequestModal = openBookingRequestModal;
+window.onAccGuestCountsChanged = onAccGuestCountsChanged;
+window.copyAdult1ToContact = copyAdult1ToContact;
+window.calculateBookingEstimate = calculateBookingEstimate;
+
 
