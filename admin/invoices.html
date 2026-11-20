@@ -3,29 +3,474 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <title>Invoices & PDFs – Arunachaleshwara Admin</title>
+  <title>Invoices &amp; In-App Canvas Studio – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    /* Brand Theme Utilities */
+    .bg-maroon {
+      background-color: #45120E !important;
+      color: #ffffff !important;
+    }
+    .text-maroon {
+      color: #45120E !important;
+    }
+    .btn-admin-yellow {
+      background-color: #FFC908;
+      color: #45120E;
+      border: 1px solid #e0b005;
+    }
+    .btn-admin-yellow:hover {
+      background-color: #e5b300;
+      color: #45120E;
+    }
+
+    /* In-App Canvas Studio Artboard Stage */
+    .canvas-studio-bg {
+      background: #0f172a;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+      background-size: 20px 20px;
+      padding: 24px;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 640px;
+      max-height: 740px;
+      border-radius: 8px;
+    }
+
+    .canvas-artboard {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 680px;
+      min-height: 860px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      border-radius: 4px;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 11px;
+      color: #1e293b;
+      line-height: 1.4;
+      position: relative;
+      transition: transform 0.2s ease, width 0.2s ease;
+      transform-origin: top center;
+    }
+
+    /* Direct On-Canvas Editable Text Fields */
+    .canvas-editable {
+      outline: none;
+      border-radius: 3px;
+      padding: 1px 4px;
+      transition: background-color 0.15s, box-shadow 0.15s;
+      cursor: text;
+    }
+    .canvas-editable:hover {
+      background-color: rgba(255, 201, 8, 0.25);
+      box-shadow: 0 0 0 1px rgba(255, 201, 8, 0.8);
+    }
+    .canvas-editable:focus {
+      background-color: #FFFFFF !important;
+      color: #0f172a !important;
+      box-shadow: 0 0 0 2px #45120E !important;
+    }
+
+    /* Custom Added Text Block on Canvas */
+    .custom-text-block-item {
+      position: relative;
+      border: 1px dashed rgba(69, 18, 14, 0.25);
+      border-radius: 4px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    .custom-text-block-item:hover {
+      border-color: #45120E;
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+    .custom-text-block-del-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .custom-text-block-item:hover .custom-text-block-del-btn {
+      display: flex;
+    }
+
+    /* Live Canvas Elements */
+    .canvas-header-block {
+      background: #45120E;
+      color: #FFFFFF;
+      padding: 14px 18px;
+      position: relative;
+      transition: background-color 0.2s ease;
+    }
+    .canvas-gold-stripe {
+      height: 4px;
+      background: #FFC908;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+    .canvas-info-box {
+      background: #FFF9EF;
+      border: 1px solid #E6D2AA;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin: 12px 16px;
+    }
+    .canvas-table th {
+      background: #45120E !important;
+      color: #FFFFFF !important;
+      font-size: 9.5px;
+      padding: 6px 10px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .canvas-table td {
+      padding: 6px 10px;
+      font-size: 10.5px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .canvas-total-pill {
+      background: #45120E;
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: 4px;
+      display: inline-block;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Authentic In-App Stamps */
+    .canvas-stamp-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-radius: 50%;
+      user-select: none;
+      position: absolute;
+      transition: all 0.2s ease;
+      z-index: 5;
+    }
+    .stamp-paid {
+      width: 72px;
+      height: 72px;
+      color: #059669;
+      border: 3px double #059669;
+      background: rgba(16, 185, 129, 0.08);
+      font-size: 9px;
+      box-shadow: inset 0 0 0 1px #059669;
+    }
+    .stamp-temple {
+      width: 76px;
+      height: 76px;
+      color: #B45309;
+      border: 3px double #B45309;
+      background: rgba(245, 158, 11, 0.08);
+      font-size: 8px;
+      box-shadow: inset 0 0 0 1px #B45309;
+    }
+    .stamp-verified {
+      width: 72px;
+      height: 72px;
+      color: #2563EB;
+      border: 3px double #2563EB;
+      background: rgba(37, 99, 235, 0.08);
+      font-size: 8.5px;
+      box-shadow: inset 0 0 0 1px #2563EB;
+    }
+    .stamp-authorized {
+      width: 72px;
+      height: 72px;
+      color: #45120E;
+      border: 3px double #45120E;
+      background: rgba(69, 18, 14, 0.08);
+      font-size: 8.5px;
+      box-shadow: inset 0 0 0 1px #45120E;
+    }
+
+    /* Signature Pad Styling */
+    .sig-canvas-wrapper {
+      border: 2px dashed #94a3b8;
+      border-radius: 6px;
+      background: #ffffff;
+      position: relative;
+    }
+    #signaturePadCanvas {
+      width: 100%;
+      height: 110px;
+      cursor: crosshair;
+      touch-action: none;
+      display: block;
+    }
+
+    /* Quick Color Swatches */
+    .color-swatch-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      cursor: pointer;
+      display: inline-block;
+      transition: transform 0.15s ease;
+      vertical-align: middle;
+    }
+    .color-swatch-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* Toolbox Tabs */
+    .canvas-toolbox-card {
+      border: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border-radius: 8px;
+      background: #FFFFFF;
+    }
+    .canvas-nav-pills .nav-link {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+      border-radius: 6px;
+      padding: 0.45rem 0.55rem;
+    }
+    .canvas-nav-pills .nav-link.active {
+      background: var(--admin-maroon, #45120E);
+      color: #FFFFFF;
+    }
+
+    /* Printable overrides */
+    @media print {
+      body * { visibility: hidden !important; }
+      #invoicePreviewContainer, #invoicePreviewContainer * { visibility: visible !important; }
+      #invoicePreviewContainer {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
+  </style>
 </head>
 <body class="admin-body">
   <div class="admin-wrapper">
-    <aside class="admin-sidebar" id="adminSidebar"></aside>
+    <!-- Static Pre-rendered Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <a href="dashboard.html" class="admin-sidebar-brand">
+        <img src="../assets/images/logo/logo.png" alt="Arunachaleshwara">
+        <div class="admin-sidebar-brand-text">
+          ARUNACHALESHWARA
+          <span>ADMIN PORTAL</span>
+        </div>
+      </a>
+      <nav class="admin-nav">
+        <div class="admin-nav-header">CORE</div>
+        <a href="dashboard.html" class="admin-nav-item">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Dashboard</span>
+        </a>
+        <div class="admin-nav-header">BOOKING MANAGEMENT</div>
+        <a href="bookings.html" class="admin-nav-item">
+          <i class="bi bi-calendar-check-fill"></i>
+          <span>All Bookings</span>
+        </a>
+        <a href="operations.html" class="admin-nav-item">
+          <i class="bi bi-door-open-fill"></i>
+          <span>Room Operations</span>
+        </a>
+        <div class="admin-nav-header">INVENTORY &amp; CATALOG</div>
+        <a href="accommodation.html" class="admin-nav-item">
+          <i class="bi bi-building-fill"></i>
+          <span>Accommodation (17 Rooms)</span>
+        </a>
+        <a href="services.html" class="admin-nav-item">
+          <i class="bi bi-compass-fill"></i>
+          <span>Services &amp; Tours</span>
+        </a>
+        <div class="admin-nav-header">FINANCE (MANUAL)</div>
+        <a href="payments.html" class="admin-nav-item">
+          <i class="bi bi-cash-stack"></i>
+          <span>Manual Payments</span>
+        </a>
+        <a href="invoices.html" class="admin-nav-item active">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          <span>Invoices &amp; PDFs</span>
+        </a>
+        <a href="reports.html" class="admin-nav-item">
+          <i class="bi bi-bar-chart-line-fill"></i>
+          <span>Reports &amp; Revenue</span>
+        </a>
+        <div class="admin-nav-header">CRM &amp; WEBSITE CMS</div>
+        <a href="customers.html" class="admin-nav-item">
+          <i class="bi bi-people-fill"></i>
+          <span>Customers</span>
+        </a>
+        <a href="cms.html" class="admin-nav-item">
+          <i class="bi bi-palette-fill"></i>
+          <span>Website CMS &amp; Media</span>
+        </a>
+        <a href="whatsapp.html" class="admin-nav-item">
+          <i class="bi bi-whatsapp"></i>
+          <span>WhatsApp Settings</span>
+        </a>
+        <div class="admin-nav-header">QUICK LINKS</div>
+        <a href="../index.html" target="_blank" class="admin-nav-item">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span>View Live Website</span>
+        </a>
+        <a href="javascript:void(0)" onclick="logoutAdmin()" class="admin-nav-item text-danger fw-bold">
+          <i class="bi bi-box-arrow-left text-danger"></i>
+          <span>Sign Out</span>
+        </a>
+      </nav>
+      <div class="admin-sidebar-user">
+        <div class="admin-user-avatar">SA</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">Super Admin</div>
+          <span class="admin-user-role">Main Admin</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
     <main class="admin-main">
-      <header class="admin-header" id="adminHeader"></header>
-      <div class="admin-content">
-        <div class="admin-card">
-          <div class="admin-card-header">
-            <h6 class="admin-card-title"><i class="bi bi-file-earmark-pdf-fill text-danger"></i> Issued Sequential Invoices</h6>
-            <a href="bookings.html" class="btn btn-sm btn-admin-yellow"><i class="bi bi-plus-lg"></i> Issue from Bookings</a>
+      <header class="admin-header" id="adminHeader">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-sm btn-outline-secondary d-lg-none" onclick="document.getElementById('adminSidebar').classList.toggle('show')">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="admin-header-title">
+            <h4>Invoices &amp; Receipts</h4>
+            <span class="badge d-none d-md-inline-block">In-App Canvas Studio &amp; PDF Delivery</span>
           </div>
+        </div>
+        <div class="admin-header-actions">
+          <a href="../accommodation.html" target="_blank" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center gap-1">
+            <i class="bi bi-globe"></i> Website
+          </a>
+          <button type="button" class="btn btn-sm btn-admin-yellow" onclick="loadInvoices()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+
+        <!-- KPI Summary Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card green">
+              <div class="admin-stat-info">
+                <h6>Total Invoiced Revenue</h6>
+                <div class="admin-stat-number text-success" id="kpiTotalInvoiced">₹0</div>
+                <div class="admin-stat-sub">Across all issued receipts</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-receipt"></i></div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card blue">
+              <div class="admin-stat-info">
+                <h6>Total Amount Received</h6>
+                <div class="admin-stat-number text-primary" id="kpiTotalPaid">₹0</div>
+                <div class="admin-stat-sub">Verified collections received</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-cash-coin"></i></div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card warning">
+              <div class="admin-stat-info">
+                <h6>Outstanding Balance</h6>
+                <div class="admin-stat-number text-warning" id="kpiTotalBalance">₹0</div>
+                <div class="admin-stat-sub">Pending balance due from devotees</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-hourglass-split"></i></div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card maroon">
+              <div class="admin-stat-info">
+                <h6>Total Invoices Count</h6>
+                <div class="admin-stat-number text-maroon" id="kpiTotalCount">0</div>
+                <div class="admin-stat-sub">Official sequential documents</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-file-earmark-check-fill"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Invoice Management Card -->
+        <div class="admin-card shadow-sm">
+          <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+              <h6 class="admin-card-title mb-0">
+                <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> Issued Sequential Invoices
+              </h6>
+              <span class="badge bg-light text-dark border ms-1" id="invCountBadge">0 Invoices</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <!-- PRIMARY BUTTON: EDIT INVOICE TEMPLATE (CANVAS) -->
+              <button type="button" class="btn btn-sm btn-admin-yellow fw-bold shadow-sm" onclick="openMasterTemplateCanvasStudio()">
+                <i class="bi bi-palette-fill me-1"></i> Edit Invoice Template (Canvas)
+              </button>
+              <a href="bookings.html" class="btn btn-sm btn-admin-primary fw-bold shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Issue from Bookings
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Search & Filter Strip -->
+          <div class="p-3 bg-light border-bottom">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-6 col-lg-5">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                  <input type="text" id="invSearchInput" class="form-control" placeholder="Search by customer name, phone, booking ID, or invoice number..." oninput="filterInvoicesTable()">
+                </div>
+              </div>
+              <div class="col-md-3 col-lg-3">
+                <select id="invStatusFilter" class="form-select form-select-sm" onchange="filterInvoicesTable()">
+                  <option value="all">All Payment Statuses</option>
+                  <option value="Paid">Paid Only</option>
+                  <option value="Partially Paid">Partially Paid</option>
+                  <option value="Unpaid">Unpaid</option>
+                </select>
+              </div>
+              <div class="col-md-3 col-lg-4 text-md-end text-muted small">
+                Click <strong><i class="bi bi-palette-fill text-warning"></i> Edit Invoice Template</strong> to design text colors, add custom text &amp; transparent watermarks.
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoices Table -->
           <div class="table-responsive">
-            <table class="table admin-table">
+            <table class="table admin-table align-middle">
               <thead>
                 <tr>
                   <th>Invoice Number</th>
@@ -37,79 +482,2834 @@
                   <th class="text-end">Actions</th>
                 </tr>
               </thead>
-              <tbody id="invoicesBody"><tr><td colspan="7" class="text-center py-4 text-muted">Loading invoices...</td></tr></tbody>
+              <tbody id="invoicesBody">
+                <tr>
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>
+                    Loading sequential invoices...
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
+
       </div>
     </main>
   </div>
 
+  <!-- ============================================================
+       IN-APP VISUAL CANVAS INVOICE STUDIO (FULLSCREEN / WIDE MODAL)
+       Direct Text Editing + Text Colors + Add Custom Text Blocks + Transparent Watermark
+       ============================================================ -->
+  <div class="modal fade" id="invoiceEditorModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl" style="max-width: 96vw;">
+      <div class="modal-content border-0 shadow-lg">
+
+        <!-- Top Studio Bar -->
+        <div class="modal-header bg-maroon text-white py-2 px-3" style="background-color: #45120E !important; border-bottom: 2px solid #FFC908;">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-palette-fill text-warning fs-5"></i>
+            <div>
+              <h5 class="modal-title fw-bold mb-0 text-white fs-6" id="editorModalTitle">In-App Canvas Invoice Studio</h5>
+              <small class="text-warning small" id="editorModalSubtitle" style="font-size: 11px;">
+                Direct On-Canvas Editing • Custom Text Colors &amp; Sizes • Add Custom Text • Transparent Watermark
+              </small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="badge bg-warning text-dark d-none d-md-inline-block">
+              <i class="bi bi-cursor-text me-1"></i> Click any text on invoice to edit directly
+            </div>
+            <!-- Top Reset Button -->
+            <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" onclick="confirmResetTemplate()" title="Reset template to factory defaults">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Template
+            </button>
+            <!-- Prominent Red Close Canvas Button -->
+            <button type="button" class="btn btn-sm btn-danger fw-bold py-1 px-3 shadow-sm d-flex align-items-center gap-1" data-bs-dismiss="modal" onclick="closeCanvasStudioModal()" title="Close Canvas Studio (ESC)">
+              <i class="bi bi-x-lg"></i>
+              <span>Close Canvas</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body p-2 bg-light">
+          <div class="row g-2">
+
+            <!-- LEFT TOOLBOX PANEL (col-xl-4 col-lg-5) -->
+            <div class="col-xl-4 col-lg-5">
+              <div class="canvas-toolbox-card h-100 p-2">
+                <!-- Toolbox Navigation Tabs -->
+                <ul class="nav nav-pills canvas-nav-pills nav-fill mb-2 gap-1 border-bottom pb-2" id="canvasToolsTabs" role="tablist">
+                  <li class="nav-item">
+                    <button class="nav-link active py-1" data-bs-toggle="pill" data-bs-target="#tool-typography">
+                      <i class="bi bi-type text-primary me-1"></i> Text &amp; Sizes
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1" data-bs-toggle="pill" data-bs-target="#tool-images">
+                      <i class="bi bi-image text-danger me-1"></i> Images &amp; Bg
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1" data-bs-toggle="pill" data-bs-target="#tool-theme">
+                      <i class="bi bi-palette text-warning me-1"></i> Theme
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1" data-bs-toggle="pill" data-bs-target="#tool-stamps">
+                      <i class="bi bi-patch-check text-success me-1"></i> Stamps
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1" data-bs-toggle="pill" data-bs-target="#tool-signature">
+                      <i class="bi bi-pen text-dark me-1"></i> Sign
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link py-1" data-bs-toggle="pill" data-bs-target="#tool-items">
+                      <i class="bi bi-list-check text-secondary me-1"></i> Items
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content overflow-auto p-1" style="max-height: 600px;">
+
+                  <!-- 1. TEXT & TYPOGRAPHY TOOLBOX (NEW: TEXT COLORS + ADD NEW TEXT IN REQUIRED SIZE) -->
+                  <div class="tab-pane fade show active" id="tool-typography">
+                    
+                    <!-- A. ADD NEW CUSTOM TEXT BLOCK (TARGET: HEADER, BODY, OR FOOTER) -->
+                    <div class="border rounded p-2 mb-3 bg-light border-primary-subtle">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-bold text-dark"><i class="bi bi-plus-square-fill text-primary me-1"></i> Add Custom Text to Invoice</span>
+                        <span class="badge bg-primary">Header • Body • Footer</span>
+                      </div>
+                      <small class="text-muted d-block mb-2">Insert custom lines into <strong>Header</strong>, <strong>Invoice Body</strong>, or <strong>Footer</strong> at your chosen font size &amp; color.</small>
+                      
+                      <!-- Placement Target Selector -->
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 fw-bold text-dark d-flex justify-content-between">
+                          <span>Where to Place Text:</span>
+                          <span class="text-primary small" id="lblTargetPlacementHint">Header, Body or Footer</span>
+                        </label>
+                        <select id="selNewTextTarget" class="form-select form-select-sm fw-semibold" onchange="onTextTargetChanged(this.value)">
+                          <option value="header">🎯 Add into Header (Top Banner)</option>
+                          <option value="body" selected>📄 Add into Invoice Body (Notes / Details)</option>
+                          <option value="footer">📌 Add into Footer (Bottom Bar)</option>
+                        </select>
+                      </div>
+
+                      <div class="input-group input-group-sm mb-2">
+                        <input type="text" id="inpNewTextContent" class="form-control" placeholder="Enter text to add (e.g. GSTIN, Helpline, Bank Details, Shloka)...">
+                        <button type="button" class="btn btn-primary fw-bold" onclick="addCustomTextBlockFromInput()">
+                          <i class="bi bi-plus-lg me-1"></i> Add
+                        </button>
+                      </div>
+
+                      <div class="row g-2 mb-1">
+                        <div class="col-6">
+                          <label class="form-label small mb-0 text-muted">Font Size:</label>
+                          <select id="selNewTextSize" class="form-select form-select-sm">
+                            <option value="7">Tiny (7 px)</option>
+                            <option value="8">Header/Footer (8 px)</option>
+                            <option value="9">Small (9 px)</option>
+                            <option value="11" selected>Medium (11 px)</option>
+                            <option value="13">Notice (13 px)</option>
+                            <option value="16">Heading (16 px)</option>
+                            <option value="20">Large Title (20 px)</option>
+                            <option value="26">Banner Title (26 px)</option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small mb-0 text-muted">Text Color:</label>
+                          <div class="d-flex align-items-center gap-1">
+                            <input type="color" id="pickerNewTextColor" class="form-control form-control-color form-control-sm" value="#1e293b">
+                            <div class="d-flex gap-1" id="swatchesNewText">
+                              <span class="color-swatch-btn" style="background: #45120E;" onclick="document.getElementById('pickerNewTextColor').value='#45120E'" title="Maroon"></span>
+                              <span class="color-swatch-btn" style="background: #FFC908;" onclick="document.getElementById('pickerNewTextColor').value='#FFC908'" title="Gold"></span>
+                              <span class="color-swatch-btn" style="background: #FFFFFF; border: 1px solid #ccc;" onclick="document.getElementById('pickerNewTextColor').value='#FFFFFF'" title="White"></span>
+                              <span class="color-swatch-btn" style="background: #000000;" onclick="document.getElementById('pickerNewTextColor').value='#000000'" title="Black"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- List of Added Custom Text Blocks -->
+                    <div class="mb-3" id="customTextBlocksContainer">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold small text-maroon text-uppercase mb-0">Active Custom Text Blocks</h6>
+                        <span class="badge bg-light text-dark border" id="badgeCustomTextCount">0</span>
+                      </div>
+                      <div id="customTextItemsList" class="small text-muted">
+                        <em>No custom text blocks added yet. Click Add above to place one.</em>
+                      </div>
+                    </div>
+
+                    <!-- TOP HEADER BAR CONTROLS (ABOVE MAIN HEADING: LEFT, MIDDLE, RIGHT) -->
+                    <div class="border rounded p-2 mb-3 bg-light">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold small text-maroon text-uppercase mb-0">Header Top Bar (Above Heading)</h6>
+                        <span class="badge bg-primary">Left • Middle • Right</span>
+                      </div>
+                      <small class="text-muted d-block mb-2">Add text directly above the main organization heading (e.g. Shloka, GSTIN, Devotee Copy).</small>
+
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 fw-semibold text-dark">Top Left Text:</label>
+                        <input type="text" class="form-control form-control-sm" id="inpHeaderTopLeft" placeholder="e.g. GSTIN / Helpline / Shloka" oninput="onHeaderTopToolboxInput()">
+                      </div>
+
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 fw-semibold text-dark">Top Middle / Center Text:</label>
+                        <input type="text" class="form-control form-control-sm" id="inpHeaderTopCenter" placeholder="e.g. ॥ ॐ நமச்சிவாய ॥ or || OM NAMAH SHIVAYA ||" oninput="onHeaderTopToolboxInput()">
+                      </div>
+
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 fw-semibold text-dark">Top Right Text:</label>
+                        <input type="text" class="form-control form-control-sm" id="inpHeaderTopRight" placeholder="e.g. DEVOTEE COPY / ORIGINAL" oninput="onHeaderTopToolboxInput()">
+                      </div>
+
+                      <div class="row g-2 align-items-center">
+                        <div class="col-7">
+                          <label class="form-label small mb-1 d-flex justify-content-between">
+                            <span>Text Color:</span>
+                            <span class="font-monospace small" id="lblHeaderTopColor">#45120E</span>
+                          </label>
+                          <div class="d-flex align-items-center gap-1">
+                            <input type="color" id="pickerHeaderTopColor" class="form-control form-control-color form-control-sm" value="#45120E" oninput="onHeaderTopColorChange(this.value)" onchange="onHeaderTopColorChange(this.value)">
+                            <span class="color-swatch-btn" style="background: #45120E;" onclick="onHeaderTopColorChange('#45120E')" title="Maroon"></span>
+                            <span class="color-swatch-btn" style="background: #FFFFFF;" onclick="onHeaderTopColorChange('#FFFFFF')" title="White"></span>
+                            <span class="color-swatch-btn" style="background: #FFC908;" onclick="onHeaderTopColorChange('#FFC908')" title="Gold"></span>
+                            <span class="color-swatch-btn" style="background: #000000;" onclick="onHeaderTopColorChange('#000000')" title="Black"></span>
+                          </div>
+                        </div>
+                        <div class="col-5">
+                          <label class="form-label small mb-1 d-flex justify-content-between">
+                            <span>Font Size:</span>
+                            <span class="fw-bold" id="lblHeaderTopSize">8 px</span>
+                          </label>
+                          <select class="form-select form-select-sm" id="selHeaderTopSize" onchange="onHeaderTopSizeChange(this.value)">
+                            <option value="7">7 px (Tiny)</option>
+                            <option value="8" selected>8 px (Small)</option>
+                            <option value="9">9 px (Normal)</option>
+                            <option value="10">10 px (Medium)</option>
+                            <option value="11">11 px (Large)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- B. HEADER & TITLE TEXT COLORS -->
+                    <div class="border rounded p-2 mb-3 bg-light">
+                      <h6 class="fw-bold small text-maroon text-uppercase mb-2">Header Text Colors &amp; Size</h6>
+                      
+                      <!-- Header Main Title Color & Size -->
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 d-flex justify-content-between">
+                          <span>Organization Title Color:</span>
+                          <span class="font-monospace small" id="lblHeaderTitleColor">#FFFFFF</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                          <input type="color" id="pickerHeaderTitleColor" class="form-control form-control-color form-control-sm" value="#FFFFFF" oninput="onHeaderTextColorChange('title', this.value)" onchange="onHeaderTextColorChange('title', this.value)">
+                          <div class="d-flex gap-1 flex-wrap">
+                            <span class="color-swatch-btn" style="background: #FFFFFF;" onclick="onHeaderTextColorChange('title', '#FFFFFF')" title="White"></span>
+                            <span class="color-swatch-btn" style="background: #45120E;" onclick="onHeaderTextColorChange('title', '#45120E')" title="Temple Maroon"></span>
+                            <span class="color-swatch-btn" style="background: #000000;" onclick="onHeaderTextColorChange('title', '#000000')" title="Pure Black"></span>
+                            <span class="color-swatch-btn" style="background: #FFC908;" onclick="onHeaderTextColorChange('title', '#FFC908')" title="Gold"></span>
+                            <span class="color-swatch-btn" style="background: #1E3A8A;" onclick="onHeaderTextColorChange('title', '#1E3A8A')" title="Navy Blue"></span>
+                          </div>
+                        </div>
+                        <label class="form-label small mb-1 d-flex justify-content-between">
+                          <span>Title Font Size:</span>
+                          <span class="fw-bold" id="lblOrgTitleSize">17 px</span>
+                        </label>
+                        <input type="range" class="form-range" min="13" max="26" value="17" id="sliderOrgTitleSize" oninput="onOrgTitleSizeSlider(this.value)">
+                      </div>
+
+                      <!-- Tagline & Subtitle Text Color -->
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 d-flex justify-content-between">
+                          <span>Tagline &amp; Subtitle Color:</span>
+                          <span class="font-monospace small" id="lblHeaderSubColor">#FFC908</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="color" id="pickerHeaderSubColor" class="form-control form-control-color form-control-sm" value="#FFC908" oninput="onHeaderTextColorChange('sub', this.value)" onchange="onHeaderTextColorChange('sub', this.value)">
+                          <div class="d-flex gap-1 flex-wrap">
+                            <span class="color-swatch-btn" style="background: #FFC908;" onclick="onHeaderTextColorChange('sub', '#FFC908')" title="Gold"></span>
+                            <span class="color-swatch-btn" style="background: #45120E;" onclick="onHeaderTextColorChange('sub', '#45120E')" title="Maroon"></span>
+                            <span class="color-swatch-btn" style="background: #000000;" onclick="onHeaderTextColorChange('sub', '#000000')" title="Black"></span>
+                            <span class="color-swatch-btn" style="background: #FFFFFF;" onclick="onHeaderTextColorChange('sub', '#FFFFFF')" title="White"></span>
+                            <span class="color-swatch-btn" style="background: #B45309;" onclick="onHeaderTextColorChange('sub', '#B45309')" title="Amber"></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Document Title Badge Text Color -->
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 d-flex justify-content-between">
+                          <span>Document Badge (&quot;INVOICE&quot;) Color:</span>
+                          <span class="font-monospace small" id="lblBadgeTextColor">#FFC908</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="color" id="pickerBadgeTextColor" class="form-control form-control-color form-control-sm" value="#FFC908" oninput="onHeaderTextColorChange('badge', this.value)" onchange="onHeaderTextColorChange('badge', this.value)">
+                          <div class="d-flex gap-1 flex-wrap">
+                            <span class="color-swatch-btn" style="background: #FFC908;" onclick="onHeaderTextColorChange('badge', '#FFC908')" title="Gold"></span>
+                            <span class="color-swatch-btn" style="background: #45120E;" onclick="onHeaderTextColorChange('badge', '#45120E')" title="Maroon"></span>
+                            <span class="color-swatch-btn" style="background: #000000;" onclick="onHeaderTextColorChange('badge', '#000000')" title="Black"></span>
+                            <span class="color-swatch-btn" style="background: #FFFFFF;" onclick="onHeaderTextColorChange('badge', '#FFFFFF')" title="White"></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Header Details / Address Text Color -->
+                      <div>
+                        <label class="form-label small mb-1 d-flex justify-content-between">
+                          <span>Address &amp; Phone Contact Color:</span>
+                          <span class="font-monospace small" id="lblHeaderDetailColor">#EBEBEB</span>
+                        </label>
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="color" id="pickerHeaderDetailColor" class="form-control form-control-color form-control-sm" value="#EBEBEB" oninput="onHeaderTextColorChange('detail', this.value)" onchange="onHeaderTextColorChange('detail', this.value)">
+                          <div class="d-flex gap-1 flex-wrap">
+                            <span class="color-swatch-btn" style="background: #EBEBEB;" onclick="onHeaderTextColorChange('detail', '#EBEBEB')" title="Light Gray"></span>
+                            <span class="color-swatch-btn" style="background: #1E293B;" onclick="onHeaderTextColorChange('detail', '#1E293B')" title="Dark Slate"></span>
+                            <span class="color-swatch-btn" style="background: #000000;" onclick="onHeaderTextColorChange('detail', '#000000')" title="Black"></span>
+                            <span class="color-swatch-btn" style="background: #45120E;" onclick="onHeaderTextColorChange('detail', '#45120E')" title="Maroon"></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                                        <!-- C. FOOTER TEXT & COLORS -->
+                    <div class="border rounded p-2 mb-3 bg-light">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="fw-bold small text-maroon text-uppercase mb-0">Footer Text &amp; Color</h6>
+                        <span class="badge bg-secondary">Bottom Strip</span>
+                      </div>
+                      <small class="text-muted d-block mb-2">Edit the bottom footer band message, text color, and size (e.g. blessings, legal notice, jurisdiction).</small>
+                      
+                      <!-- Main Footer Message Text -->
+                      <div class="mb-2">
+                        <label class="form-label small mb-1 fw-semibold text-dark">Footer Main Message:</label>
+                        <div class="input-group input-group-sm">
+                          <input type="text" id="inpFooterMainText" class="form-control" value="OM NAMAH SHIVAYA • ARUNACHALESHWARA TOURS &amp; TRAVELS, TIRUVANNAMALAI" oninput="onFooterMainTextInput(this.value)">
+                          <button type="button" class="btn btn-outline-secondary" onclick="resetFooterMainText()" title="Reset to default blessing">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Footer Text Color & Size -->
+                      <div class="row g-2 align-items-center">
+                        <div class="col-7">
+                          <label class="form-label small mb-1 d-flex justify-content-between">
+                            <span>Footer Text Color:</span>
+                            <span class="font-monospace small" id="lblFooterTextColor">#FFC908</span>
+                          </label>
+                          <div class="d-flex align-items-center gap-1">
+                            <input type="color" id="pickerFooterTextColor" class="form-control form-control-color form-control-sm" value="#FFC908" oninput="onFooterColorChange(this.value)" onchange="onFooterColorChange(this.value)">
+                            <div class="d-flex gap-1 flex-wrap">
+                              <span class="color-swatch-btn" style="background: #FFC908;" onclick="onFooterColorChange('#FFC908')" title="Gold"></span>
+                              <span class="color-swatch-btn" style="background: #FFFFFF;" onclick="onFooterColorChange('#FFFFFF')" title="White"></span>
+                              <span class="color-swatch-btn" style="background: #F59E0B;" onclick="onFooterColorChange('#F59E0B')" title="Amber"></span>
+                              <span class="color-swatch-btn" style="background: #45120E;" onclick="onFooterColorChange('#45120E')" title="Maroon"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-5">
+                          <label class="form-label small mb-1 d-flex justify-content-between">
+                            <span>Size:</span>
+                            <span class="fw-bold" id="lblFooterTextSize">8 px</span>
+                          </label>
+                          <input type="range" class="form-range" min="6" max="14" step="0.5" value="8" id="sliderFooterTextSize" oninput="onFooterTextSizeSlider(this.value)">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="alert alert-light border small text-muted">
+                      <i class="bi bi-lightbulb-fill text-warning me-1"></i> <strong>Contrast Tip:</strong> If your header background is yellow or bright, set the title and badge colors to <strong>Maroon (#45120E)</strong> or <strong>Black (#000000)</strong> so text is crisp and readable.
+                    </div>
+                  </div>
+
+                  <!-- 2. IMAGES & TRANSPARENT BACKGROUND WATERMARK -->
+                  <div class="tab-pane fade" id="tool-images">
+                    
+                    <!-- A. TRANSPARENT BACKGROUND WATERMARK -->
+                    <div class="border rounded p-2 mb-3 bg-light border-warning-subtle">
+                      <label class="form-label small fw-bold text-dark d-flex justify-content-between mb-1">
+                        <span><i class="bi bi-card-image text-warning me-1"></i> 1. Transparent Background Watermark</span>
+                        <span class="badge bg-warning text-dark font-monospace" id="lblBgOpacityBadge">15% Opacity</span>
+                      </label>
+                      <small class="text-muted d-block mb-2">Upload any image to display across the invoice background with adjustable transparency.</small>
+                      
+                      <div id="bgImgThumbContainer" class="d-none mb-2 text-center">
+                        <img id="bgThumbPreview" src="" alt="Background" class="rounded border mb-1" style="max-height: 65px; max-width: 100%; object-fit: contain;">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 small d-block mx-auto" onclick="removeImage('background')">
+                          <i class="bi bi-trash"></i> Remove Background
+                        </button>
+                      </div>
+
+                      <input type="file" id="bgFileInput" accept="image/*" class="form-control form-control-sm mb-2" onchange="handleImageUpload('background', this)">
+                      
+                      <label class="form-label small mb-1 d-flex justify-content-between">
+                        <span>Watermark Transparency (Opacity):</span>
+                        <span class="fw-bold text-maroon" id="lblBgOpacity">15%</span>
+                      </label>
+                      <input type="range" class="form-range mb-2" min="0.05" max="1.0" step="0.05" value="0.15" id="sliderBgOpacity" oninput="onBgOpacitySlider(this.value)">
+
+                      <div class="d-flex justify-content-between align-items-center pt-1 border-top">
+                        <span class="small text-muted">Watermark Fit:</span>
+                        <div class="btn-group btn-group-sm">
+                          <button type="button" class="btn btn-outline-secondary py-0 px-2 active" id="btnBgCover" onclick="setBgFit('cover')">Full Page</button>
+                          <button type="button" class="btn btn-outline-secondary py-0 px-2" id="btnBgCenter" onclick="setBgFit('center')">Center Seal</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- B. TEMPLE / BUSINESS LOGO -->
+                    <div class="border rounded p-2 mb-3 bg-light">
+                      <label class="form-label small fw-bold text-dark mb-1">2. Organization / Temple Logo</label>
+                      <div class="d-flex align-items-center gap-2 mb-2">
+                        <img id="logoThumbPreview" src="../assets/images/logo/logo.png" alt="Logo" class="border bg-white rounded p-1" style="width: 48px; height: 48px; object-fit: contain;">
+                        <div class="flex-grow-1">
+                          <input type="file" id="logoFileInput" accept="image/*" class="form-control form-control-sm mb-1" onchange="handleImageUpload('logo', this)">
+                          <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 small" onclick="removeImage('logo')">Remove</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 small" onclick="resetDefaultLogo()">Reset Default</button>
+                          </div>
+                        </div>
+                      </div>
+                      <label class="form-label small mb-1 d-flex justify-content-between">
+                        <span>Logo Size on Canvas:</span>
+                        <span id="lblLogoSize">40 px</span>
+                      </label>
+                      <input type="range" class="form-range" min="26" max="75" value="40" id="sliderLogoSize" oninput="onLogoSizeSlider(this.value)">
+                    </div>
+
+                    <!-- C. HEADER BANNER GRAPHIC -->
+                    <div class="border rounded p-2 mb-3 bg-light">
+                      <label class="form-label small fw-bold text-dark mb-1">3. Custom Top Header Banner Image</label>
+                      <div id="bannerImgThumbContainer" class="d-none mb-2">
+                        <img id="bannerThumbPreview" src="" alt="Banner" class="w-100 rounded border" style="max-height: 60px; object-fit: cover;">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 small mt-1" onclick="removeImage('banner')">Remove Banner Image</button>
+                      </div>
+                      <input type="file" id="bannerFileInput" accept="image/*" class="form-control form-control-sm mb-1" onchange="handleImageUpload('banner', this)">
+                      <small class="text-muted d-block">Upload any custom banner image to replace the solid header bar.</small>
+                    </div>
+
+                  </div>
+
+                  <!-- 3. THEME & COLORS -->
+                  <div class="tab-pane fade" id="tool-theme">
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Preset Color Themes</h6>
+                    <div class="d-flex gap-2 flex-wrap mb-3">
+                      <button type="button" class="btn btn-sm btn-outline-dark small py-1" onclick="applyThemePreset('temple')">
+                        <span class="color-swatch-btn me-1 align-middle" style="background: #45120E;"></span> Temple Maroon &amp; Gold
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-dark small py-1" onclick="applyThemePreset('saffron')">
+                        <span class="color-swatch-btn me-1 align-middle" style="background: #D97706;"></span> Divine Saffron
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-dark small py-1" onclick="applyThemePreset('royal')">
+                        <span class="color-swatch-btn me-1 align-middle" style="background: #1E3A8A;"></span> Royal Navy Blue
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-dark small py-1" onclick="applyThemePreset('minimal')">
+                        <span class="color-swatch-btn me-1 align-middle" style="background: #18181B;"></span> Charcoal Slate
+                      </button>
+                    </div>
+
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Custom Color Tuning</h6>
+                    <div class="row g-2 mb-3">
+                      <div class="col-6">
+                        <label class="form-label small mb-1">Header Theme Color</label>
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="color" id="pickerThemeColor" class="form-control form-control-color form-control-sm" value="#45120E" oninput="onCustomColorChange()" onchange="onCustomColorChange()">
+                          <span class="small font-monospace" id="lblThemeColor">#45120E</span>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small mb-1">Accent Gold Color</label>
+                        <div class="d-flex align-items-center gap-2">
+                          <input type="color" id="pickerAccentColor" class="form-control form-control-color form-control-sm" value="#FFC908" oninput="onCustomColorChange()" onchange="onCustomColorChange()">
+                          <span class="small font-monospace" id="lblAccentColor">#FFC908</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Paper Background Tone</h6>
+                    <div class="d-flex gap-2 mb-3">
+                      <button type="button" class="btn btn-sm btn-outline-secondary py-1 active" id="btnPaperWhite" onclick="setPaperTone('white')">
+                        Pure White
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary py-1" id="btnPaperCream" onclick="setPaperTone('cream')">
+                        Antique Ivory
+                      </button>
+                    </div>
+
+                    <!-- Template Reset Button inside toolbox -->
+                    <div class="border-top pt-3 mt-3">
+                      <h6 class="fw-bold small text-danger text-uppercase mb-1">Reset Template</h6>
+                      <p class="small text-muted mb-2">Restore original Arunachaleshwara template, colors, and default terms:</p>
+                      <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="confirmResetTemplate()">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Template to Default
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 4. AUTHENTIC IN-BUILT STAMPS & SEALS -->
+                  <div class="tab-pane fade" id="tool-stamps">
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Select Stamp / Seal to Apply</h6>
+                    <div class="row g-2 mb-3">
+                      <div class="col-6">
+                        <div class="card p-2 text-center h-100 cursor-pointer border-success" onclick="selectStampBadge('paid')" style="cursor: pointer;">
+                          <div class="stamp-paid mx-auto mb-1" style="position: relative; width: 56px; height: 56px; font-size: 8px;">
+                            <span>★ PAID ★<br>SETTLED</span>
+                          </div>
+                          <span class="small fw-bold text-success">Paid &amp; Settled</span>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="card p-2 text-center h-100 cursor-pointer border-warning" onclick="selectStampBadge('temple')" style="cursor: pointer;">
+                          <div class="stamp-temple mx-auto mb-1" style="position: relative; width: 56px; height: 56px; font-size: 7.5px;">
+                            <span>ॐ NAMAH<br>SHIVAYA</span>
+                          </div>
+                          <span class="small fw-bold text-warning-emphasis">Temple Blessing</span>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="card p-2 text-center h-100 cursor-pointer border-primary" onclick="selectStampBadge('verified')" style="cursor: pointer;">
+                          <div class="stamp-verified mx-auto mb-1" style="position: relative; width: 56px; height: 56px; font-size: 7.5px;">
+                            <span>VERIFIED<br>OFFICIAL</span>
+                          </div>
+                          <span class="small fw-bold text-primary">Bank Verified</span>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="card p-2 text-center h-100 cursor-pointer border-danger" onclick="selectStampBadge('authorized')" style="cursor: pointer;">
+                          <div class="stamp-authorized mx-auto mb-1" style="position: relative; width: 56px; height: 56px; font-size: 7.5px;">
+                            <span>AUTHORIZED<br>OFFICE</span>
+                          </div>
+                          <span class="small fw-bold text-maroon">Authorized Seal</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="border rounded p-2 bg-light mb-3">
+                      <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="chkShowStamp" checked onchange="toggleStampVisibility(this.checked)">
+                        <label class="form-check-label small fw-bold" for="chkShowStamp">Show Stamp on Invoice</label>
+                      </div>
+                      <label class="form-label small mb-1 d-flex justify-content-between">
+                        <span>Stamp Rotation Angle:</span>
+                        <span id="lblStampRot">-12°</span>
+                      </label>
+                      <input type="range" class="form-range" min="-30" max="30" value="-12" id="sliderStampRot" oninput="onStampRotSlider(this.value)">
+                    </div>
+
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Or Upload Custom Stamp Image</h6>
+                    <input type="file" id="customStampFileInput" accept="image/*" class="form-control form-control-sm" onchange="handleImageUpload('custom_stamp', this)">
+                  </div>
+
+                  <!-- 5. DIGITAL SIGNATURE PAD -->
+                  <div class="tab-pane fade" id="tool-signature">
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-1">Draw Digital Signature</h6>
+                    <p class="small text-muted mb-2">Sign with your mouse or touchscreen directly into this in-app drawing pad:</p>
+
+                    <div class="sig-canvas-wrapper mb-2">
+                      <canvas id="signaturePadCanvas" width="360" height="110"></canvas>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="d-flex gap-2 align-items-center">
+                        <span class="small text-muted">Pen:</span>
+                        <button type="button" class="btn btn-sm btn-dark py-0 px-2 small" onclick="setSigPenColor('#0f172a')">Navy</button>
+                        <button type="button" class="btn btn-sm btn-primary py-0 px-2 small" onclick="setSigPenColor('#1d4ed8')">Blue</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 small" onclick="clearSignaturePad()">
+                          <i class="bi bi-eraser"></i> Clear
+                        </button>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-admin-yellow fw-bold py-1 px-3" onclick="applySignatureToCanvas()">
+                        <i class="bi bi-check-lg me-1"></i> Apply to Invoice
+                      </button>
+                    </div>
+
+                    <div class="form-check form-switch mb-2">
+                      <input class="form-check-input" type="checkbox" id="chkShowSignature" onchange="toggleSignatureVisibility(this.checked)">
+                      <label class="form-check-label small fw-bold" for="chkShowSignature">Show Signature on Document</label>
+                    </div>
+                  </div>
+
+                  <!-- 6. LINE ITEMS & FINANCIALS -->
+                  <div class="tab-pane fade" id="tool-items">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="fw-bold small text-maroon text-uppercase mb-0">Line Items</h6>
+                      <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 small" onclick="addNewLineItem()">
+                        <i class="bi bi-plus-circle me-1"></i> Add Row
+                      </button>
+                    </div>
+
+                    <div id="toolboxItemsList" class="mb-3">
+                      <!-- List generated dynamically -->
+                    </div>
+
+                    <h6 class="fw-bold small text-maroon text-uppercase mb-2">Financial Overrides</h6>
+                    <div class="row g-2 mb-2">
+                      <div class="col-6">
+                        <label class="form-label small mb-0">Discount (₹)</label>
+                        <input type="number" id="tbDiscount" class="form-control form-control-sm" value="0" oninput="onFinancialOverride()">
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small mb-0">Taxes / GST (₹)</label>
+                        <input type="number" id="tbTax" class="form-control form-control-sm" value="0" oninput="onFinancialOverride()">
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small mb-0 fw-bold text-success">Received (₹)</label>
+                        <input type="number" id="tbReceived" class="form-control form-control-sm text-success fw-bold" oninput="onFinancialOverride()">
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small mb-0 fw-bold text-danger">Balance Due (₹)</label>
+                        <input type="number" id="tbBalance" class="form-control form-control-sm text-danger fw-bold" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT CANVAS ARTBOARD STAGE (col-xl-8 col-lg-7) -->
+            <div class="col-xl-8 col-lg-7">
+              <!-- Canvas Zoom & Action Bar -->
+              <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded border">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="small fw-bold text-muted">Zoom:</span>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="setCanvasZoom(0.85)">85%</button>
+                    <button type="button" class="btn btn-outline-secondary py-0 px-2 active" id="btnZoom100" onclick="setCanvasZoom(1)">100%</button>
+                    <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="setCanvasZoom(1.15)">115%</button>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="confirmResetTemplate()" title="Reset template to default">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-3" onclick="printInvoiceSheet()">
+                    <i class="bi bi-printer me-1"></i> Print
+                  </button>
+                  <button type="button" class="btn btn-sm btn-admin-yellow fw-bold py-1 px-3" onclick="downloadCanvasPDF()">
+                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download PDF
+                  </button>
+                  <button type="button" class="btn btn-sm btn-success fw-bold py-1 px-3" id="btnSaveCanvasChanges" onclick="saveCanvasInvoice()">
+                    <i class="bi bi-check-circle-fill me-1"></i> Save Changes
+                  </button>
+                  <button type="button" class="btn btn-sm btn-danger fw-bold py-1 px-3 shadow-sm" data-bs-dismiss="modal" onclick="closeCanvasStudioModal()" title="Close Canvas Studio and return to Invoices">
+                    <i class="bi bi-x-circle-fill me-1"></i> Close Canvas
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Artboard Stage -->
+              <div class="canvas-studio-bg" id="canvasStudioBg">
+                <div class="canvas-artboard position-relative" id="invoicePreviewContainer">
+
+                  <!-- TRANSPARENT BACKGROUND WATERMARK LAYER -->
+                  <div id="artboardBgWatermarkLayer" class="position-absolute top-0 start-0 w-100 h-100 d-none" style="pointer-events: none; z-index: 1; overflow: hidden;">
+                    <img id="artboardBgWatermarkImg" src="" alt="Watermark" class="w-100 h-100" style="object-fit: cover; opacity: 0.15;">
+                  </div>
+
+                  <!-- ARTBOARD CONTENT (z-index: 2 for clean clickability) -->
+                  <div style="position: relative; z-index: 2;">
+                    <!-- HEADER BANNER -->
+                    <div id="artboardHeaderWrap">
+                      <div class="canvas-header-block" id="artboardHeaderBlock">
+                        <!-- TOP HEADER STRIP (ABOVE MAIN HEADING: LEFT, MIDDLE, RIGHT) -->
+                        <div id="artboardHeaderTopStrip" class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom" style="border-color: rgba(0,0,0,0.12) !important; font-size: 8px; line-height: 1.2;">
+                          <div id="cvHeaderTopLeft" class="canvas-editable text-start text-truncate pe-1" contenteditable="true" spellcheck="false" title="Click to edit top-left text (e.g. GSTIN, Helpline, Shloka)" style="flex: 1;" oninput="onHeaderTopArtboardInput()">
+                            ॥ ஸ்ரீ அருணாசலேஸ்வரர் துணை ॥
+                          </div>
+                          <div id="cvHeaderTopCenter" class="canvas-editable text-center fw-bold px-1 text-truncate" contenteditable="true" spellcheck="false" title="Click to edit top-middle text (e.g. || OM NAMAH SHIVAYA ||)" style="flex: 1.2;" oninput="onHeaderTopArtboardInput()">
+                            ॥ ॐ நமச்சிவாய ॥
+                          </div>
+                          <div id="cvHeaderTopRight" class="canvas-editable text-end text-truncate ps-1" contenteditable="true" spellcheck="false" title="Click to edit top-right text (e.g. DEVOTEE COPY)" style="flex: 1;" oninput="onHeaderTopArtboardInput()">
+                            DEVOTEE COPY
+                          </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-start">
+                          <!-- Left: Logo & Org Info -->
+                          <div class="d-flex align-items-center gap-2">
+                            <img id="artboardLogoImg" src="../assets/images/logo/logo.png" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                            <div>
+                              <div class="fw-bold canvas-editable" contenteditable="true" spellcheck="false" id="cvOrgName" style="font-size: 17px;" title="Click to edit text directly">
+                                ARUNACHALESHWARA TOURS &amp; TRAVELS
+                              </div>
+                              <div class="canvas-editable" contenteditable="true" spellcheck="false" id="cvOrgTagline" style="font-size: 9.5px; color: #FFC908;" title="Click to edit text directly">
+                                Divine Pilgrimage &amp; Hospitality Services
+                              </div>
+                              <div class="canvas-editable" contenteditable="true" spellcheck="false" id="cvOrgAddress" style="font-size: 8px; color: #EBEBEB;" title="Click to edit text directly">
+                                Avulpet Bypass, Near Arunachaleswarar Temple, Tiruvannamalai - 606601, Tamil Nadu
+                              </div>
+                              <div class="canvas-editable" contenteditable="true" spellcheck="false" id="cvOrgContact" style="font-size: 8px; color: #EBEBEB;" title="Click to edit text directly">
+                                Phone: +91 90105 15341 | Email: arunachalatoursandtravels@gmail.com
+                              </div>
+                              <!-- DEDICATED HEADER CUSTOM TEXT ZONE (Added text blocks in header) -->
+                              <div id="artboardHeaderCustomZone" class="mt-1 d-flex flex-column gap-1"></div>
+                            </div>
+                          </div>
+
+                          <!-- Right: Document Identifier -->
+                          <div class="text-end">
+                            <div class="fw-bold fs-5 canvas-editable" contenteditable="true" spellcheck="false" id="cvDocTitle" style="color: #FFC908;" title="Click to edit text directly">
+                              INVOICE
+                            </div>
+                            <div class="fw-bold canvas-editable" contenteditable="true" spellcheck="false" id="cvInvNumber" style="font-size: 9.5px;" title="Click to edit text directly">
+                              ARN-INV-2026-00001
+                            </div>
+                            <div class="canvas-editable" contenteditable="true" spellcheck="false" id="cvInvDate" style="font-size: 8.5px; color: #EBEBEB;" title="Click to edit text directly">
+                              Date: 18 Nov 2026
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Custom Header Banner (if image uploaded) -->
+                      <div id="artboardCustomBanner" class="d-none">
+                        <img id="artboardCustomBannerImg" src="" alt="Header Banner" class="w-100" style="max-height: 85px; object-fit: cover;">
+                      </div>
+
+                      <div class="canvas-gold-stripe" id="artboardGoldStripe"></div>
+                    </div>
+
+                    <!-- DEVOTEE & BOOKING METADATA BOX -->
+                    <div class="canvas-info-box">
+                      <div class="row g-2">
+                        <div class="col-6 border-end pe-2">
+                          <div class="fw-bold text-maroon text-uppercase" style="font-size: 8.5px;">BILLED TO (CUSTOMER)</div>
+                          <div class="fw-bold fs-6 canvas-editable text-dark" contenteditable="true" spellcheck="false" id="cvCustomerName" title="Click to edit text directly">
+                            Devotee Name
+                          </div>
+                          <div class="canvas-editable text-muted" contenteditable="true" spellcheck="false" id="cvCustomerMobile" title="Click to edit text directly">
+                            Mobile: +91 99999 99999
+                          </div>
+                          <div class="canvas-editable text-muted" contenteditable="true" spellcheck="false" id="cvCustomerEmail" title="Click to edit text directly">
+                            Email: devotee@example.com
+                          </div>
+                          <div class="canvas-editable text-muted" contenteditable="true" spellcheck="false" id="cvCustomerAddress" title="Click to edit text directly">
+                            Address: Tamil Nadu, India
+                          </div>
+                        </div>
+
+                        <div class="col-6 ps-2">
+                          <div class="fw-bold text-maroon text-uppercase" style="font-size: 8.5px;">BOOKING REFERENCE</div>
+                          <div class="canvas-editable text-dark" contenteditable="true" spellcheck="false" id="cvBookingCode" title="Click to edit text directly">
+                            Booking ID: ARN-2026-00001
+                          </div>
+                          <div class="canvas-editable text-dark" contenteditable="true" spellcheck="false" id="cvRoomDetails" title="Click to edit text directly">
+                            Room / Service: Standard Room - Room 101
+                          </div>
+                          <div class="canvas-editable text-dark" contenteditable="true" spellcheck="false" id="cvStayDates" title="Click to edit text directly">
+                            Stay: 18 Nov 2026 to 19 Nov 2026
+                          </div>
+                          <div class="canvas-editable fw-bold text-success" contenteditable="true" spellcheck="false" id="cvPaymentStatus" style="font-size: 9px;" title="Click to edit text directly">
+                            Payment Status: PAID
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- LINE ITEMS TABLE -->
+                    <div class="px-3 mb-2">
+                      <table class="table canvas-table mb-1">
+                        <thead>
+                          <tr>
+                            <th style="width: 28px;">#</th>
+                            <th>Description / Service Details</th>
+                            <th class="text-end" style="width: 50px;">Qty</th>
+                            <th class="text-end" style="width: 80px;">Unit Price</th>
+                            <th class="text-end" style="width: 85px;">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody id="artboardItemsTbody">
+                          <!-- Rows injected dynamically with contenteditable -->
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!-- TOTALS SUMMARY & VERIFICATION BOX -->
+                    <div class="px-3 mb-3">
+                      <div class="row g-2">
+                        <!-- Left: Payment Verification & Stamps -->
+                        <div class="col-6 position-relative">
+                          <div class="p-2 bg-light border rounded h-100 position-relative">
+                            <div class="fw-bold text-maroon text-uppercase" style="font-size: 8px;">PAYMENT VERIFICATION DETAILS</div>
+                            <div class="canvas-editable text-dark" contenteditable="true" spellcheck="false" id="cvPayMethod" style="font-size: 9px;">
+                              Method: Manual Transfer (UPI)
+                            </div>
+                            <div class="canvas-editable text-muted font-monospace" contenteditable="true" spellcheck="false" id="cvPayRef" style="font-size: 8.5px;">
+                              Reference: Verified Manually
+                            </div>
+                            <div class="canvas-editable fw-semibold text-success" contenteditable="true" spellcheck="false" id="cvPayVerStatus" style="font-size: 8.5px;">
+                              Status: Verified
+                            </div>
+
+                            <!-- Digital Signature Slot -->
+                            <div id="artboardSigSlot" class="d-none mt-2 pt-1 border-top">
+                              <img id="artboardSigImg" src="" alt="Signature" style="max-height: 38px; max-width: 130px; object-fit: contain;">
+                              <div class="text-muted" style="font-size: 7.5px;">Authorized Signatory</div>
+                            </div>
+                          </div>
+
+                          <!-- Authentic Stamp Badge Placement -->
+                          <div id="artboardStampContainer" class="canvas-stamp-badge stamp-paid" style="right: 12px; bottom: 8px; transform: rotate(-12deg);">
+                            <div id="stampBadgeInner">
+                              <span>★ PAID ★<br>SETTLED</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Right: Financial Summary -->
+                        <div class="col-6">
+                          <div class="d-flex justify-content-between text-muted" style="font-size: 9px;">
+                            <span>Subtotal:</span>
+                            <span class="text-dark fw-bold" id="cvSubtotal">Rs. 0</span>
+                          </div>
+                          <div class="d-flex justify-content-between text-muted d-none" id="cvDiscountRow" style="font-size: 9px;">
+                            <span>Discount:</span>
+                            <span class="text-success fw-bold" id="cvDiscount">- Rs. 0</span>
+                          </div>
+                          <div class="d-flex justify-content-between text-muted d-none" id="cvTaxRow" style="font-size: 9px;">
+                            <span>Taxes / GST:</span>
+                            <span class="text-dark fw-bold" id="cvTax">Rs. 0</span>
+                          </div>
+                          <div class="canvas-total-pill my-1" id="artboardTotalPill">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <span class="fw-bold" style="font-size: 9px;">TOTAL AMOUNT:</span>
+                              <span class="fw-bold text-warning fs-6" id="cvTotalAmount">Rs. 0</span>
+                            </div>
+                          </div>
+                          <div class="d-flex justify-content-between text-success fw-bold" style="font-size: 9px;">
+                            <span>Amount Received:</span>
+                            <span id="cvAmountReceived">Rs. 0</span>
+                          </div>
+                          <div class="d-flex justify-content-between fw-bold" id="cvBalanceRow" style="font-size: 9px;">
+                            <span>Balance Due:</span>
+                            <span id="cvBalanceDue">Rs. 0</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- CUSTOM TEXT BLOCKS AREA (RENDERED DIRECTLY ON CANVAS) -->
+                    <div class="px-3" id="artboardCustomTextZone">
+                      <!-- Custom blocks injected dynamically -->
+                    </div>
+
+                    <!-- TERMS & IMPORTANT INFORMATION -->
+                    <div class="px-3 pt-2 border-top">
+                      <div class="fw-bold text-maroon text-uppercase mb-1" style="font-size: 8px;">TERMS &amp; IMPORTANT INFORMATION</div>
+                      <div class="canvas-editable text-muted" contenteditable="true" spellcheck="false" id="cvTerms" style="font-size: 7.5px; white-space: pre-line;" title="Click to edit terms directly">
+                        1. Check-in: 12:00 PM | Check-out: 11:00 AM.
+                        2. Please present a valid Govt. photo ID proof at check-in.
+                        3. Advance payments are non-refundable within 48 hours of check-in.
+                        4. Thank you for choosing Arunachaleswara Tours &amp; Travels. Om Namah Shivaya.
+                      </div>
+                    </div>
+
+                    <!-- FOOTER (SUPPORTS INLINE DIRECT TEXT EDITING & ADDED CUSTOM FOOTER LINES) -->
+                    <div class="bg-maroon text-warning text-center py-2 mt-3 position-relative" id="artboardFooterBlock" style="font-size: 8px; font-weight: 700; letter-spacing: 0.5px; transition: background-color 0.2s ease;">
+                      <div class="canvas-editable d-inline-block px-2" contenteditable="true" spellcheck="false" id="cvFooterMainText" title="Click to edit footer text directly" oninput="onFooterMainTextArtboardInput(this.innerText)">
+                        OM NAMAH SHIVAYA &bull; ARUNACHALESHWARA TOURS &amp; TRAVELS, TIRUVANNAMALAI
+                      </div>
+                      <!-- DEDICATED FOOTER CUSTOM TEXT ZONE -->
+                      <div id="artboardFooterCustomZone" class="mt-1 d-flex flex-column gap-1" style="font-weight: 400; letter-spacing: normal;"></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Studio Bottom Footer with Quick Close & Actions -->
+        <div class="modal-footer bg-white border-top py-2 px-3 d-flex flex-wrap justify-content-between align-items-center">
+          <div class="text-muted small">
+            <i class="bi bi-keyboard text-primary me-1"></i> Tip: Press <kbd class="bg-light text-dark border">ESC</kbd> anytime to close Canvas Studio.
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-danger fw-bold px-3 py-1" data-bs-dismiss="modal" onclick="closeCanvasStudioModal()">
+              <i class="bi bi-x-circle-fill me-1"></i> Close Canvas
+            </button>
+            <button type="button" class="btn btn-sm btn-admin-yellow fw-bold px-3 py-1" onclick="downloadCanvasPDF()">
+              <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download PDF
+            </button>
+            <button type="button" class="btn btn-sm btn-success fw-bold px-4 py-1" onclick="saveCanvasInvoice()">
+              <i class="bi bi-check-circle-fill me-1"></i> Save Changes
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script src="assets/js/admin-invoice-pdf.js"></script>
+
   <script>
+    // State
     let invoicesList = [];
-    let orgInvoiceSettings = null;
+    let currentEditingInv = null;
+    let isMasterTemplateMode = false;
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
-      if (!user) return;
-      if (!canAccessModule('invoices')) { alert('Permission denied.'); window.location.href = 'dashboard.html'; return; }
-      renderAdminSidebar('invoices');
-      renderAdminHeader('Invoices & Receipts', 'Branded PDF & WhatsApp Delivery');
-      await loadInvoices();
-    });
+    // Factory Default Master Settings
+    const FACTORY_DEFAULT_SETTINGS = {
+      org_name: 'ARUNACHALESHWARA TOURS & TRAVELS',
+      tagline: 'Divine Pilgrimage & Hospitality Services',
+      address: 'Avulpet Bypass, Near Arunachaleswarar Temple, Tiruvannamalai - 606601, Tamil Nadu',
+      phone: '+91 90105 15341',
+      email: 'arunachalatoursandtravels@gmail.com',
+      gstin: '',
+      terms: '1. Check-in: 12:00 PM | Check-out: 11:00 AM.\n2. Please present a valid Govt. photo ID proof at check-in.\n3. Advance payments are non-refundable within 48 hours of check-in.\n4. Thank you for choosing Arunachaleswara Tours & Travels. Om Namah Shivaya.',
+      logo_url: '../assets/images/logo/logo.png',
+      header_banner_url: null,
+      stamp_url: null,
+      signature_url: null,
+      background_image_url: null,
+      background_opacity: 0.15,
+      background_fit: 'cover',
+      theme_color: '#45120E',
+      accent_color: '#FFC908',
+      header_top_left: '॥ ஸ்ரீ அருணாசலேஸ்வரர் துணை ॥',
+      header_top_center: '॥ ॐ நமச்சிவாய ॥',
+      header_top_right: 'DEVOTEE COPY',
+      header_top_color: '#45120E',
+      header_top_size: 8,
+      header_text_color: '#45120E',
+      header_sub_color: '#FFC908',
+      header_detail_color: '#EBEBEB',
+      badge_text_color: '#FFC908',
+      org_name_size: 17,
+      footer_text: 'OM NAMAH SHIVAYA • ARUNACHALESHWARA TOURS & TRAVELS, TIRUVANNAMALAI',
+      footer_text_color: '#FFC908',
+      footer_text_size: 8,
+      custom_text_blocks: []
+    };
 
+    let globalInvoiceSettings = Object.assign({}, FACTORY_DEFAULT_SETTINGS);
+
+    // Active Canvas Editor State
+    let activeCanvasState = {
+      themeColor: '#45120E',
+      accentColor: '#FFC908',
+      headerTopLeft: '॥ ஸ்ரீ அருணாசலேஸ்வரர் துணை ॥',
+      headerTopCenter: '॥ ॐ நமச்சிவாய ॥',
+      headerTopRight: 'DEVOTEE COPY',
+      headerTopColor: '#45120E',
+      headerTopSize: 8,
+      headerTextColor: '#45120E',
+      headerSubColor: '#FFC908',
+      headerDetailColor: '#EBEBEB',
+      badgeTextColor: '#FFC908',
+      orgNameSize: 17,
+      footerText: 'OM NAMAH SHIVAYA • ARUNACHALESHWARA TOURS & TRAVELS, TIRUVANNAMALAI',
+      footerTextColor: '#FFC908',
+      footerTextSize: 8,
+      paperTone: 'white',
+      bannerImage: null,
+      logoImage: '../assets/images/logo/logo.png',
+      backgroundImage: null,
+      backgroundOpacity: 0.15,
+      backgroundFit: 'cover',
+      stampType: 'paid',
+      showStamp: true,
+      stampRotation: -12,
+      customStampImage: null,
+      signatureImage: null,
+      showSignature: false,
+      items: [],
+      customTextBlocks: []
+    };
+
+    // Signature Pad Variables
+    let sigCanvas, sigCtx, isSigDrawing = false;
+
+    // Initialization
+    function initInvoicesPage() {
+      if (typeof requireAdminAuth === 'function') {
+        requireAdminAuth().then(user => {
+          if (!user) return;
+          if (typeof renderAdminSidebar === 'function') renderAdminSidebar('invoices');
+          if (typeof renderAdminHeader === 'function') renderAdminHeader('Invoices & Receipts', 'In-App Canvas Studio');
+          loadInvoices();
+        }).catch(err => {
+          console.warn('Auth check fallback:', err);
+          loadInvoices();
+        });
+      } else {
+        loadInvoices();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initInvoicesPage);
+    } else {
+      initInvoicesPage();
+    }
+
+    // Load Invoices from Supabase
     async function loadInvoices() {
-      const sb = window.adminSupabase;
-      const [{ data: invs }, { data: sett }] = await Promise.all([
-        sb.from('invoices').select('*').order('created_at', { ascending: false }),
-        sb.from('website_settings').select('value').eq('key', 'invoice_settings').maybeSingle()
-      ]);
-      invoicesList = invs || [];
-      orgInvoiceSettings = sett ? sett.value : null;
+      const tbody = document.getElementById('invoicesBody');
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm text-warning me-2"></div> Fetching issued invoices...
+      </td></tr>`;
+
+      try {
+        // Immediate fallback from localStorage
+        const localMaster = JSON.parse(localStorage.getItem('master_invoice_settings') || 'null');
+        if (localMaster) {
+          globalInvoiceSettings = Object.assign({}, FACTORY_DEFAULT_SETTINGS, localMaster);
+        }
+
+        const sb = window.adminSupabase;
+        const [{ data: invs, error: invErr }, { data: sett, error: setErr }] = await Promise.all([
+          sb.from('invoices').select('*').order('created_at', { ascending: false }),
+          sb.from('website_settings').select('value').eq('key', 'invoice_settings').maybeSingle()
+        ]);
+
+        if (invErr) console.error('Error fetching invoices:', invErr);
+        if (sett && sett.value) {
+          globalInvoiceSettings = Object.assign({}, FACTORY_DEFAULT_SETTINGS, sett.value);
+          localStorage.setItem('master_invoice_settings', JSON.stringify(globalInvoiceSettings));
+        }
+
+        invoicesList = invs || [];
+        updateKpiCards();
+        filterInvoicesTable();
+      } catch (err) {
+        console.error('loadInvoices error:', err);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-danger">
+          <i class="bi bi-exclamation-triangle me-1"></i> Failed to load invoices: ${err.message || err}
+        </td></tr>`;
+      }
+    }
+
+    // Update KPI summary cards
+    function updateKpiCards() {
+      const totalInvoiced = invoicesList.reduce((s, i) => s + Number(i.total_amount || 0), 0);
+      const totalPaid = invoicesList.reduce((s, i) => s + Number(i.amount_received || 0), 0);
+      const totalBalance = invoicesList.reduce((s, i) => s + Number(i.balance_due || 0), 0);
+
+      document.getElementById('kpiTotalInvoiced').textContent = formatINR(totalInvoiced);
+      document.getElementById('kpiTotalPaid').textContent = formatINR(totalPaid);
+      document.getElementById('kpiTotalBalance').textContent = formatINR(totalBalance);
+      document.getElementById('kpiTotalCount').textContent = invoicesList.length;
+      document.getElementById('invCountBadge').textContent = `${invoicesList.length} Invoice${invoicesList.length === 1 ? '' : 's'}`;
+    }
+
+    // Filter and Render Invoices Table
+    function filterInvoicesTable() {
+      const search = (document.getElementById('invSearchInput').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('invStatusFilter').value;
+
+      const filtered = invoicesList.filter(inv => {
+        if (statusFilter !== 'all' && (inv.payment_status || 'Paid') !== statusFilter) {
+          return false;
+        }
+        if (!search) return true;
+        const num = (inv.invoice_number || '').toLowerCase();
+        const code = (inv.booking_code || '').toLowerCase();
+        const name = (inv.customer_name || '').toLowerCase();
+        const mobile = (inv.customer_mobile || '').toLowerCase();
+        return num.includes(search) || code.includes(search) || name.includes(search) || mobile.includes(search);
+      });
 
       const tbody = document.getElementById('invoicesBody');
-      if (invoicesList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">No invoices generated yet. Open any booking in Bookings Management to issue an invoice.</td></tr>';
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted">
+          <i class="bi bi-receipt fs-3 d-block mb-2 text-warning"></i>
+          No invoices match your search or filter.
+        </td></tr>`;
         return;
       }
 
-      tbody.innerHTML = invoicesList.map(inv => `
-        <tr>
-          <td class="fw-bold text-maroon">${inv.invoice_number}</td>
-          <td><a href="bookings.html?id=${inv.booking_code}" class="text-decoration-none fw-semibold">${inv.booking_code}</a></td>
+      tbody.innerHTML = filtered.map(inv => {
+        const bal = Number(inv.balance_due || 0);
+        const balClass = bal > 0 ? 'text-danger fw-bold' : 'text-muted';
+
+        return `
+          <tr>
+            <td class="fw-bold text-maroon">${inv.invoice_number}</td>
+            <td><a href="bookings.html?id=${inv.booking_code}" class="text-decoration-none fw-semibold">${inv.booking_code}</a></td>
+            <td>
+              <div class="fw-semibold">${inv.customer_name || 'Devotee'}</div>
+              <small class="text-muted">${inv.customer_mobile || '—'}</small>
+            </td>
+            <td>
+              <div class="fw-bold">${formatINR(inv.total_amount)}</div>
+              <small class="text-success">Paid: ${formatINR(inv.amount_received)}</small>
+            </td>
+            <td class="${balClass}">${formatINR(inv.balance_due)}</td>
+            <td class="small">${formatDate(inv.invoice_date || inv.created_at)}</td>
+            <td class="text-end">
+              <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="openInvoiceEditor('${inv.id}')" title="Edit in Canvas Studio">
+                <i class="bi bi-pencil-square"></i> Edit
+              </button>
+              <button type="button" class="btn btn-sm btn-admin-yellow me-1" onclick="downloadInv('${inv.id}')" title="Download PDF">
+                <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+              </button>
+              <button type="button" class="btn btn-sm btn-admin-whatsapp" onclick="shareInvWA('${inv.id}')" title="Share via WhatsApp">
+                <i class="bi bi-whatsapp"></i> Share
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // OPEN CANVAS STUDIO: MASTER TEMPLATE MODE
+    // ============================================================
+    function openMasterTemplateCanvasStudio() {
+      isMasterTemplateMode = true;
+      currentEditingInv = null;
+
+      document.getElementById('editorModalTitle').textContent = 'Master Invoice Template Canvas Studio';
+      document.getElementById('editorModalSubtitle').textContent = 'Edit Master Design • Custom Text Colors & Sizes • Add Custom Text • Transparent Background Watermark';
+
+      // Load master settings
+      activeCanvasState.themeColor = globalInvoiceSettings.theme_color || '#45120E';
+      activeCanvasState.accentColor = globalInvoiceSettings.accent_color || '#FFC908';
+      activeCanvasState.headerTopLeft = globalInvoiceSettings.header_top_left !== undefined ? globalInvoiceSettings.header_top_left : FACTORY_DEFAULT_SETTINGS.header_top_left;
+      activeCanvasState.headerTopCenter = globalInvoiceSettings.header_top_center !== undefined ? globalInvoiceSettings.header_top_center : FACTORY_DEFAULT_SETTINGS.header_top_center;
+      activeCanvasState.headerTopRight = globalInvoiceSettings.header_top_right !== undefined ? globalInvoiceSettings.header_top_right : FACTORY_DEFAULT_SETTINGS.header_top_right;
+      activeCanvasState.headerTopColor = globalInvoiceSettings.header_top_color || (getHexLuminance(activeCanvasState.themeColor) > 0.55 ? '#45120E' : '#FFFFFF');
+      activeCanvasState.headerTopSize = globalInvoiceSettings.header_top_size || 8;
+      activeCanvasState.headerTextColor = globalInvoiceSettings.header_text_color || (getHexLuminance(activeCanvasState.themeColor) > 0.55 ? '#45120E' : '#FFFFFF');
+      activeCanvasState.headerSubColor = globalInvoiceSettings.header_sub_color || '#FFC908';
+      activeCanvasState.headerDetailColor = globalInvoiceSettings.header_detail_color || '#EBEBEB';
+      activeCanvasState.badgeTextColor = globalInvoiceSettings.badge_text_color || '#FFC908';
+      activeCanvasState.orgNameSize = globalInvoiceSettings.org_name_size || 17;
+      activeCanvasState.paperTone = 'white';
+      activeCanvasState.bannerImage = globalInvoiceSettings.header_banner_url || null;
+      activeCanvasState.logoImage = globalInvoiceSettings.logo_url || '../assets/images/logo/logo.png';
+      activeCanvasState.backgroundImage = globalInvoiceSettings.background_image_url || null;
+      activeCanvasState.backgroundOpacity = globalInvoiceSettings.background_opacity || 0.15;
+      activeCanvasState.backgroundFit = globalInvoiceSettings.background_fit || 'cover';
+      activeCanvasState.stampType = globalInvoiceSettings.stamp_type || 'paid';
+      activeCanvasState.showStamp = globalInvoiceSettings.show_stamp !== undefined ? globalInvoiceSettings.show_stamp : true;
+      activeCanvasState.stampRotation = globalInvoiceSettings.stamp_rotation !== undefined ? globalInvoiceSettings.stamp_rotation : -12;
+      activeCanvasState.customStampImage = globalInvoiceSettings.stamp_url || globalInvoiceSettings.custom_stamp_image || null;
+      activeCanvasState.signatureImage = globalInvoiceSettings.signature_url || null;
+      activeCanvasState.showSignature = Boolean(globalInvoiceSettings.signature_url);
+      activeCanvasState.customTextBlocks = Array.isArray(globalInvoiceSettings.custom_text_blocks) ? [...globalInvoiceSettings.custom_text_blocks] : [];
+      activeCanvasState.footerText = globalInvoiceSettings.footer_text || FACTORY_DEFAULT_SETTINGS.footer_text;
+      activeCanvasState.footerTextColor = globalInvoiceSettings.footer_text_color || FACTORY_DEFAULT_SETTINGS.footer_text_color;
+      activeCanvasState.footerTextSize = globalInvoiceSettings.footer_text_size || FACTORY_DEFAULT_SETTINGS.footer_text_size;
+
+      const ftEl_mt = document.getElementById('cvFooterMainText');
+      if (ftEl_mt) ftEl_mt.innerText = activeCanvasState.footerText;
+      const inpFt_mt = document.getElementById('inpFooterMainText');
+      if (inpFt_mt) inpFt_mt.value = activeCanvasState.footerText;
+      const pFtColor_mt = document.getElementById('pickerFooterTextColor');
+      if (pFtColor_mt) pFtColor_mt.value = activeCanvasState.footerTextColor;
+      const lFtColor_mt = document.getElementById('lblFooterTextColor');
+      if (lFtColor_mt) lFtColor_mt.textContent = activeCanvasState.footerTextColor;
+      const sFtSize_mt = document.getElementById('sliderFooterTextSize');
+      if (sFtSize_mt) sFtSize_mt.value = activeCanvasState.footerTextSize;
+      const lFtSize_mt = document.getElementById('lblFooterTextSize');
+      if (lFtSize_mt) lFtSize_mt.textContent = activeCanvasState.footerTextSize + ' px';
+
+      activeCanvasState.items = [
+        { description: 'Standard Accommodation Room Stay (Sample Master Template)', quantity: 1, unit_price: 1200, total: 1200 }
+      ];
+
+      // Populate artboard text
+      document.getElementById('cvOrgName').textContent = globalInvoiceSettings.org_name || FACTORY_DEFAULT_SETTINGS.org_name;
+      document.getElementById('cvOrgTagline').textContent = globalInvoiceSettings.tagline || FACTORY_DEFAULT_SETTINGS.tagline;
+      document.getElementById('cvOrgAddress').textContent = globalInvoiceSettings.address || FACTORY_DEFAULT_SETTINGS.address;
+      document.getElementById('cvOrgContact').textContent = `Phone: ${globalInvoiceSettings.phone || FACTORY_DEFAULT_SETTINGS.phone} | Email: ${globalInvoiceSettings.email || FACTORY_DEFAULT_SETTINGS.email}${globalInvoiceSettings.gstin ? ' | GSTIN: ' + globalInvoiceSettings.gstin : ''}`;
+      
+      document.getElementById('cvDocTitle').textContent = 'INVOICE';
+      document.getElementById('cvInvNumber').textContent = 'ARN-INV-2026-SAMPLE';
+      document.getElementById('cvInvDate').textContent = `Date: ${formatDate(new Date())}`;
+
+      document.getElementById('cvCustomerName').textContent = 'Sample Devotee';
+      document.getElementById('cvCustomerMobile').textContent = 'Mobile: +91 90105 15341';
+      document.getElementById('cvCustomerEmail').textContent = 'Email: devotee@example.com';
+      document.getElementById('cvCustomerAddress').textContent = 'Address: Tiruvannamalai, Tamil Nadu';
+
+      document.getElementById('cvBookingCode').textContent = 'Booking ID: ARN-SAMPLE';
+      document.getElementById('cvRoomDetails').textContent = 'Room / Service: Deluxe Room - Room 101';
+      document.getElementById('cvStayDates').textContent = 'Stay: Scheduled Pilgrimage Visit';
+      document.getElementById('cvPaymentStatus').textContent = 'Payment Status: PAID';
+
+      document.getElementById('cvPayMethod').textContent = 'Method: Manual Transfer (UPI)';
+      document.getElementById('cvPayRef').textContent = 'Reference: Sample Ref';
+      document.getElementById('cvPayVerStatus').textContent = 'Status: Verified';
+      document.getElementById('cvTerms').textContent = globalInvoiceSettings.terms || FACTORY_DEFAULT_SETTINGS.terms;
+
+      // Populate toolbox controls
+      document.getElementById('tbDiscount').value = 0;
+      document.getElementById('tbTax').value = 0;
+      document.getElementById('tbReceived').value = 1200;
+
+      // Color inputs
+      document.getElementById('pickerThemeColor').value = activeCanvasState.themeColor;
+      document.getElementById('lblThemeColor').textContent = activeCanvasState.themeColor;
+      document.getElementById('pickerAccentColor').value = activeCanvasState.accentColor;
+      document.getElementById('lblAccentColor').textContent = activeCanvasState.accentColor;
+      
+      document.getElementById('pickerHeaderTitleColor').value = activeCanvasState.headerTextColor;
+      document.getElementById('lblHeaderTitleColor').textContent = activeCanvasState.headerTextColor;
+      document.getElementById('pickerHeaderSubColor').value = activeCanvasState.headerSubColor;
+      document.getElementById('lblHeaderSubColor').textContent = activeCanvasState.headerSubColor;
+      document.getElementById('pickerBadgeTextColor').value = activeCanvasState.badgeTextColor;
+      document.getElementById('lblBadgeTextColor').textContent = activeCanvasState.badgeTextColor;
+
+      const inpTL_m = document.getElementById('inpHeaderTopLeft');
+      if (inpTL_m) inpTL_m.value = activeCanvasState.headerTopLeft;
+      const inpTC_m = document.getElementById('inpHeaderTopCenter');
+      if (inpTC_m) inpTC_m.value = activeCanvasState.headerTopCenter;
+      const inpTR_m = document.getElementById('inpHeaderTopRight');
+      if (inpTR_m) inpTR_m.value = activeCanvasState.headerTopRight;
+      const pTopC_m = document.getElementById('pickerHeaderTopColor');
+      if (pTopC_m) pTopC_m.value = activeCanvasState.headerTopColor;
+      const lTopC_m = document.getElementById('lblHeaderTopColor');
+      if (lTopC_m) lTopC_m.textContent = activeCanvasState.headerTopColor;
+      const sTopS_m = document.getElementById('selHeaderTopSize');
+      if (sTopS_m) sTopS_m.value = activeCanvasState.headerTopSize;
+      const lTopS_m = document.getElementById('lblHeaderTopSize');
+      if (lTopS_m) lTopS_m.textContent = `${activeCanvasState.headerTopSize} px`;
+      applyHeaderTopArtboard();
+      document.getElementById('pickerHeaderDetailColor').value = activeCanvasState.headerDetailColor;
+      document.getElementById('lblHeaderDetailColor').textContent = activeCanvasState.headerDetailColor;
+      document.getElementById('sliderOrgTitleSize').value = activeCanvasState.orgNameSize;
+      document.getElementById('lblOrgTitleSize').textContent = `${activeCanvasState.orgNameSize} px`;
+
+      document.getElementById('chkShowStamp').checked = activeCanvasState.showStamp;
+      document.getElementById('sliderStampRot').value = activeCanvasState.stampRotation;
+      document.getElementById('lblStampRot').textContent = `${activeCanvasState.stampRotation}°`;
+      document.getElementById('chkShowSignature').checked = activeCanvasState.showSignature;
+
+      document.getElementById('sliderBgOpacity').value = activeCanvasState.backgroundOpacity;
+      document.getElementById('lblBgOpacity').textContent = `${Math.round(activeCanvasState.backgroundOpacity * 100)}%`;
+      document.getElementById('lblBgOpacityBadge').textContent = `${Math.round(activeCanvasState.backgroundOpacity * 100)}% Opacity`;
+
+      // Visual updates
+      applyArtboardThemeColors();
+      applyArtboardTextColors();
+      applyArtboardImages();
+      applyArtboardBackground();
+      applyArtboardStamp();
+      applyArtboardSignature();
+      renderCustomTextBlocks();
+      renderCanvasItems();
+      recalcCanvasFinancials();
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById('invoiceEditorModal')) || new bootstrap.Modal(document.getElementById('invoiceEditorModal'));
+      modal.show();
+
+      setTimeout(initSignaturePad, 300);
+    }
+
+    // ============================================================
+    // CLOSE CANVAS STUDIO MODAL
+    // ============================================================
+    function closeCanvasStudioModal() {
+      const modalEl = document.getElementById('invoiceEditorModal');
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.hide();
+      }
+    }
+
+    // Keyboard ESC key shortcut to close Canvas Studio
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        const modalEl = document.getElementById('invoiceEditorModal');
+        if (modalEl && (modalEl.classList.contains('show') || modalEl.style.display === 'block')) {
+          closeCanvasStudioModal();
+        }
+      }
+    });
+
+    // ============================================================
+    // OPEN CANVAS STUDIO: INDIVIDUAL INVOICE EDIT MODE
+    // ============================================================
+    async function openInvoiceEditor(invoiceId) {
+      isMasterTemplateMode = false;
+      const inv = invoicesList.find(x => x.id === invoiceId);
+      if (!inv) {
+        alert('Invoice not found.');
+        return;
+      }
+      currentEditingInv = JSON.parse(JSON.stringify(inv));
+
+      document.getElementById('editorModalTitle').textContent = `In-App Canvas Studio – Edit Invoice #${inv.invoice_number}`;
+      document.getElementById('editorModalSubtitle').textContent = `Booking: ${inv.booking_code} | Devotee: ${inv.customer_name}`;
+
+      // Fetch line items
+      const sb = window.adminSupabase;
+      const { data: items } = await sb.from('invoice_items').select('*').eq('invoice_id', inv.id);
+      activeCanvasState.items = (items && items.length > 0) ? items : [{
+        description: inv.service_description || (inv.room_details || 'Accommodation Service'),
+        quantity: 1,
+        unit_price: Number(inv.subtotal || inv.total_amount || 0),
+        total: Number(inv.subtotal || inv.total_amount || 0)
+      }];
+
+      // Load cached canvas preferences for this invoice if any
+      const savedCanvas = JSON.parse(localStorage.getItem(`canvas_state_${inv.id}`) || '{}');
+      activeCanvasState.themeColor = savedCanvas.themeColor || globalInvoiceSettings.theme_color || '#45120E';
+      activeCanvasState.accentColor = savedCanvas.accentColor || globalInvoiceSettings.accent_color || '#FFC908';
+      activeCanvasState.headerTopLeft = savedCanvas.headerTopLeft !== undefined ? savedCanvas.headerTopLeft : (inv.header_top_left !== undefined ? inv.header_top_left : (globalInvoiceSettings.header_top_left !== undefined ? globalInvoiceSettings.header_top_left : FACTORY_DEFAULT_SETTINGS.header_top_left));
+      activeCanvasState.headerTopCenter = savedCanvas.headerTopCenter !== undefined ? savedCanvas.headerTopCenter : (inv.header_top_center !== undefined ? inv.header_top_center : (globalInvoiceSettings.header_top_center !== undefined ? globalInvoiceSettings.header_top_center : FACTORY_DEFAULT_SETTINGS.header_top_center));
+      activeCanvasState.headerTopRight = savedCanvas.headerTopRight !== undefined ? savedCanvas.headerTopRight : (inv.header_top_right !== undefined ? inv.header_top_right : (globalInvoiceSettings.header_top_right !== undefined ? globalInvoiceSettings.header_top_right : FACTORY_DEFAULT_SETTINGS.header_top_right));
+      activeCanvasState.headerTopColor = savedCanvas.headerTopColor || inv.header_top_color || globalInvoiceSettings.header_top_color || (getHexLuminance(activeCanvasState.themeColor) > 0.55 ? '#45120E' : '#FFFFFF');
+      activeCanvasState.headerTopSize = savedCanvas.headerTopSize || inv.header_top_size || globalInvoiceSettings.header_top_size || 8;
+      activeCanvasState.headerTextColor = savedCanvas.headerTextColor || globalInvoiceSettings.header_text_color || (getHexLuminance(activeCanvasState.themeColor) > 0.55 ? '#45120E' : '#FFFFFF');
+      activeCanvasState.headerSubColor = savedCanvas.headerSubColor || globalInvoiceSettings.header_sub_color || '#FFC908';
+      activeCanvasState.headerDetailColor = savedCanvas.headerDetailColor || globalInvoiceSettings.header_detail_color || '#EBEBEB';
+      activeCanvasState.badgeTextColor = savedCanvas.badgeTextColor || globalInvoiceSettings.badge_text_color || '#FFC908';
+      activeCanvasState.orgNameSize = savedCanvas.orgNameSize || globalInvoiceSettings.org_name_size || 17;
+      activeCanvasState.paperTone = savedCanvas.paperTone || 'white';
+      activeCanvasState.stampType = savedCanvas.stampType || globalInvoiceSettings.stamp_type || 'paid';
+      activeCanvasState.showStamp = savedCanvas.showStamp !== undefined ? savedCanvas.showStamp : (globalInvoiceSettings.show_stamp !== undefined ? globalInvoiceSettings.show_stamp : true);
+      activeCanvasState.stampRotation = savedCanvas.stampRotation !== undefined ? savedCanvas.stampRotation : (globalInvoiceSettings.stamp_rotation !== undefined ? globalInvoiceSettings.stamp_rotation : -12);
+      activeCanvasState.customStampImage = savedCanvas.customStampImage || savedCanvas.stamp_url || globalInvoiceSettings.stamp_url || globalInvoiceSettings.custom_stamp_image || null;
+      activeCanvasState.signatureImage = savedCanvas.signatureImage || null;
+      activeCanvasState.showSignature = Boolean(savedCanvas.signatureImage);
+      activeCanvasState.bannerImage = inv.header_banner_url || savedCanvas.bannerImage || globalInvoiceSettings.header_banner_url || null;
+      activeCanvasState.logoImage = inv.logo_url || savedCanvas.logoImage || globalInvoiceSettings.logo_url || '../assets/images/logo/logo.png';
+      activeCanvasState.backgroundImage = savedCanvas.backgroundImage || globalInvoiceSettings.background_image_url || null;
+      activeCanvasState.backgroundOpacity = savedCanvas.backgroundOpacity !== undefined ? savedCanvas.backgroundOpacity : (globalInvoiceSettings.background_opacity || 0.15);
+      activeCanvasState.backgroundFit = savedCanvas.backgroundFit || globalInvoiceSettings.background_fit || 'cover';
+      activeCanvasState.customTextBlocks = Array.isArray(savedCanvas.customTextBlocks) ? [...savedCanvas.customTextBlocks] : (Array.isArray(globalInvoiceSettings.custom_text_blocks) ? [...globalInvoiceSettings.custom_text_blocks] : []);
+      activeCanvasState.footerText = savedCanvas.footerText || inv.footer_text || globalInvoiceSettings.footer_text || FACTORY_DEFAULT_SETTINGS.footer_text;
+      activeCanvasState.footerTextColor = savedCanvas.footerTextColor || inv.footer_text_color || globalInvoiceSettings.footer_text_color || FACTORY_DEFAULT_SETTINGS.footer_text_color;
+      activeCanvasState.footerTextSize = savedCanvas.footerTextSize || inv.footer_text_size || globalInvoiceSettings.footer_text_size || FACTORY_DEFAULT_SETTINGS.footer_text_size;
+
+      const ftEl_ie = document.getElementById('cvFooterMainText');
+      if (ftEl_ie) ftEl_ie.innerText = activeCanvasState.footerText;
+      const inpFt_ie = document.getElementById('inpFooterMainText');
+      if (inpFt_ie) inpFt_ie.value = activeCanvasState.footerText;
+      const pFtColor_ie = document.getElementById('pickerFooterTextColor');
+      if (pFtColor_ie) pFtColor_ie.value = activeCanvasState.footerTextColor;
+      const lFtColor_ie = document.getElementById('lblFooterTextColor');
+      if (lFtColor_ie) lFtColor_ie.textContent = activeCanvasState.footerTextColor;
+      const sFtSize_ie = document.getElementById('sliderFooterTextSize');
+      if (sFtSize_ie) sFtSize_ie.value = activeCanvasState.footerTextSize;
+      const lFtSize_ie = document.getElementById('lblFooterTextSize');
+      if (lFtSize_ie) lFtSize_ie.textContent = activeCanvasState.footerTextSize + ' px';
+
+      // Update Artboard Text Fields (Contenteditable)
+      const org = inv.custom_org || globalInvoiceSettings;
+      document.getElementById('cvOrgName').textContent = org.org_name || FACTORY_DEFAULT_SETTINGS.org_name;
+      document.getElementById('cvOrgTagline').textContent = org.tagline || FACTORY_DEFAULT_SETTINGS.tagline;
+      document.getElementById('cvOrgAddress').textContent = org.address || FACTORY_DEFAULT_SETTINGS.address;
+      document.getElementById('cvOrgContact').textContent = `Phone: ${org.phone || FACTORY_DEFAULT_SETTINGS.phone} | Email: ${org.email || FACTORY_DEFAULT_SETTINGS.email}${org.gstin ? ' | GSTIN: ' + org.gstin : ''}`;
+      
+      document.getElementById('cvDocTitle').textContent = inv.title_badge || 'INVOICE';
+      document.getElementById('cvInvNumber').textContent = inv.invoice_number || 'ARN-INV-2026-00001';
+      document.getElementById('cvInvDate').textContent = `Date: ${formatDate(inv.invoice_date || inv.created_at)}`;
+
+      document.getElementById('cvCustomerName').textContent = inv.customer_name || 'Devotee';
+      document.getElementById('cvCustomerMobile').textContent = `Mobile: ${inv.customer_mobile || '—'}`;
+      document.getElementById('cvCustomerEmail').textContent = inv.customer_email ? `Email: ${inv.customer_email}` : '';
+      document.getElementById('cvCustomerAddress').textContent = inv.customer_address ? `Address: ${inv.customer_address}` : '';
+
+      document.getElementById('cvBookingCode').textContent = `Booking ID: ${inv.booking_code || '—'}`;
+      document.getElementById('cvRoomDetails').textContent = `Room / Service: ${inv.room_details || inv.service_description || '—'}`;
+      const cin = inv.check_in, cout = inv.check_out;
+      document.getElementById('cvStayDates').textContent = (cin && cout) ? `Stay: ${formatDate(cin)} to ${formatDate(cout)}` : 'Stay: Pilgrimage Schedule';
+      document.getElementById('cvPaymentStatus').textContent = `Payment Status: ${(inv.payment_status || 'Paid').toUpperCase()}`;
+
+      document.getElementById('cvPayMethod').textContent = `Method: ${inv.payment_method || 'Manual Transfer (UPI)'}`;
+      document.getElementById('cvPayRef').textContent = `Reference: ${inv.transaction_reference || 'Verified Manually'}`;
+      document.getElementById('cvPayVerStatus').textContent = `Status: ${inv.payment_status || 'Verified'}`;
+      document.getElementById('cvTerms').textContent = inv.notes || org.terms || FACTORY_DEFAULT_SETTINGS.terms;
+
+      // Populate Financials
+      document.getElementById('tbDiscount').value = inv.discount || 0;
+      document.getElementById('tbTax').value = inv.tax_amount || 0;
+      document.getElementById('tbReceived').value = inv.amount_received || 0;
+
+      // Update Toolbox Controls
+      document.getElementById('pickerThemeColor').value = activeCanvasState.themeColor;
+      document.getElementById('lblThemeColor').textContent = activeCanvasState.themeColor;
+      document.getElementById('pickerAccentColor').value = activeCanvasState.accentColor;
+      document.getElementById('lblAccentColor').textContent = activeCanvasState.accentColor;
+
+      document.getElementById('pickerHeaderTitleColor').value = activeCanvasState.headerTextColor;
+      document.getElementById('lblHeaderTitleColor').textContent = activeCanvasState.headerTextColor;
+      document.getElementById('pickerHeaderSubColor').value = activeCanvasState.headerSubColor;
+      document.getElementById('lblHeaderSubColor').textContent = activeCanvasState.headerSubColor;
+      document.getElementById('pickerBadgeTextColor').value = activeCanvasState.badgeTextColor;
+      document.getElementById('lblBadgeTextColor').textContent = activeCanvasState.badgeTextColor;
+      document.getElementById('pickerHeaderDetailColor').value = activeCanvasState.headerDetailColor;
+
+      const inpTL_e = document.getElementById('inpHeaderTopLeft');
+      if (inpTL_e) inpTL_e.value = activeCanvasState.headerTopLeft;
+      const inpTC_e = document.getElementById('inpHeaderTopCenter');
+      if (inpTC_e) inpTC_e.value = activeCanvasState.headerTopCenter;
+      const inpTR_e = document.getElementById('inpHeaderTopRight');
+      if (inpTR_e) inpTR_e.value = activeCanvasState.headerTopRight;
+      const pTopC_e = document.getElementById('pickerHeaderTopColor');
+      if (pTopC_e) pTopC_e.value = activeCanvasState.headerTopColor;
+      const lTopC_e = document.getElementById('lblHeaderTopColor');
+      if (lTopC_e) lTopC_e.textContent = activeCanvasState.headerTopColor;
+      const sTopS_e = document.getElementById('selHeaderTopSize');
+      if (sTopS_e) sTopS_e.value = activeCanvasState.headerTopSize;
+      const lTopS_e = document.getElementById('lblHeaderTopSize');
+      if (lTopS_e) lTopS_e.textContent = `${activeCanvasState.headerTopSize} px`;
+      applyHeaderTopArtboard();
+      document.getElementById('lblHeaderDetailColor').textContent = activeCanvasState.headerDetailColor;
+      document.getElementById('sliderOrgTitleSize').value = activeCanvasState.orgNameSize;
+      document.getElementById('lblOrgTitleSize').textContent = `${activeCanvasState.orgNameSize} px`;
+
+      document.getElementById('chkShowStamp').checked = activeCanvasState.showStamp;
+      document.getElementById('sliderStampRot').value = activeCanvasState.stampRotation;
+      document.getElementById('lblStampRot').textContent = `${activeCanvasState.stampRotation}°`;
+      document.getElementById('chkShowSignature').checked = activeCanvasState.showSignature;
+
+      document.getElementById('sliderBgOpacity').value = activeCanvasState.backgroundOpacity;
+      document.getElementById('lblBgOpacity').textContent = `${Math.round(activeCanvasState.backgroundOpacity * 100)}%`;
+      document.getElementById('lblBgOpacityBadge').textContent = `${Math.round(activeCanvasState.backgroundOpacity * 100)}% Opacity`;
+
+      // Apply Visual State to Artboard
+      applyArtboardThemeColors();
+      applyArtboardTextColors();
+      applyArtboardStamp();
+      applyArtboardSignature();
+      applyArtboardImages();
+      applyArtboardBackground();
+      renderCustomTextBlocks();
+      renderCanvasItems();
+      recalcCanvasFinancials();
+
+      // Show Modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('invoiceEditorModal')) || new bootstrap.Modal(document.getElementById('invoiceEditorModal'));
+      modal.show();
+
+      setTimeout(initSignaturePad, 300);
+    }
+
+    // ============================================================
+    // ============================================================
+    // HEADER TOP BAR (ABOVE HEADING: LEFT, MIDDLE, RIGHT)
+    // ============================================================
+    function onHeaderTopToolboxInput() {
+      activeCanvasState.headerTopLeft = document.getElementById('inpHeaderTopLeft').value;
+      activeCanvasState.headerTopCenter = document.getElementById('inpHeaderTopCenter').value;
+      activeCanvasState.headerTopRight = document.getElementById('inpHeaderTopRight').value;
+      applyHeaderTopArtboard();
+    }
+
+    function onHeaderTopArtboardInput() {
+      activeCanvasState.headerTopLeft = document.getElementById('cvHeaderTopLeft').innerText.trim();
+      activeCanvasState.headerTopCenter = document.getElementById('cvHeaderTopCenter').innerText.trim();
+      activeCanvasState.headerTopRight = document.getElementById('cvHeaderTopRight').innerText.trim();
+      const iL = document.getElementById('inpHeaderTopLeft');
+      const iC = document.getElementById('inpHeaderTopCenter');
+      const iR = document.getElementById('inpHeaderTopRight');
+      if (iL) iL.value = activeCanvasState.headerTopLeft;
+      if (iC) iC.value = activeCanvasState.headerTopCenter;
+      if (iR) iR.value = activeCanvasState.headerTopRight;
+    }
+
+    function onHeaderTopColorChange(hex) {
+      activeCanvasState.headerTopColor = hex;
+      const p = document.getElementById('pickerHeaderTopColor');
+      if (p) p.value = hex;
+      const l = document.getElementById('lblHeaderTopColor');
+      if (l) l.textContent = hex;
+      applyHeaderTopArtboard();
+    }
+
+    function onHeaderTopSizeChange(val) {
+      const num = parseInt(val) || 8;
+      activeCanvasState.headerTopSize = num;
+      const l = document.getElementById('lblHeaderTopSize');
+      if (l) l.textContent = `${num} px`;
+      applyHeaderTopArtboard();
+    }
+
+    function applyHeaderTopArtboard() {
+      const stripEl = document.getElementById('artboardHeaderTopStrip');
+      const elL = document.getElementById('cvHeaderTopLeft');
+      const elC = document.getElementById('cvHeaderTopCenter');
+      const elR = document.getElementById('cvHeaderTopRight');
+      if (!stripEl || !elL || !elC || !elR) return;
+
+      const hasAny = Boolean(
+        (activeCanvasState.headerTopLeft && activeCanvasState.headerTopLeft.trim()) ||
+        (activeCanvasState.headerTopCenter && activeCanvasState.headerTopCenter.trim()) ||
+        (activeCanvasState.headerTopRight && activeCanvasState.headerTopRight.trim())
+      );
+
+      if (!hasAny) {
+        stripEl.classList.add('d-none');
+      } else {
+        stripEl.classList.remove('d-none');
+      }
+
+      elL.innerText = activeCanvasState.headerTopLeft || '';
+      elC.innerText = activeCanvasState.headerTopCenter || '';
+      elR.innerText = activeCanvasState.headerTopRight || '';
+
+      const isLight = getHexLuminance(activeCanvasState.themeColor) > 0.55;
+      let color = activeCanvasState.headerTopColor || (isLight ? '#45120E' : '#FFFFFF');
+      if (isLight && getHexLuminance(color) > 0.55) {
+        color = '#45120E';
+      }
+      const size = (activeCanvasState.headerTopSize || 8) + 'px';
+
+      [elL, elC, elR].forEach(el => {
+        el.style.setProperty('color', color, 'important');
+        el.style.setProperty('font-size', size, 'important');
+      });
+    }
+
+    // CUSTOM TEXT COLORS & SIZES HANDLING
+    // ============================================================
+    function onHeaderTextColorChange(type, hex) {
+      if (type === 'title') {
+        activeCanvasState.headerTextColor = hex;
+        document.getElementById('pickerHeaderTitleColor').value = hex;
+        document.getElementById('lblHeaderTitleColor').textContent = hex;
+      } else if (type === 'sub') {
+        activeCanvasState.headerSubColor = hex;
+        document.getElementById('pickerHeaderSubColor').value = hex;
+        document.getElementById('lblHeaderSubColor').textContent = hex;
+      } else if (type === 'badge') {
+        activeCanvasState.badgeTextColor = hex;
+        document.getElementById('pickerBadgeTextColor').value = hex;
+        document.getElementById('lblBadgeTextColor').textContent = hex;
+      } else if (type === 'detail') {
+        activeCanvasState.headerDetailColor = hex;
+        document.getElementById('pickerHeaderDetailColor').value = hex;
+        document.getElementById('lblHeaderDetailColor').textContent = hex;
+      }
+      applyArtboardTextColors();
+    }
+
+    function onOrgTitleSizeSlider(sizeVal) {
+      const num = parseInt(sizeVal) || 17;
+      activeCanvasState.orgNameSize = num;
+      document.getElementById('lblOrgTitleSize').textContent = `${num} px`;
+      applyArtboardTextColors();
+    }
+
+    function applyArtboardTextColors() {
+      // Organization Title Color & Size
+      const titleEl = document.getElementById('cvOrgName');
+      if (titleEl) {
+        titleEl.classList.remove('text-white');
+        titleEl.style.setProperty('color', activeCanvasState.headerTextColor || '#FFFFFF', 'important');
+        titleEl.style.setProperty('font-size', (activeCanvasState.orgNameSize || 17) + 'px', 'important');
+      }
+
+      // Invoice Number
+      const invNumEl = document.getElementById('cvInvNumber');
+      if (invNumEl) {
+        invNumEl.classList.remove('text-white');
+        invNumEl.style.setProperty('color', activeCanvasState.headerTextColor || '#FFFFFF', 'important');
+      }
+
+      // Subtitle (Tagline)
+      const subEl = document.getElementById('cvOrgTagline');
+      if (subEl) {
+        subEl.classList.remove('text-warning');
+        subEl.style.setProperty('color', activeCanvasState.headerSubColor || '#FFC908', 'important');
+      }
+
+      // Badge ("INVOICE")
+      const badgeEl = document.getElementById('cvDocTitle');
+      if (badgeEl) {
+        badgeEl.classList.remove('text-warning');
+        badgeEl.style.setProperty('color', activeCanvasState.badgeTextColor || '#FFC908', 'important');
+      }
+
+      // Details (Address, Contact, Date)
+      const addrEl = document.getElementById('cvOrgAddress');
+      if (addrEl) addrEl.style.setProperty('color', activeCanvasState.headerDetailColor || '#EBEBEB', 'important');
+      const contactEl = document.getElementById('cvOrgContact');
+      if (contactEl) contactEl.style.setProperty('color', activeCanvasState.headerDetailColor || '#EBEBEB', 'important');
+      const invDateEl = document.getElementById('cvInvDate');
+      if (invDateEl) invDateEl.style.setProperty('color', activeCanvasState.headerDetailColor || '#EBEBEB', 'important');
+
+      // Footer Main Text
+      const ftEl = document.getElementById('cvFooterMainText');
+      if (ftEl) {
+        ftEl.classList.remove('text-warning');
+        ftEl.style.setProperty('color', activeCanvasState.footerTextColor || '#FFC908', 'important');
+        ftEl.style.setProperty('font-size', (activeCanvasState.footerTextSize || 8) + 'px', 'important');
+      }
+    }
+
+    // ============================================================
+    // ADD NEW CUSTOM TEXT BLOCKS (WITH REQUIRED SIZE & COLOR)
+    // ============================================================
+    function onTextTargetChanged(targetVal) {
+      const picker = document.getElementById('pickerNewTextColor');
+      const sizeSel = document.getElementById('selNewTextSize');
+      const hint = document.getElementById('lblTargetPlacementHint');
+      if (targetVal === 'header') {
+        if (picker) picker.value = activeCanvasState.headerSubColor || '#FFC908';
+        if (sizeSel) sizeSel.value = '8';
+        if (hint) hint.textContent = 'Will appear in Top Header Banner';
+      } else if (targetVal === 'footer') {
+        if (picker) picker.value = activeCanvasState.footerTextColor || '#FFC908';
+        if (sizeSel) sizeSel.value = '8';
+        if (hint) hint.textContent = 'Will appear in Bottom Footer Strip';
+      } else {
+        if (picker) picker.value = '#1e293b';
+        if (sizeSel) sizeSel.value = '11';
+        if (hint) hint.textContent = 'Will appear in Notes / Body Section';
+      }
+    }
+
+    function addCustomTextBlockFromInput() {
+      const inp = document.getElementById('inpNewTextContent');
+      const textVal = inp.value.trim() || 'Custom Note / Information';
+      const sizeVal = parseInt(document.getElementById('selNewTextSize').value) || 11;
+      const colorVal = document.getElementById('pickerNewTextColor').value || '#1e293b';
+      const targetVal = document.getElementById('selNewTextTarget') ? document.getElementById('selNewTextTarget').value : 'body';
+
+      const newBlock = {
+        id: 'tb_' + Date.now(),
+        text: textVal,
+        size: sizeVal,
+        color: colorVal,
+        bold: sizeVal >= 13 || targetVal === 'footer',
+        align: targetVal === 'footer' ? 'center' : 'left',
+        target: targetVal
+      };
+
+      activeCanvasState.customTextBlocks.push(newBlock);
+      inp.value = '';
+      renderCustomTextBlocks();
+      showAdminToast('Custom text added to invoice ' + targetVal + '!', 'success');
+    }
+
+    function renderCustomTextBlocks() {
+      const headerZone = document.getElementById('artboardHeaderCustomZone');
+      const bodyZone = document.getElementById('artboardCustomTextZone');
+      const footerZone = document.getElementById('artboardFooterCustomZone');
+      const listEl = document.getElementById('customTextItemsList');
+      const badgeCount = document.getElementById('badgeCustomTextCount');
+
+      const blocks = activeCanvasState.customTextBlocks || [];
+      badgeCount.textContent = blocks.length;
+
+      const headerBlocks = [];
+      const bodyBlocks = [];
+      const footerBlocks = [];
+
+      blocks.forEach((b, idx) => {
+        const item = Object.assign({}, b, { originalIndex: idx });
+        if (b.target === 'header') headerBlocks.push(item);
+        else if (b.target === 'footer') footerBlocks.push(item);
+        else bodyBlocks.push(item);
+      });
+
+      // 1. Render on Header Zone
+      if (headerZone) {
+        headerZone.innerHTML = headerBlocks.map(b => `
+          <div class="custom-text-block-item" id="artBlock_${b.id}" style="border-color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.18); padding: 2px 6px;">
+            <div class="canvas-editable" contenteditable="true" spellcheck="false"
+                 onblur="onCustomBlockTextEdit(${b.originalIndex}, this.innerText)"
+                 style="font-size: ${b.size}px; color: ${b.color}; font-weight: ${b.bold ? '700' : '400'}; text-align: ${b.align}; line-height: 1.3;"
+                 title="Header Text – Click to edit directly">
+              ${escapeHtml(b.text)}
+            </div>
+            <button type="button" class="btn btn-sm btn-danger custom-text-block-del-btn" onclick="deleteCustomTextBlock(${b.originalIndex})" title="Remove header text">
+              &times;
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // 2. Render on Body Zone
+      if (bodyZone) {
+        bodyZone.innerHTML = bodyBlocks.map(b => `
+          <div class="custom-text-block-item" id="artBlock_${b.id}">
+            <div class="canvas-editable" contenteditable="true" spellcheck="false"
+                 onblur="onCustomBlockTextEdit(${b.originalIndex}, this.innerText)"
+                 style="font-size: ${b.size}px; color: ${b.color}; font-weight: ${b.bold ? '700' : '400'}; text-align: ${b.align}; line-height: 1.35;"
+                 title="Body Text – Click to edit directly">
+              ${escapeHtml(b.text)}
+            </div>
+            <button type="button" class="btn btn-sm btn-danger custom-text-block-del-btn" onclick="deleteCustomTextBlock(${b.originalIndex})" title="Remove text">
+              &times;
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // 3. Render on Footer Zone
+      if (footerZone) {
+        footerZone.innerHTML = footerBlocks.map(b => `
+          <div class="custom-text-block-item" id="artBlock_${b.id}" style="border-color: rgba(255,255,255,0.25); background: rgba(0,0,0,0.25); padding: 2px 6px;">
+            <div class="canvas-editable" contenteditable="true" spellcheck="false"
+                 onblur="onCustomBlockTextEdit(${b.originalIndex}, this.innerText)"
+                 style="font-size: ${b.size}px; color: ${b.color}; font-weight: ${b.bold ? '700' : '400'}; text-align: ${b.align}; line-height: 1.3;"
+                 title="Footer Text – Click to edit directly">
+              ${escapeHtml(b.text)}
+            </div>
+            <button type="button" class="btn btn-sm btn-danger custom-text-block-del-btn" onclick="deleteCustomTextBlock(${b.originalIndex})" title="Remove footer text">
+              &times;
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // 4. Render Toolbox list
+      if (blocks.length === 0) {
+        listEl.innerHTML = '<em>No custom text blocks added yet. Click Add above to place text in Header, Body, or Footer.</em>';
+        return;
+      }
+
+      listEl.innerHTML = blocks.map((b, idx) => {
+        const targetLabel = b.target === 'header' ? '🎯 Header' : b.target === 'footer' ? '📌 Footer' : '📄 Body';
+        const targetBadgeClass = b.target === 'header' ? 'bg-warning text-dark' : b.target === 'footer' ? 'bg-secondary' : 'bg-primary';
+        return `
+        <div class="p-2 border rounded mb-2 bg-white shadow-xs">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="badge ${targetBadgeClass}">${targetLabel} #${idx + 1}</span>
+            <div class="d-flex align-items-center gap-1">
+              <select class="form-select form-select-sm py-0 px-1" style="font-size: 11px;" onchange="updateCustomBlockTarget(${idx}, this.value)">
+                <option value="header" ${b.target === 'header' ? 'selected' : ''}>Header</option>
+                <option value="body" ${(!b.target || b.target === 'body') ? 'selected' : ''}>Body</option>
+                <option value="footer" ${b.target === 'footer' ? 'selected' : ''}>Footer</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 small" onclick="deleteCustomTextBlock(${idx})" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          <input type="text" class="form-control form-control-sm mb-1" value="${escapeHtml(b.text)}" oninput="updateCustomBlockText(${idx}, this.value)">
+          <div class="row g-1 align-items-center">
+            <div class="col-4">
+              <select class="form-select form-select-sm" onchange="updateCustomBlockSize(${idx}, this.value)">
+                <option value="7" ${b.size === 7 ? 'selected' : ''}>7 px</option>
+                <option value="8" ${b.size === 8 ? 'selected' : ''}>8 px</option>
+                <option value="9" ${b.size === 9 ? 'selected' : ''}>9 px</option>
+                <option value="11" ${b.size === 11 ? 'selected' : ''}>11 px</option>
+                <option value="13" ${b.size === 13 ? 'selected' : ''}>13 px</option>
+                <option value="16" ${b.size === 16 ? 'selected' : ''}>16 px</option>
+                <option value="20" ${b.size === 20 ? 'selected' : ''}>20 px</option>
+                <option value="26" ${b.size === 26 ? 'selected' : ''}>26 px</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <div class="d-flex align-items-center gap-1">
+                <input type="color" class="form-control form-control-color form-control-sm" value="${b.color}" onchange="updateCustomBlockColor(${idx}, this.value)">
+                <span class="small font-monospace" style="font-size: 10px;">${b.color}</span>
+              </div>
+            </div>
+            <div class="col-4 text-end">
+              <button type="button" class="btn btn-sm ${b.bold ? 'btn-dark' : 'btn-outline-secondary'} py-0 px-2 fw-bold" onclick="toggleCustomBlockBold(${idx})">B</button>
+              <button type="button" class="btn btn-sm ${b.align === 'center' ? 'btn-dark' : 'btn-outline-secondary'} py-0 px-1" onclick="cycleCustomBlockAlign(${idx})"><i class="bi bi-text-center"></i></button>
+            </div>
+          </div>
+        </div>
+      `}).join('');
+    }
+
+    function updateCustomBlockTarget(idx, newTarget) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].target = newTarget;
+        if (newTarget === 'footer') {
+          activeCanvasState.customTextBlocks[idx].align = 'center';
+          if (!activeCanvasState.customTextBlocks[idx].color || activeCanvasState.customTextBlocks[idx].color === '#1e293b') {
+            activeCanvasState.customTextBlocks[idx].color = '#FFC908';
+          }
+          if (activeCanvasState.customTextBlocks[idx].size > 11) {
+            activeCanvasState.customTextBlocks[idx].size = 8;
+          }
+        } else if (newTarget === 'header') {
+          if (!activeCanvasState.customTextBlocks[idx].color || activeCanvasState.customTextBlocks[idx].color === '#1e293b') {
+            activeCanvasState.customTextBlocks[idx].color = activeCanvasState.headerSubColor || '#FFC908';
+          }
+        }
+        renderCustomTextBlocks();
+      }
+    }
+
+    function onCustomBlockTextEdit(idx, text) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].text = text.trim();
+        renderCustomTextBlocks();
+      }
+    }
+
+    function updateCustomBlockText(idx, val) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].text = val;
+        renderCustomTextBlocks();
+      }
+    }
+
+    function updateCustomBlockSize(idx, val) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].size = parseInt(val) || 11;
+        renderCustomTextBlocks();
+      }
+    }
+
+    function updateCustomBlockColor(idx, val) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].color = val;
+        renderCustomTextBlocks();
+      }
+    }
+
+    function toggleCustomBlockBold(idx) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        activeCanvasState.customTextBlocks[idx].bold = !activeCanvasState.customTextBlocks[idx].bold;
+        renderCustomTextBlocks();
+      }
+    }
+
+    function cycleCustomBlockAlign(idx) {
+      if (activeCanvasState.customTextBlocks[idx]) {
+        const cur = activeCanvasState.customTextBlocks[idx].align || 'left';
+        activeCanvasState.customTextBlocks[idx].align = cur === 'left' ? 'center' : cur === 'center' ? 'right' : 'left';
+        renderCustomTextBlocks();
+      }
+    }
+
+    // ============================================================
+    // FOOTER MESSAGE & COLOR CONTROLS
+    // ============================================================
+    function onFooterMainTextInput(val) {
+      activeCanvasState.footerText = val;
+      const cvEl = document.getElementById('cvFooterMainText');
+      if (cvEl && cvEl.innerText !== val) cvEl.innerText = val;
+    }
+
+    function onFooterMainTextArtboardInput(val) {
+      activeCanvasState.footerText = val;
+      const inp = document.getElementById('inpFooterMainText');
+      if (inp && inp.value !== val) inp.value = val;
+    }
+
+    function onFooterColorChange(hex) {
+      activeCanvasState.footerTextColor = hex;
+      document.getElementById('pickerFooterTextColor').value = hex;
+      document.getElementById('lblFooterTextColor').textContent = hex;
+      applyArtboardTextColors();
+    }
+
+    function onFooterTextSizeSlider(sizeVal) {
+      const num = parseFloat(sizeVal) || 8;
+      activeCanvasState.footerTextSize = num;
+      document.getElementById('lblFooterTextSize').textContent = num + ' px';
+      applyArtboardTextColors();
+    }
+
+    function resetFooterMainText() {
+      const def = FACTORY_DEFAULT_SETTINGS.footer_text;
+      activeCanvasState.footerText = def;
+      activeCanvasState.footerTextColor = FACTORY_DEFAULT_SETTINGS.footer_text_color;
+      activeCanvasState.footerTextSize = FACTORY_DEFAULT_SETTINGS.footer_text_size;
+      const cvEl = document.getElementById('cvFooterMainText');
+      if (cvEl) cvEl.innerText = def;
+      const inp = document.getElementById('inpFooterMainText');
+      if (inp) inp.value = def;
+      document.getElementById('pickerFooterTextColor').value = FACTORY_DEFAULT_SETTINGS.footer_text_color;
+      document.getElementById('lblFooterTextColor').textContent = FACTORY_DEFAULT_SETTINGS.footer_text_color;
+      document.getElementById('sliderFooterTextSize').value = FACTORY_DEFAULT_SETTINGS.footer_text_size;
+      document.getElementById('lblFooterTextSize').textContent = FACTORY_DEFAULT_SETTINGS.footer_text_size + ' px';
+      applyArtboardTextColors();
+    }
+
+    function deleteCustomTextBlock(idx) {
+      activeCanvasState.customTextBlocks.splice(idx, 1);
+      renderCustomTextBlocks();
+    }
+
+    // ============================================================
+    // RESET TEMPLATE TO FACTORY DEFAULT
+    // ============================================================
+    async function confirmResetTemplate() {
+      const msg = isMasterTemplateMode
+        ? 'Are you sure you want to reset the Master Invoice Template to factory default? All custom background watermarks, banners, colors, and terms will be restored to original settings.'
+        : 'Are you sure you want to reset this invoice back to the clean template default?';
+
+      if (!confirm(msg)) return;
+
+      const def = FACTORY_DEFAULT_SETTINGS;
+
+      activeCanvasState.themeColor = def.theme_color;
+      activeCanvasState.accentColor = def.accent_color;
+      activeCanvasState.headerTextColor = def.header_text_color;
+      activeCanvasState.headerSubColor = def.header_sub_color;
+      activeCanvasState.headerDetailColor = def.header_detail_color;
+      activeCanvasState.badgeTextColor = def.badge_text_color;
+      activeCanvasState.orgNameSize = def.org_name_size;
+      activeCanvasState.paperTone = 'white';
+      activeCanvasState.bannerImage = null;
+      activeCanvasState.logoImage = def.logo_url;
+      activeCanvasState.backgroundImage = null;
+      activeCanvasState.backgroundOpacity = 0.15;
+      activeCanvasState.backgroundFit = 'cover';
+      activeCanvasState.stampType = 'paid';
+      activeCanvasState.showStamp = true;
+      activeCanvasState.stampRotation = -12;
+      activeCanvasState.signatureImage = null;
+      activeCanvasState.showSignature = false;
+      activeCanvasState.customTextBlocks = [];
+      activeCanvasState.footerText = def.footer_text;
+      activeCanvasState.footerTextColor = def.footer_text_color;
+      activeCanvasState.footerTextSize = def.footer_text_size;
+
+      // Reset artboard displays
+      document.getElementById('cvOrgName').textContent = def.org_name;
+      document.getElementById('cvOrgTagline').textContent = def.tagline;
+      document.getElementById('cvOrgAddress').textContent = def.address;
+      document.getElementById('cvOrgContact').textContent = `Phone: ${def.phone} | Email: ${def.email}`;
+      document.getElementById('cvTerms').textContent = def.terms;
+      const cvFt = document.getElementById('cvFooterMainText');
+      if (cvFt) cvFt.innerText = def.footer_text;
+      const inpFt = document.getElementById('inpFooterMainText');
+      if (inpFt) inpFt.value = def.footer_text;
+      document.getElementById('pickerFooterTextColor').value = def.footer_text_color;
+      document.getElementById('lblFooterTextColor').textContent = def.footer_text_color;
+      document.getElementById('sliderFooterTextSize').value = def.footer_text_size;
+      document.getElementById('lblFooterTextSize').textContent = def.footer_text_size + ' px';
+
+      // Reset toolbox controls
+      document.getElementById('pickerThemeColor').value = def.theme_color;
+      document.getElementById('lblThemeColor').textContent = def.theme_color;
+      document.getElementById('pickerAccentColor').value = def.accent_color;
+      document.getElementById('lblAccentColor').textContent = def.accent_color;
+
+      document.getElementById('pickerHeaderTitleColor').value = def.header_text_color;
+      document.getElementById('lblHeaderTitleColor').textContent = def.header_text_color;
+      document.getElementById('pickerHeaderSubColor').value = def.header_sub_color;
+      document.getElementById('lblHeaderSubColor').textContent = def.header_sub_color;
+      document.getElementById('pickerBadgeTextColor').value = def.badge_text_color;
+      document.getElementById('lblBadgeTextColor').textContent = def.badge_text_color;
+      document.getElementById('pickerHeaderDetailColor').value = def.header_detail_color;
+      document.getElementById('lblHeaderDetailColor').textContent = def.header_detail_color;
+      document.getElementById('sliderOrgTitleSize').value = def.org_name_size;
+      document.getElementById('lblOrgTitleSize').textContent = `${def.org_name_size} px`;
+
+      document.getElementById('sliderBgOpacity').value = 0.15;
+      document.getElementById('lblBgOpacity').textContent = '15%';
+      document.getElementById('lblBgOpacityBadge').textContent = '15% Opacity';
+      document.getElementById('chkShowStamp').checked = true;
+      document.getElementById('chkShowSignature').checked = false;
+
+      // Apply to artboard
+      applyArtboardThemeColors();
+      applyArtboardTextColors();
+      applyArtboardImages();
+      applyArtboardBackground();
+      applyArtboardStamp();
+      applyArtboardSignature();
+      renderCustomTextBlocks();
+
+      if (isMasterTemplateMode) {
+        globalInvoiceSettings = Object.assign({}, def);
+        try {
+          const sb = window.adminSupabase;
+          await sb.from('website_settings').upsert({
+            key: 'invoice_settings',
+            value: def,
+            description: 'Global In-App Visual Invoice Branding Defaults'
+          });
+        } catch (e) {
+          console.warn('Reset persist error:', e);
+        }
+      }
+
+      showAdminToast('Invoice template reset to factory default!', 'success');
+    }
+
+    // ============================================================
+    // BACKGROUND IMAGE & TRANSPARENT WATERMARK LOGIC
+    // ============================================================
+    function onBgOpacitySlider(val) {
+      const num = parseFloat(val);
+      activeCanvasState.backgroundOpacity = num;
+      const pct = Math.round(num * 100);
+      document.getElementById('lblBgOpacity').textContent = `${pct}%`;
+      document.getElementById('lblBgOpacityBadge').textContent = `${pct}% Opacity`;
+
+      const img = document.getElementById('artboardBgWatermarkImg');
+      if (img) img.style.opacity = num;
+    }
+
+    function setBgFit(fit) {
+      activeCanvasState.backgroundFit = fit;
+      document.getElementById('btnBgCover').classList.toggle('active', fit === 'cover');
+      document.getElementById('btnBgCenter').classList.toggle('active', fit === 'center');
+      applyArtboardBackground();
+    }
+
+    function applyArtboardBackground() {
+      const layer = document.getElementById('artboardBgWatermarkLayer');
+      const img = document.getElementById('artboardBgWatermarkImg');
+      const thumb = document.getElementById('bgThumbPreview');
+      const thumbCont = document.getElementById('bgImgThumbContainer');
+
+      if (activeCanvasState.backgroundImage) {
+        img.src = activeCanvasState.backgroundImage;
+        img.style.opacity = activeCanvasState.backgroundOpacity;
+
+        if (activeCanvasState.backgroundFit === 'center') {
+          img.style.objectFit = 'contain';
+          img.style.padding = '80px';
+        } else {
+          img.style.objectFit = 'cover';
+          img.style.padding = '0';
+        }
+
+        layer.classList.remove('d-none');
+        thumb.src = activeCanvasState.backgroundImage;
+        thumbCont.classList.remove('d-none');
+      } else {
+        img.src = '';
+        layer.classList.add('d-none');
+        thumb.src = '';
+        thumbCont.classList.add('d-none');
+        const bgInp = document.getElementById('bgFileInput');
+        if (bgInp) bgInp.value = '';
+      }
+    }
+
+    // Line Items Rendering inside Canvas Artboard & Toolbox
+    function renderCanvasItems() {
+      const artboardTbody = document.getElementById('artboardItemsTbody');
+      const toolboxList = document.getElementById('toolboxItemsList');
+
+      // 1. Render rows in Canvas Artboard Table (with contenteditable!)
+      artboardTbody.innerHTML = activeCanvasState.items.map((it, idx) => `
+        <tr data-item-idx="${idx}">
+          <td class="text-muted">${idx + 1}</td>
           <td>
-            <div class="fw-semibold">${inv.customer_name}</div>
-            <small class="text-muted">${inv.customer_mobile}</small>
+            <div class="canvas-editable fw-semibold" contenteditable="true" spellcheck="false" onblur="onCanvasItemDescEdit(${idx}, this.innerText)">
+              ${escapeHtml(it.description || 'Service Details')}
+            </div>
           </td>
-          <td>
-            <div class="fw-bold">${formatINR(inv.total_amount)}</div>
-            <small class="text-success">Paid: ${formatINR(inv.amount_received)}</small>
-          </td>
-          <td class="fw-bold ${Number(inv.balance_due) > 0 ? 'text-danger' : 'text-muted'}">${formatINR(inv.balance_due)}</td>
-          <td class="small">${formatDate(inv.invoice_date)}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-admin-yellow me-1" onclick="downloadInv('${inv.id}')">
-              <i class="bi bi-file-earmark-pdf-fill"></i> PDF
-            </button>
-            <button class="btn btn-sm btn-admin-whatsapp" onclick="shareInvWA('${inv.id}')">
-              <i class="bi bi-whatsapp"></i> Share
-            </button>
+            <span class="canvas-editable" contenteditable="true" spellcheck="false" onblur="onCanvasItemQtyEdit(${idx}, this.innerText)">
+              ${it.quantity || 1}
+            </span>
+          </td>
+          <td class="text-end">
+            Rs. <span class="canvas-editable" contenteditable="true" spellcheck="false" onblur="onCanvasItemPriceEdit(${idx}, this.innerText)">
+              ${Number(it.unit_price || 0).toLocaleString('en-IN')}
+            </span>
+          </td>
+          <td class="text-end fw-bold">
+            Rs. ${Number(it.total || 0).toLocaleString('en-IN')}
           </td>
         </tr>
       `).join('');
+
+      // 2. Render quick controls in Toolbox
+      toolboxList.innerHTML = activeCanvasState.items.map((it, idx) => `
+        <div class="p-2 border rounded mb-2 bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-bold text-dark">#${idx + 1}</span>
+            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 small" onclick="removeLineItem(${idx})" title="Remove item">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+          <input type="text" class="form-control form-control-sm mb-1" value="${escapeHtml(it.description || '')}" placeholder="Service description" oninput="activeCanvasState.items[${idx}].description = this.value; renderCanvasItems();">
+          <div class="row g-1">
+            <div class="col-4">
+              <input type="number" min="1" class="form-control form-control-sm text-center" value="${it.quantity || 1}" placeholder="Qty" oninput="onItemQtyChange(${idx}, this.value)">
+            </div>
+            <div class="col-8">
+              <input type="number" class="form-control form-control-sm text-end" value="${it.unit_price || 0}" placeholder="Rate (₹)" oninput="onItemPriceChange(${idx}, this.value)">
+            </div>
+          </div>
+        </div>
+      `).join('');
     }
 
-    function downloadInv(id) {
-      const inv = invoicesList.find(x => x.id === id);
-      if (inv) generateInvoicePDF(inv, orgInvoiceSettings);
+    function addNewLineItem() {
+      activeCanvasState.items.push({
+        description: 'Pilgrimage Darshan / Special Service',
+        quantity: 1,
+        unit_price: 500,
+        total: 500
+      });
+      renderCanvasItems();
+      recalcCanvasFinancials();
     }
 
+    function removeLineItem(idx) {
+      if (activeCanvasState.items.length <= 1) {
+        alert('Invoice must contain at least one line item.');
+        return;
+      }
+      activeCanvasState.items.splice(idx, 1);
+      renderCanvasItems();
+      recalcCanvasFinancials();
+    }
+
+    // Direct On-Canvas Item Edit Handlers
+    function onCanvasItemDescEdit(idx, text) {
+      if (activeCanvasState.items[idx]) {
+        activeCanvasState.items[idx].description = text.trim();
+        renderCanvasItems();
+      }
+    }
+
+    function onCanvasItemQtyEdit(idx, text) {
+      const q = parseInt(text.replace(/[^0-9]/g, '')) || 1;
+      onItemQtyChange(idx, q);
+    }
+
+    function onCanvasItemPriceEdit(idx, text) {
+      const p = parseFloat(text.replace(/[^0-9.]/g, '')) || 0;
+      onItemPriceChange(idx, p);
+    }
+
+    function onItemQtyChange(idx, val) {
+      if (!activeCanvasState.items[idx]) return;
+      const q = Math.max(1, Number(val) || 1);
+      activeCanvasState.items[idx].quantity = q;
+      activeCanvasState.items[idx].total = q * Number(activeCanvasState.items[idx].unit_price || 0);
+      renderCanvasItems();
+      recalcCanvasFinancials();
+    }
+
+    function onItemPriceChange(idx, val) {
+      if (!activeCanvasState.items[idx]) return;
+      const p = Math.max(0, Number(val) || 0);
+      activeCanvasState.items[idx].unit_price = p;
+      activeCanvasState.items[idx].total = Number(activeCanvasState.items[idx].quantity || 1) * p;
+      renderCanvasItems();
+      recalcCanvasFinancials();
+    }
+
+    // Recalculate Financials on Artboard
+    function recalcCanvasFinancials() {
+      const subtotal = activeCanvasState.items.reduce((s, it) => s + Number(it.total || 0), 0);
+      const discount = Number(document.getElementById('tbDiscount').value || 0);
+      const tax = Number(document.getElementById('tbTax').value || 0);
+      const totalAmount = Math.max(0, subtotal - discount + tax);
+      const received = Number(document.getElementById('tbReceived').value || 0);
+      const balanceDue = Math.max(0, totalAmount - received);
+
+      document.getElementById('tbBalance').value = balanceDue;
+
+      // Update Artboard Displays
+      document.getElementById('cvSubtotal').textContent = `Rs. ${subtotal.toLocaleString('en-IN')}`;
+      
+      const discRow = document.getElementById('cvDiscountRow');
+      if (discount > 0) {
+        discRow.classList.remove('d-none');
+        document.getElementById('cvDiscount').textContent = `- Rs. ${discount.toLocaleString('en-IN')}`;
+      } else {
+        discRow.classList.add('d-none');
+      }
+
+      const taxRow = document.getElementById('cvTaxRow');
+      if (tax > 0) {
+        taxRow.classList.remove('d-none');
+        document.getElementById('cvTax').textContent = `Rs. ${tax.toLocaleString('en-IN')}`;
+      } else {
+        taxRow.classList.add('d-none');
+      }
+
+      document.getElementById('cvTotalAmount').textContent = `Rs. ${totalAmount.toLocaleString('en-IN')}`;
+      document.getElementById('cvAmountReceived').textContent = `Rs. ${received.toLocaleString('en-IN')}`;
+      document.getElementById('cvBalanceDue').textContent = `Rs. ${balanceDue.toLocaleString('en-IN')}`;
+
+      const balRow = document.getElementById('cvBalanceRow');
+      if (balanceDue > 0) balRow.classList.add('text-danger');
+      else balRow.classList.remove('text-danger');
+
+      // Auto update payment status text
+      const statusEl = document.getElementById('cvPaymentStatus');
+      if (balanceDue <= 0 && received > 0) statusEl.textContent = 'Payment Status: PAID';
+      else if (received > 0) statusEl.textContent = 'Payment Status: PARTIALLY PAID';
+      else statusEl.textContent = 'Payment Status: UNPAID';
+    }
+
+    function onFinancialOverride() {
+      recalcCanvasFinancials();
+    }
+
+    // Themes & Color Handling
+    function applyThemePreset(preset) {
+      if (preset === 'temple') {
+        activeCanvasState.themeColor = '#45120E';
+        activeCanvasState.accentColor = '#FFC908';
+        activeCanvasState.headerTextColor = '#FFFFFF';
+        activeCanvasState.headerSubColor = '#FFC908';
+        activeCanvasState.badgeTextColor = '#FFC908';
+      } else if (preset === 'saffron') {
+        activeCanvasState.themeColor = '#D97706';
+        activeCanvasState.accentColor = '#FDE047';
+        activeCanvasState.headerTextColor = '#FFFFFF';
+        activeCanvasState.headerSubColor = '#FEF08A';
+        activeCanvasState.badgeTextColor = '#FEF08A';
+      } else if (preset === 'royal') {
+        activeCanvasState.themeColor = '#1E3A8A';
+        activeCanvasState.accentColor = '#38BDF8';
+        activeCanvasState.headerTextColor = '#FFFFFF';
+        activeCanvasState.headerSubColor = '#38BDF8';
+        activeCanvasState.badgeTextColor = '#38BDF8';
+      } else if (preset === 'minimal') {
+        activeCanvasState.themeColor = '#18181B';
+        activeCanvasState.accentColor = '#E4E4E7';
+        activeCanvasState.headerTextColor = '#FFFFFF';
+        activeCanvasState.headerSubColor = '#E4E4E7';
+        activeCanvasState.badgeTextColor = '#FFFFFF';
+      }
+
+      document.getElementById('pickerThemeColor').value = activeCanvasState.themeColor;
+      document.getElementById('lblThemeColor').textContent = activeCanvasState.themeColor;
+      document.getElementById('pickerAccentColor').value = activeCanvasState.accentColor;
+      document.getElementById('lblAccentColor').textContent = activeCanvasState.accentColor;
+
+      document.getElementById('pickerHeaderTitleColor').value = activeCanvasState.headerTextColor;
+      document.getElementById('lblHeaderTitleColor').textContent = activeCanvasState.headerTextColor;
+      document.getElementById('pickerHeaderSubColor').value = activeCanvasState.headerSubColor;
+      document.getElementById('lblHeaderSubColor').textContent = activeCanvasState.headerSubColor;
+      document.getElementById('pickerBadgeTextColor').value = activeCanvasState.badgeTextColor;
+      document.getElementById('lblBadgeTextColor').textContent = activeCanvasState.badgeTextColor;
+
+      applyArtboardThemeColors();
+      applyArtboardTextColors();
+    }
+
+    function getHexLuminance(hex) {
+      if (!hex || typeof hex !== 'string') return 0;
+      hex = hex.replace('#', '').trim();
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      const num = parseInt(hex, 16);
+      if (isNaN(num)) return 0;
+      const r = (num >> 16) & 255;
+      const g = (num >> 8) & 255;
+      const b = num & 255;
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    }
+
+    function onCustomColorChange() {
+      activeCanvasState.themeColor = document.getElementById('pickerThemeColor').value;
+      document.getElementById('lblThemeColor').textContent = activeCanvasState.themeColor;
+      activeCanvasState.accentColor = document.getElementById('pickerAccentColor').value;
+      document.getElementById('lblAccentColor').textContent = activeCanvasState.accentColor;
+
+      // If theme is light, ensure header text colors are readable by default
+      const isLight = getHexLuminance(activeCanvasState.themeColor) > 0.55;
+      if (isLight) {
+        if (!activeCanvasState.headerTextColor || getHexLuminance(activeCanvasState.headerTextColor) > 0.55) {
+          activeCanvasState.headerTextColor = '#45120E';
+          const p = document.getElementById('pickerHeaderTitleColor');
+          if (p) p.value = '#45120E';
+          const l = document.getElementById('lblHeaderTitleColor');
+          if (l) l.textContent = '#45120E';
+        }
+        if (!activeCanvasState.headerSubColor || getHexLuminance(activeCanvasState.headerSubColor) > 0.55) {
+          activeCanvasState.headerSubColor = '#45120E';
+          const p = document.getElementById('pickerHeaderSubColor');
+          if (p) p.value = '#45120E';
+          const l = document.getElementById('lblHeaderSubColor');
+          if (l) l.textContent = '#45120E';
+        }
+        if (!activeCanvasState.badgeTextColor || getHexLuminance(activeCanvasState.badgeTextColor) > 0.55) {
+          activeCanvasState.badgeTextColor = '#45120E';
+          const p = document.getElementById('pickerBadgeTextColor');
+          if (p) p.value = '#45120E';
+          const l = document.getElementById('lblBadgeTextColor');
+          if (l) l.textContent = '#45120E';
+        }
+        if (!activeCanvasState.headerDetailColor || getHexLuminance(activeCanvasState.headerDetailColor) > 0.55) {
+          activeCanvasState.headerDetailColor = '#1E293B';
+          const p = document.getElementById('pickerHeaderDetailColor');
+          if (p) p.value = '#1E293B';
+          const l = document.getElementById('lblHeaderDetailColor');
+          if (l) l.textContent = '#1E293B';
+        }
+        if (!activeCanvasState.headerTopColor || getHexLuminance(activeCanvasState.headerTopColor) > 0.55) {
+          activeCanvasState.headerTopColor = '#45120E';
+          const p = document.getElementById('pickerHeaderTopColor');
+          if (p) p.value = '#45120E';
+          const l = document.getElementById('lblHeaderTopColor');
+          if (l) l.textContent = '#45120E';
+        }
+        if (!activeCanvasState.footerTextColor || getHexLuminance(activeCanvasState.footerTextColor) > 0.55) {
+          activeCanvasState.footerTextColor = '#45120E';
+          const p = document.getElementById('pickerFooterTextColor');
+          if (p) p.value = '#45120E';
+          const l = document.getElementById('lblFooterTextColor');
+          if (l) l.textContent = '#45120E';
+        }
+      }
+
+      applyArtboardThemeColors();
+      applyArtboardTextColors();
+    }
+
+    function applyArtboardThemeColors() {
+      const isLight = getHexLuminance(activeCanvasState.themeColor) > 0.55;
+      document.getElementById('artboardHeaderBlock').style.backgroundColor = activeCanvasState.themeColor;
+      document.getElementById('artboardGoldStripe').style.backgroundColor = activeCanvasState.accentColor;
+      document.getElementById('artboardTotalPill').style.backgroundColor = activeCanvasState.themeColor;
+      document.getElementById('artboardFooterBlock').style.backgroundColor = activeCanvasState.themeColor;
+
+      // Table headers contrast
+      document.querySelectorAll('.canvas-table th').forEach(th => {
+        th.style.setProperty('background-color', activeCanvasState.themeColor, 'important');
+        th.style.setProperty('color', isLight ? '#45120E' : '#FFFFFF', 'important');
+      });
+
+      // Total Pill text & amount contrast
+      const totalPill = document.getElementById('artboardTotalPill');
+      if (totalPill) {
+        const titleSpan = totalPill.querySelector('span:first-child');
+        if (titleSpan) titleSpan.style.color = isLight ? '#45120E' : '#FFFFFF';
+        const amtSpan = document.getElementById('cvTotalAmount');
+        if (amtSpan) {
+          amtSpan.classList.remove('text-warning');
+          amtSpan.style.color = isLight ? '#45120E' : (activeCanvasState.accentColor || '#FFC908');
+        }
+      }
+
+      applyHeaderTopArtboard();
+    }
+
+    function setPaperTone(tone) {
+      activeCanvasState.paperTone = tone;
+      const artboard = document.getElementById('invoicePreviewContainer');
+      document.getElementById('btnPaperWhite').classList.toggle('active', tone === 'white');
+      document.getElementById('btnPaperCream').classList.toggle('active', tone === 'cream');
+
+      if (tone === 'cream') {
+        artboard.style.backgroundColor = '#FAF7F0';
+      } else {
+        artboard.style.backgroundColor = '#FFFFFF';
+      }
+    }
+
+    // Stamps & Seals Handling
+    function selectStampBadge(type) {
+      activeCanvasState.stampType = type;
+      activeCanvasState.showStamp = true;
+      document.getElementById('chkShowStamp').checked = true;
+      applyArtboardStamp();
+    }
+
+    function toggleStampVisibility(visible) {
+      activeCanvasState.showStamp = visible;
+      applyArtboardStamp();
+    }
+
+    function onStampRotSlider(val) {
+      activeCanvasState.stampRotation = val;
+      document.getElementById('lblStampRot').textContent = `${val}°`;
+      applyArtboardStamp();
+    }
+
+    function applyArtboardStamp() {
+      const stampEl = document.getElementById('artboardStampContainer');
+      if (!activeCanvasState.showStamp) {
+        stampEl.classList.add('d-none');
+        return;
+      }
+      stampEl.classList.remove('d-none');
+      stampEl.className = 'canvas-stamp-badge';
+
+      const inner = document.getElementById('stampBadgeInner');
+      stampEl.style.transform = `rotate(${activeCanvasState.stampRotation}deg)`;
+
+      if (activeCanvasState.customStampImage) {
+        stampEl.innerHTML = `<img src="${activeCanvasState.customStampImage}" alt="Stamp" style="max-height: 65px; max-width: 65px; object-fit: contain;">`;
+        return;
+      }
+
+      if (activeCanvasState.stampType === 'paid') {
+        stampEl.classList.add('stamp-paid');
+        inner.innerHTML = '<span>★ PAID ★<br>SETTLED</span>';
+      } else if (activeCanvasState.stampType === 'temple') {
+        stampEl.classList.add('stamp-temple');
+        inner.innerHTML = '<span>ॐ NAMAH<br>SHIVAYA</span>';
+      } else if (activeCanvasState.stampType === 'verified') {
+        stampEl.classList.add('stamp-verified');
+        inner.innerHTML = '<span>VERIFIED<br>OFFICIAL</span>';
+      } else if (activeCanvasState.stampType === 'authorized') {
+        stampEl.classList.add('stamp-authorized');
+        inner.innerHTML = '<span>AUTHORIZED<br>OFFICE</span>';
+      }
+    }
+
+    // Images & Banner Handling
+    function handleImageUpload(type, inputEl) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        if (type === 'logo') {
+          activeCanvasState.logoImage = dataUrl;
+          document.getElementById('logoThumbPreview').src = dataUrl;
+        } else if (type === 'banner') {
+          activeCanvasState.bannerImage = dataUrl;
+          document.getElementById('bannerThumbPreview').src = dataUrl;
+          document.getElementById('bannerImgThumbContainer').classList.remove('d-none');
+        } else if (type === 'background') {
+          activeCanvasState.backgroundImage = dataUrl;
+          applyArtboardBackground();
+        } else if (type === 'custom_stamp') {
+          activeCanvasState.customStampImage = dataUrl;
+          activeCanvasState.showStamp = true;
+          document.getElementById('chkShowStamp').checked = true;
+        }
+        applyArtboardImages();
+        applyArtboardStamp();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeImage(type) {
+      if (type === 'logo') {
+        activeCanvasState.logoImage = null;
+        document.getElementById('logoThumbPreview').src = '';
+      } else if (type === 'banner') {
+        activeCanvasState.bannerImage = null;
+        document.getElementById('bannerImgThumbContainer').classList.add('d-none');
+        document.getElementById('bannerFileInput').value = '';
+      } else if (type === 'background') {
+        activeCanvasState.backgroundImage = null;
+        applyArtboardBackground();
+      }
+      applyArtboardImages();
+    }
+
+    function resetDefaultLogo() {
+      activeCanvasState.logoImage = '../assets/images/logo/logo.png';
+      document.getElementById('logoThumbPreview').src = '../assets/images/logo/logo.png';
+      applyArtboardImages();
+    }
+
+    function onLogoSizeSlider(val) {
+      document.getElementById('lblLogoSize').textContent = `${val} px`;
+      const logoEl = document.getElementById('artboardLogoImg');
+      logoEl.style.width = `${val}px`;
+      logoEl.style.height = `${val}px`;
+    }
+
+    function applyArtboardImages() {
+      const logoEl = document.getElementById('artboardLogoImg');
+      if (activeCanvasState.logoImage) {
+        logoEl.src = activeCanvasState.logoImage;
+        logoEl.classList.remove('d-none');
+      } else {
+        logoEl.classList.add('d-none');
+      }
+
+      const customBannerWrap = document.getElementById('artboardCustomBanner');
+      const normalHeader = document.getElementById('artboardHeaderBlock');
+      const customBannerImg = document.getElementById('artboardCustomBannerImg');
+
+      if (activeCanvasState.bannerImage) {
+        customBannerImg.src = activeCanvasState.bannerImage;
+        customBannerWrap.classList.remove('d-none');
+        normalHeader.classList.add('d-none');
+      } else {
+        customBannerWrap.classList.add('d-none');
+        normalHeader.classList.remove('d-none');
+      }
+    }
+
+    // Digital Signature Pad Logic
+    function initSignaturePad() {
+      sigCanvas = document.getElementById('signaturePadCanvas');
+      if (!sigCanvas) return;
+      sigCtx = sigCanvas.getContext('2d');
+      sigCtx.strokeStyle = '#0f172a';
+      sigCtx.lineWidth = 2.5;
+      sigCtx.lineCap = 'round';
+      sigCtx.lineJoin = 'round';
+
+      function getPos(e) {
+        const rect = sigCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (sigCanvas.width / rect.width),
+          y: (clientY - rect.top) * (sigCanvas.height / rect.height)
+        };
+      }
+
+      sigCanvas.onmousedown = sigCanvas.ontouchstart = function(e) {
+        e.preventDefault();
+        isSigDrawing = true;
+        const p = getPos(e);
+        sigCtx.beginPath();
+        sigCtx.moveTo(p.x, p.y);
+      };
+
+      sigCanvas.onmousemove = sigCanvas.ontouchmove = function(e) {
+        if (!isSigDrawing) return;
+        e.preventDefault();
+        const p = getPos(e);
+        sigCtx.lineTo(p.x, p.y);
+        sigCtx.stroke();
+      };
+
+      window.onmouseup = window.ontouchend = function() {
+        isSigDrawing = false;
+      };
+    }
+
+    function setSigPenColor(color) {
+      if (sigCtx) sigCtx.strokeStyle = color;
+    }
+
+    function clearSignaturePad() {
+      if (!sigCtx || !sigCanvas) return;
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      activeCanvasState.signatureImage = null;
+      applyArtboardSignature();
+    }
+
+    function applySignatureToCanvas() {
+      if (!sigCanvas) return;
+      const dataUrl = sigCanvas.toDataURL('image/png');
+      activeCanvasState.signatureImage = dataUrl;
+      activeCanvasState.showSignature = true;
+      document.getElementById('chkShowSignature').checked = true;
+      applyArtboardSignature();
+      showAdminToast('Digital signature applied to invoice!', 'success');
+    }
+
+    function toggleSignatureVisibility(visible) {
+      activeCanvasState.showSignature = visible;
+      applyArtboardSignature();
+    }
+
+    function applyArtboardSignature() {
+      const slot = document.getElementById('artboardSigSlot');
+      const img = document.getElementById('artboardSigImg');
+      if (activeCanvasState.showSignature && activeCanvasState.signatureImage) {
+        img.src = activeCanvasState.signatureImage;
+        slot.classList.remove('d-none');
+      } else {
+        slot.classList.add('d-none');
+      }
+    }
+
+    // Zoom Controls
+    function setCanvasZoom(scale) {
+      const artboard = document.getElementById('invoicePreviewContainer');
+      artboard.style.transform = `scale(${scale})`;
+      if (scale === 1) {
+        document.getElementById('btnZoom100').classList.add('active');
+      } else {
+        document.getElementById('btnZoom100').classList.remove('active');
+      }
+    }
+
+    // Print Canvas Sheet
+    function printInvoiceSheet() {
+      window.print();
+    }
+
+    // Build Current Invoice Object for PDF Generation
+    function buildCanvasInvoicePayload() {
+      const subtotal = activeCanvasState.items.reduce((s, it) => s + Number(it.total || 0), 0);
+      const discount = Number(document.getElementById('tbDiscount').value || 0);
+      const tax = Number(document.getElementById('tbTax').value || 0);
+      const totalAmount = Math.max(0, subtotal - discount + tax);
+      const received = Number(document.getElementById('tbReceived').value || 0);
+      const balanceDue = Math.max(0, totalAmount - received);
+
+      const customOrg = {
+        org_name: document.getElementById('cvOrgName').innerText.trim(),
+        tagline: document.getElementById('cvOrgTagline').innerText.trim(),
+        address: document.getElementById('cvOrgAddress').innerText.trim(),
+        phone: globalInvoiceSettings.phone || FACTORY_DEFAULT_SETTINGS.phone,
+        email: globalInvoiceSettings.email || FACTORY_DEFAULT_SETTINGS.email,
+        gstin: globalInvoiceSettings.gstin || '',
+        terms: document.getElementById('cvTerms').innerText.trim(),
+        theme_color: activeCanvasState.themeColor,
+        accent_color: activeCanvasState.accentColor,
+        header_top_left: activeCanvasState.headerTopLeft,
+        header_top_center: activeCanvasState.headerTopCenter,
+        header_top_right: activeCanvasState.headerTopRight,
+        header_top_color: activeCanvasState.headerTopColor,
+        header_top_size: activeCanvasState.headerTopSize,
+        header_text_color: activeCanvasState.headerTextColor,
+        header_sub_color: activeCanvasState.headerSubColor,
+        header_detail_color: activeCanvasState.headerDetailColor,
+        badge_text_color: activeCanvasState.badgeTextColor,
+        org_name_size: activeCanvasState.orgNameSize,
+        footer_text: activeCanvasState.footerText || (document.getElementById('cvFooterMainText') ? document.getElementById('cvFooterMainText').innerText.trim() : ''),
+        footer_text_color: activeCanvasState.footerTextColor,
+        footer_text_size: activeCanvasState.footerTextSize,
+        custom_text_blocks: activeCanvasState.customTextBlocks || [],
+        stamp_url: activeCanvasState.customStampImage || null,
+        custom_stamp_image: activeCanvasState.customStampImage || null,
+        stamp_type: activeCanvasState.stampType || 'paid',
+        show_stamp: activeCanvasState.showStamp,
+        stamp_rotation: activeCanvasState.stampRotation,
+        logo_url: activeCanvasState.logoImage,
+        header_banner_url: activeCanvasState.bannerImage,
+        background_image_url: activeCanvasState.backgroundImage,
+        background_opacity: activeCanvasState.backgroundOpacity,
+        background_fit: activeCanvasState.backgroundFit,
+        signature_url: activeCanvasState.showSignature ? activeCanvasState.signatureImage : null
+      };
+
+      return {
+        invoice_number: document.getElementById('cvInvNumber').innerText.trim(),
+        invoice_date: currentEditingInv ? (currentEditingInv.invoice_date || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+        title_badge: document.getElementById('cvDocTitle').innerText.trim(),
+        customer_name: document.getElementById('cvCustomerName').innerText.trim(),
+        customer_mobile: document.getElementById('cvCustomerMobile').innerText.replace('Mobile:', '').trim(),
+        customer_email: document.getElementById('cvCustomerEmail').innerText.replace('Email:', '').trim(),
+        customer_address: document.getElementById('cvCustomerAddress').innerText.replace('Address:', '').trim(),
+        booking_code: document.getElementById('cvBookingCode').innerText.replace('Booking ID:', '').trim(),
+        room_details: document.getElementById('cvRoomDetails').innerText.replace('Room / Service:', '').trim(),
+        payment_status: balanceDue <= 0 && received > 0 ? 'Paid' : received > 0 ? 'Partially Paid' : 'Unpaid',
+        payment_method: document.getElementById('cvPayMethod').innerText.replace('Method:', '').trim(),
+        transaction_reference: document.getElementById('cvPayRef').innerText.replace('Reference:', '').trim(),
+        items: activeCanvasState.items,
+        subtotal,
+        discount,
+        tax_amount: tax,
+        total_amount: totalAmount,
+        amount_received: received,
+        balance_due: balanceDue,
+        notes: document.getElementById('cvTerms').innerText.trim(),
+        theme_color: activeCanvasState.themeColor,
+        accent_color: activeCanvasState.accentColor,
+        header_top_left: activeCanvasState.headerTopLeft,
+        header_top_center: activeCanvasState.headerTopCenter,
+        header_top_right: activeCanvasState.headerTopRight,
+        header_top_color: activeCanvasState.headerTopColor,
+        header_top_size: activeCanvasState.headerTopSize,
+        header_text_color: activeCanvasState.headerTextColor,
+        header_sub_color: activeCanvasState.headerSubColor,
+        header_detail_color: activeCanvasState.headerDetailColor,
+        badge_text_color: activeCanvasState.badgeTextColor,
+        org_name_size: activeCanvasState.orgNameSize,
+        footer_text: activeCanvasState.footerText || (document.getElementById('cvFooterMainText') ? document.getElementById('cvFooterMainText').innerText.trim() : ''),
+        footer_text_color: activeCanvasState.footerTextColor,
+        footer_text_size: activeCanvasState.footerTextSize,
+        custom_text_blocks: activeCanvasState.customTextBlocks || [],
+        stamp_url: activeCanvasState.customStampImage || null,
+        custom_stamp_image: activeCanvasState.customStampImage || null,
+        stamp_type: activeCanvasState.stampType || 'paid',
+        show_stamp: activeCanvasState.showStamp,
+        stamp_rotation: activeCanvasState.stampRotation,
+        logo_url: activeCanvasState.logoImage,
+        header_banner_url: activeCanvasState.bannerImage,
+        background_image_url: activeCanvasState.backgroundImage,
+        background_opacity: activeCanvasState.backgroundOpacity,
+        background_fit: activeCanvasState.backgroundFit,
+        signature_url: activeCanvasState.showSignature ? activeCanvasState.signatureImage : null,
+        custom_org: customOrg
+      };
+    }
+
+    // Download PDF directly from In-App Canvas
+    function downloadCanvasPDF() {
+      const payload = buildCanvasInvoicePayload();
+      generateInvoicePDF(payload, payload.custom_org);
+    }
+
+    // Save Changes to Supabase (Handles both Master Template Mode and Specific Invoice Mode)
+    async function saveCanvasInvoice() {
+      const saveBtn = document.getElementById('btnSaveCanvasChanges');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+
+      try {
+        const payload = buildCanvasInvoicePayload();
+        const sb = window.adminSupabase;
+
+        if (isMasterTemplateMode) {
+          // Saving Master Template Defaults to website_settings and localStorage
+          const masterSettings = Object.assign({}, payload.custom_org);
+
+          localStorage.setItem('master_invoice_settings', JSON.stringify(masterSettings));
+          globalInvoiceSettings = Object.assign({}, FACTORY_DEFAULT_SETTINGS, masterSettings);
+
+          try {
+            await sb.from('website_settings').upsert({
+              key: 'invoice_settings',
+              value: masterSettings,
+              description: 'Master Invoice Template Canvas Defaults'
+            });
+          } catch (e) {
+            console.warn('Supabase website_settings upsert error:', e);
+          }
+
+          showAdminToast('Master Invoice Template saved successfully!', 'success');
+          bootstrap.Modal.getInstance(document.getElementById('invoiceEditorModal')).hide();
+          return;
+        }
+
+        // Saving Specific Invoice
+        const invId = currentEditingInv.id;
+        const dbFields = {
+          invoice_number: payload.invoice_number,
+          customer_name: payload.customer_name,
+          customer_mobile: payload.customer_mobile,
+          customer_email: payload.customer_email || null,
+          customer_address: payload.customer_address || null,
+          booking_code: payload.booking_code,
+          room_details: payload.room_details,
+          service_description: payload.room_details,
+          subtotal: payload.subtotal,
+          discount: payload.discount,
+          tax_amount: payload.tax_amount,
+          total_amount: payload.total_amount,
+          amount_received: payload.amount_received,
+          balance_due: payload.balance_due,
+          payment_status: payload.payment_status,
+          payment_method: payload.payment_method,
+          transaction_reference: payload.transaction_reference,
+          notes: payload.notes
+        };
+
+        // 1. Update invoice in Supabase
+        const { error: invErr } = await sb.from('invoices').update(dbFields).eq('id', invId);
+        if (invErr) throw invErr;
+
+        // 2. Update line items
+        await sb.from('invoice_items').delete().eq('invoice_id', invId);
+        if (payload.items && payload.items.length > 0) {
+          const itemsPayload = payload.items.map(it => ({
+            invoice_id: invId,
+            description: it.description || 'Service',
+            quantity: Number(it.quantity || 1),
+            unit_price: Number(it.unit_price || 0),
+            total: Number(it.total || 0)
+          }));
+          await sb.from('invoice_items').insert(itemsPayload);
+        }
+
+        // 3. Cache Canvas Design State in localStorage
+        const invoiceCanvasState = Object.assign({}, activeCanvasState, {
+          custom_org: payload.custom_org,
+          stamp_url: activeCanvasState.customStampImage || null,
+          custom_stamp_image: activeCanvasState.customStampImage || null,
+          stamp_type: activeCanvasState.stampType || 'paid',
+          show_stamp: activeCanvasState.showStamp,
+          stamp_rotation: activeCanvasState.stampRotation
+        });
+        localStorage.setItem(`canvas_state_${invId}`, JSON.stringify(invoiceCanvasState));
+
+        // Update local memory list
+        const idx = invoicesList.findIndex(x => x.id === invId);
+        if (idx !== -1) {
+          Object.assign(invoicesList[idx], dbFields, {
+            items: payload.items,
+            custom_org: payload.custom_org,
+            theme_color: payload.theme_color,
+            accent_color: payload.accent_color,
+            header_text_color: payload.header_text_color,
+            header_sub_color: payload.header_sub_color,
+            header_detail_color: payload.header_detail_color,
+            badge_text_color: payload.badge_text_color,
+            org_name_size: payload.org_name_size,
+            footer_text: payload.footer_text,
+            footer_text_color: payload.footer_text_color,
+            footer_text_size: payload.footer_text_size,
+            custom_text_blocks: payload.custom_text_blocks,
+            stamp_url: payload.stamp_url,
+            custom_stamp_image: payload.custom_stamp_image,
+            stamp_type: payload.stamp_type,
+            show_stamp: payload.show_stamp,
+            stamp_rotation: payload.stamp_rotation,
+            logo_url: payload.logo_url,
+            header_banner_url: payload.header_banner_url,
+            background_image_url: payload.background_image_url,
+            background_opacity: payload.background_opacity,
+            background_fit: payload.background_fit,
+            signature_url: payload.signature_url
+          });
+        }
+
+        updateKpiCards();
+        filterInvoicesTable();
+
+        showAdminToast(`Invoice ${payload.invoice_number} saved successfully!`, 'success');
+        bootstrap.Modal.getInstance(document.getElementById('invoiceEditorModal')).hide();
+      } catch (err) {
+        console.error('saveCanvasInvoice error:', err);
+        alert('Failed to save invoice changes: ' + (err.message || err));
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Save Changes';
+      }
+    }
+
+    // Quick download PDF from table
+    async function downloadInv(id) {
+      let inv = invoicesList.find(x => x.id === id);
+      if (!inv) return;
+
+      const savedCanvas = JSON.parse(localStorage.getItem(`canvas_state_${id}`) || '{}');
+      const orgDefaults = Object.assign({}, FACTORY_DEFAULT_SETTINGS, globalInvoiceSettings);
+
+      const sb = window.adminSupabase;
+      const { data: items } = await sb.from('invoice_items').select('*').eq('invoice_id', id);
+
+      const fullInv = Object.assign({}, inv, {
+        items: (items && items.length > 0) ? items : [{
+          description: inv.service_description || (inv.room_details || 'Accommodation Service'),
+          quantity: 1,
+          unit_price: inv.subtotal || inv.total_amount,
+          total: inv.subtotal || inv.total_amount
+        }],
+        theme_color: savedCanvas.themeColor || orgDefaults.theme_color,
+        accent_color: savedCanvas.accentColor || orgDefaults.accent_color,
+        header_top_left: savedCanvas.headerTopLeft !== undefined ? savedCanvas.headerTopLeft : (inv.header_top_left !== undefined ? inv.header_top_left : orgDefaults.header_top_left),
+        header_top_center: savedCanvas.headerTopCenter !== undefined ? savedCanvas.headerTopCenter : (inv.header_top_center !== undefined ? inv.header_top_center : orgDefaults.header_top_center),
+        header_top_right: savedCanvas.headerTopRight !== undefined ? savedCanvas.headerTopRight : (inv.header_top_right !== undefined ? inv.header_top_right : orgDefaults.header_top_right),
+        header_top_color: savedCanvas.headerTopColor || orgDefaults.header_top_color,
+        header_top_size: savedCanvas.headerTopSize || orgDefaults.header_top_size || 8,
+        header_text_color: savedCanvas.headerTextColor || orgDefaults.header_text_color,
+        header_sub_color: savedCanvas.headerSubColor || orgDefaults.header_sub_color,
+        header_detail_color: savedCanvas.headerDetailColor || orgDefaults.header_detail_color,
+        badge_text_color: savedCanvas.badgeTextColor || orgDefaults.badge_text_color,
+        org_name_size: savedCanvas.orgNameSize || orgDefaults.org_name_size || 17,
+        footer_text: savedCanvas.footerText || inv.footer_text || orgDefaults.footer_text,
+        footer_text_color: savedCanvas.footerTextColor || inv.footer_text_color || orgDefaults.footer_text_color,
+        footer_text_size: savedCanvas.footerTextSize || inv.footer_text_size || orgDefaults.footer_text_size,
+        custom_text_blocks: savedCanvas.customTextBlocks || orgDefaults.custom_text_blocks || [],
+        stamp_url: savedCanvas.customStampImage || savedCanvas.stamp_url || orgDefaults.stamp_url || orgDefaults.custom_stamp_image || null,
+        custom_stamp_image: savedCanvas.customStampImage || orgDefaults.custom_stamp_image || null,
+        stamp_type: savedCanvas.stampType || orgDefaults.stamp_type || 'paid',
+        show_stamp: savedCanvas.showStamp !== undefined ? savedCanvas.showStamp : (orgDefaults.show_stamp !== undefined ? orgDefaults.show_stamp : true),
+        stamp_rotation: savedCanvas.stampRotation !== undefined ? savedCanvas.stampRotation : (orgDefaults.stamp_rotation !== undefined ? orgDefaults.stamp_rotation : -12),
+        logo_url: savedCanvas.logoImage || orgDefaults.logo_url,
+        header_banner_url: savedCanvas.bannerImage || orgDefaults.header_banner_url,
+        background_image_url: savedCanvas.backgroundImage || orgDefaults.background_image_url,
+        background_opacity: savedCanvas.backgroundOpacity !== undefined ? savedCanvas.backgroundOpacity : orgDefaults.background_opacity,
+        background_fit: savedCanvas.backgroundFit || orgDefaults.background_fit || 'cover',
+        signature_url: savedCanvas.signatureImage || orgDefaults.signature_url || null,
+        custom_org: Object.assign({}, orgDefaults, savedCanvas.custom_org || {}, {
+          org_name: (savedCanvas.custom_org && savedCanvas.custom_org.org_name) || orgDefaults.org_name,
+          tagline: (savedCanvas.custom_org && savedCanvas.custom_org.tagline) || orgDefaults.tagline,
+          address: (savedCanvas.custom_org && savedCanvas.custom_org.address) || orgDefaults.address
+        })
+      });
+
+      generateInvoicePDF(fullInv, fullInv.custom_org);
+    }
+
+    // WhatsApp Share
     async function shareInvWA(id) {
       const inv = invoicesList.find(x => x.id === id);
       if (!inv) return;
@@ -125,7 +3325,16 @@
       });
       await openWhatsAppShare(inv.customer_mobile, msg, inv.booking_code, 'Invoice Delivery');
     }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
   </script>
 </body>
 </html>
-
