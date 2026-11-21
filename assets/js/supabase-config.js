@@ -52,20 +52,38 @@ async function fetchServicesFromSupabase() {
 
     if (data && data.length > 0) {
       // Map DB snake_case columns to camelCase expected by frontend
-      const mapped = data.map(item => ({
-        id: item.id,
-        title: item.title,
-        category: item.category || 'Services',
-        shortDesc: item.short_desc || '',
-        description: item.overview || item.short_desc || '',
-        features: Array.isArray(item.features) ? item.features : [],
-        inclusions: Array.isArray(item.inclusions) ? item.inclusions : [],
-        exclusions: Array.isArray(item.exclusions) ? item.exclusions : [],
-        importantInfo: Array.isArray(item.important_info) ? item.important_info : [],
-        icon: item.icon || 'bi-gear-fill',
-        image: item.image || '',
-        gallery: [item.image].filter(Boolean)
-      }));
+      const mapped = data.map(item => {
+        const staticMatch = (typeof SERVICES_DATA !== 'undefined' && Array.isArray(SERVICES_DATA))
+          ? SERVICES_DATA.find(s => s.id === item.id)
+          : null;
+
+        const effectiveImage = item.image || (staticMatch && staticMatch.image) || '';
+        return {
+          id: item.id,
+          title: item.title,
+          category: item.category || (staticMatch && staticMatch.category) || 'Services',
+          shortDesc: item.short_desc || (staticMatch && staticMatch.shortDesc) || '',
+          description: item.overview || item.short_desc || (staticMatch && staticMatch.description) || '',
+          features: Array.isArray(item.features) && item.features.length > 0
+            ? item.features
+            : (staticMatch && staticMatch.features) || [],
+          pricing: Array.isArray(item.pricing) && item.pricing.length > 0
+            ? item.pricing
+            : (item.pricing_json || (staticMatch && staticMatch.pricing) || []),
+          routes: Array.isArray(item.routes) && item.routes.length > 0
+            ? item.routes
+            : (staticMatch && staticMatch.routes) || [],
+          inclusions: Array.isArray(item.inclusions) ? item.inclusions : [],
+          exclusions: Array.isArray(item.exclusions) ? item.exclusions : [],
+          importantInfo: Array.isArray(item.important_info) ? item.important_info : [],
+          icon: item.icon || (staticMatch && staticMatch.icon) || 'bi-gear-fill',
+          image: effectiveImage,
+          imageFit: item.image_fit || (staticMatch && staticMatch.imageFit) || '',
+          gallery: Array.isArray(item.gallery) && item.gallery.length > 0
+            ? item.gallery
+            : (staticMatch && staticMatch.gallery) || [effectiveImage].filter(Boolean)
+        };
+      });
       setPublicCache('services', mapped);
       return mapped;
     }

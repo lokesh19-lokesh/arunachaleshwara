@@ -59,7 +59,15 @@ async function initAccommodationPage() {
   if (fIn) { fIn.value = fmt(tomorrow); fIn.min = fmt(today); }
   if (fOut) { fOut.value = fmt(dayAfter); fOut.min = fmt(tomorrow); }
 
-  // Immediate render from fallback cache (zero flicker)
+  // Immediate render from fallback cache or previously cached DB data (zero flicker on reload)
+  try {
+    const rawAcc = localStorage.getItem('arn_pub_accommodation');
+    if (rawAcc) {
+      const p = JSON.parse(rawAcc);
+      if (p.cats && p.cats.length > 0) ACC_CATEGORIES = p.cats;
+      if (p.rooms && p.rooms.length > 0) ACC_ROOMS = p.rooms;
+    }
+  } catch (e) {}
   renderAccommodationCards();
 
   // Hydrate live from Supabase
@@ -85,6 +93,9 @@ async function initAccommodationPage() {
           roomNumbers: ACC_ROOMS.filter(r => r.category_id === c.id).map(r => r.room_number),
           availableCount: ACC_ROOMS.filter(r => r.category_id === c.id && r.status === 'Available').length
         }));
+        try {
+          localStorage.setItem('arn_pub_accommodation', JSON.stringify({ cats: ACC_CATEGORIES, rooms: ACC_ROOMS }));
+        } catch (e) {}
         // Keep public filterCategory dropdown synced with dynamic Admin categories
         const catFilterEl = document.getElementById('filterCategory');
         if (catFilterEl) {

@@ -778,6 +778,15 @@ function renderPackagesPage() {
   const listContainer = document.getElementById('packagesList');
   if (!gridContainer) return;
 
+  // Immediate render from latest cached DB packages (0ms instant paint on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('packages');
+    if (cached && cached.length > 0) {
+      PACKAGES_DATA = cached;
+      window.PACKAGES_DATA = PACKAGES_DATA;
+    }
+  }
+
   // Render grid view immediately from local cache
   gridContainer.innerHTML = `<div class="row">${PACKAGES_DATA.map((p, i) => renderTourCard(p, i)).join('')}</div>`;
 
@@ -1126,6 +1135,15 @@ function renderTourDetails() {
   const urlParams = new URLSearchParams(window.location.search);
   const tourId = urlParams.get('id');
 
+  // Immediate render from latest cached DB packages (0ms instant paint on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('packages');
+    if (cached && cached.length > 0) {
+      PACKAGES_DATA = cached;
+      window.PACKAGES_DATA = PACKAGES_DATA;
+    }
+  }
+
   const tour = PACKAGES_DATA.find(p => p.id === tourId);
 
   if (tour) {
@@ -1168,6 +1186,15 @@ function renderTourDetails() {
 function renderFeaturedPackages(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
+
+  // Immediate render from latest cached DB packages (0ms instant paint on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('packages');
+    if (cached && cached.length > 0) {
+      PACKAGES_DATA = cached;
+      window.PACKAGES_DATA = PACKAGES_DATA;
+    }
+  }
 
   const buildCardsHTML = (items) => items.map(pkg => {
     const imageMarkup = pkg.image

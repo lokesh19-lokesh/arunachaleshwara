@@ -169,9 +169,9 @@ let SERVICES_DATA = [
       { duration: '12 Hours', rate: '₹600', desc: 'Full day sightseeing & ashram exploration' },
       { duration: '24 Hours', rate: '₹1,000', desc: 'Overnight & extended sacred pilgrimage stay' }
     ],
-    image: 'assets/images/gallery/Vehicles4.jpg',
+    image: 'assets/images/services/bike-rentals.jpg',
     gallery: [
-      'assets/images/gallery/Vehicles4.jpg',
+      'assets/images/services/bike-rentals.jpg',
       'assets/images/gallery/travel1.jpg'
     ]
   },
@@ -523,6 +523,65 @@ function populateServiceDetailsDOM(service, container) {
 }
 
 /**
+ * Overlay custom admin-edited catalog data (tariffs, routes, sevas)
+ */
+function overlayCustomCatalogData(service) {
+  if (!service) return service;
+  try {
+    if (service.id === 'temple-darshan') {
+      const rawSevas = localStorage.getItem('arn_custom_darshan_sevas');
+      if (rawSevas) {
+        const sevas = JSON.parse(rawSevas).filter(x => x.is_active !== false);
+        if (sevas.length > 0) {
+          service.pricing = sevas.map(s => ({
+            name: s.title,
+            rate: '₹' + Number(s.price || 0).toLocaleString('en-IN'),
+            desc: `${s.timing || 'Daily'}${s.inclusions ? ' • ' + s.inclusions : ''}`
+          }));
+        }
+      }
+    } else if (service.id === 'bus-ticket-booking') {
+      const rawRoutes = localStorage.getItem('arn_custom_bus_routes');
+      if (rawRoutes) {
+        const routes = JSON.parse(rawRoutes).filter(x => x.is_active !== false);
+        if (routes.length > 0) {
+          service.routes = routes.map(r => ({
+            route: r.title,
+            timings: r.timings || []
+          }));
+        }
+      }
+    } else if (service.id === 'bike-rentals') {
+      const rawTariffs = localStorage.getItem('arn_custom_bike_tariffs');
+      if (rawTariffs) {
+        const t = JSON.parse(rawTariffs);
+        service.pricing = [
+          { duration: '6 Hours', rate: '₹' + Number(t.rate_6h || 300).toLocaleString('en-IN'), desc: 'Ideal for Temple visits & quick Girivalam' },
+          { duration: '12 Hours', rate: '₹' + Number(t.rate_12h || 600).toLocaleString('en-IN'), desc: 'Ideal for full Girivalam & nearby sacred ashrams' },
+          { duration: '24 Hours / Full Day', rate: '₹' + Number(t.rate_24h || 1000).toLocaleString('en-IN'), desc: 'Overnight stay pilgrims & spiritual shrines' }
+        ];
+      }
+    } else if (service.id === 'taxi-car-rentals') {
+      const rawTaxiTariffs = localStorage.getItem('arn_custom_taxi_tariffs');
+      if (rawTaxiTariffs) {
+        const t = JSON.parse(rawTaxiTariffs);
+        service.pricing = [
+          { name: 'Maruti Suzuki Ertiga (6+1 Seater AC)', rate: '₹' + Number(t.ertiga_local || 2800).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.ertiga_km || 15}/km • Clean AC MPV for family` },
+          { name: 'Toyota Innova Crysta (7+1 Seater AC)', rate: '₹' + Number(t.innova_local || 3600).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.innova_km || 18}/km • Premium luxury pilgrimage ride` },
+          { name: 'Swift Dzire / Sedan (4+1 Seater AC)', rate: '₹' + Number(t.sedan_local || 2200).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.sedan_km || 12}/km • Quick temple trips & couples` },
+          { name: 'Tempo Traveller (12/14 Seater AC)', rate: '₹' + Number(t.tempo_local || 4800).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.tempo_km || 24}/km • Group pilgrimage & joint families` },
+          { name: 'Chennai Airport (MAA) Transfer', rate: '₹' + Number(t.chennai_airport || 4800).toLocaleString('en-IN'), desc: 'Door-to-door transfer in Innova (Sedan available at ₹3,800)' },
+          { name: 'Bengaluru Airport (BLR) Transfer', rate: '₹' + Number(t.blr_airport || 6200).toLocaleString('en-IN'), desc: 'Door-to-door transfer in Innova (Sedan available at ₹4,800)' }
+        ];
+      }
+    }
+  } catch (e) {
+    console.warn('Could not overlay custom catalog settings:', e);
+  }
+  return service;
+}
+
+/**
  * Render full service details page content
  */
 function renderServiceDetails() {
@@ -532,102 +591,19 @@ function renderServiceDetails() {
   const urlParams = new URLSearchParams(window.location.search);
   const serviceId = urlParams.get('id');
 
-  const service = SERVICES_DATA.find(s => s.id === serviceId);
+  // Immediate render from latest cached DB services (0ms instant paint of latest DB data on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('services');
+    if (cached && cached.length > 0) {
+      SERVICES_DATA = cached;
+      window.SERVICES_DATA = SERVICES_DATA;
+    }
+  }
+
+  let service = SERVICES_DATA.find(s => s.id === serviceId);
 
   if (service) {
-    // Overlay custom admin-edited catalog data if available
-    try {
-      if (service.id === 'temple-darshan') {
-        const rawSevas = localStorage.getItem('arn_custom_darshan_sevas');
-        if (rawSevas) {
-          const sevas = JSON.parse(rawSevas).filter(x => x.is_active !== false);
-          if (sevas.length > 0) {
-            service.pricing = sevas.map(s => ({
-              name: s.title,
-              rate: '₹' + Number(s.price || 0).toLocaleString('en-IN'),
-              desc: `${s.timing || 'Daily'}${s.inclusions ? ' • ' + s.inclusions : ''}`
-            }));
-          }
-        }
-      } else if (service.id === 'bus-ticket-booking') {
-        const rawRoutes = localStorage.getItem('arn_custom_bus_routes');
-        if (rawRoutes) {
-          const routes = JSON.parse(rawRoutes).filter(x => x.is_active !== false);
-          if (routes.length > 0) {
-            service.routes = routes.map(r => ({
-              route: r.title,
-              timings: r.timings || []
-            }));
-          }
-        }
-      } else if (service.id === 'bike-rentals') {
-        const rawTariffs = localStorage.getItem('arn_custom_bike_tariffs');
-        if (rawTariffs) {
-          const t = JSON.parse(rawTariffs);
-          service.pricing = [
-            { duration: '6 Hours', rate: '₹' + Number(t.rate_6h || 300).toLocaleString('en-IN'), desc: 'Ideal for Temple visits & quick Girivalam' },
-            { duration: '12 Hours', rate: '₹' + Number(t.rate_12h || 600).toLocaleString('en-IN'), desc: 'Ideal for full Girivalam & nearby sacred ashrams' },
-            { duration: '24 Hours / Full Day', rate: '₹' + Number(t.rate_24h || 1000).toLocaleString('en-IN'), desc: 'Overnight stay pilgrims & spiritual shrines' }
-          ];
-        }
-      } else if (service.id === 'taxi-car-rentals') {
-        const rawTaxiTariffs = localStorage.getItem('arn_custom_taxi_tariffs');
-        if (rawTaxiTariffs) {
-          const t = JSON.parse(rawTaxiTariffs);
-          service.pricing = [
-            { name: 'Maruti Suzuki Ertiga (6+1 Seater AC)', rate: '₹' + Number(t.ertiga_local || 2800).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.ertiga_km || 15}/km • Clean AC MPV for family` },
-            { name: 'Toyota Innova Crysta (7+1 Seater AC)', rate: '₹' + Number(t.innova_local || 3600).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.innova_km || 18}/km • Premium luxury pilgrimage ride` },
-            { name: 'Swift Dzire / Sedan (4+1 Seater AC)', rate: '₹' + Number(t.sedan_local || 2200).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.sedan_km || 12}/km • Quick temple trips & couples` },
-            { name: 'Tempo Traveller (12/14 Seater AC)', rate: '₹' + Number(t.tempo_local || 4800).toLocaleString('en-IN'), desc: `Local 8h/80km • Outstation: ₹${t.tempo_km || 24}/km • Group pilgrimage & joint families` },
-            { name: 'Chennai Airport (MAA) Transfer', rate: '₹' + Number(t.chennai_airport || 4800).toLocaleString('en-IN'), desc: 'Door-to-door transfer in Innova (Sedan available at ₹3,800)' },
-            { name: 'Bengaluru Airport (BLR) Transfer', rate: '₹' + Number(t.blr_airport || 6200).toLocaleString('en-IN'), desc: 'Door-to-door transfer in Innova (Sedan available at ₹4,800)' }
-          ];
-        }
-      }
-    } catch (e) {
-      console.warn('Could not overlay custom catalog settings:', e);
-    }
-
-    // Overlay custom admin-edited catalog data if available
-    try {
-      if (service.id === 'temple-darshan') {
-        const rawSevas = localStorage.getItem('arn_custom_darshan_sevas');
-        if (rawSevas) {
-          const sevas = JSON.parse(rawSevas).filter(x => x.is_active !== false);
-          if (sevas.length > 0) {
-            service.pricing = sevas.map(s => ({
-              name: s.title,
-              rate: '₹' + Number(s.price || 0).toLocaleString('en-IN'),
-              desc: `${s.timing || 'Daily'}${s.inclusions ? ' • ' + s.inclusions : ''}`
-            }));
-          }
-        }
-      } else if (service.id === 'bus-ticket-booking') {
-        const rawRoutes = localStorage.getItem('arn_custom_bus_routes');
-        if (rawRoutes) {
-          const routes = JSON.parse(rawRoutes).filter(x => x.is_active !== false);
-          if (routes.length > 0) {
-            service.routes = routes.map(r => ({
-              route: r.title,
-              timings: r.timings || []
-            }));
-          }
-        }
-      } else if (service.id === 'bike-rentals') {
-        const rawTariffs = localStorage.getItem('arn_custom_bike_tariffs');
-        if (rawTariffs) {
-          const t = JSON.parse(rawTariffs);
-          service.pricing = [
-            { duration: '6 Hours', rate: '₹' + Number(t.rate_6h || 300).toLocaleString('en-IN'), desc: 'Ideal for Temple visits & quick Girivalam' },
-            { duration: '12 Hours', rate: '₹' + Number(t.rate_12h || 600).toLocaleString('en-IN'), desc: 'Ideal for full Girivalam & nearby sacred ashrams' },
-            { duration: '24 Hours / Full Day', rate: '₹' + Number(t.rate_24h || 1000).toLocaleString('en-IN'), desc: 'Overnight stay pilgrims & spiritual shrines' }
-          ];
-        }
-      }
-    } catch (e) {
-      console.warn('Could not overlay custom catalog settings:', e);
-    }
-
+    service = overlayCustomCatalogData(service);
     populateServiceDetailsDOM(service, container);
   } else {
     container.innerHTML = `
@@ -644,14 +620,15 @@ function renderServiceDetails() {
     document.title = 'Service Not Found – Arunachaleshwara Tours & Travels';
   }
 
-  // Hydrate from Supabase if available
+  // Hydrate live from Supabase (fetches latest dynamic updates from DB in background)
   if (typeof fetchServicesFromSupabase === 'function') {
     fetchServicesFromSupabase().then(dbServices => {
       if (dbServices && dbServices.length > 0) {
         SERVICES_DATA = dbServices;
         window.SERVICES_DATA = SERVICES_DATA;
-        const freshService = SERVICES_DATA.find(s => s.id === serviceId);
+        let freshService = SERVICES_DATA.find(s => s.id === serviceId);
         if (freshService) {
+          freshService = overlayCustomCatalogData(freshService);
           populateServiceDetailsDOM(freshService, container);
         }
       }
