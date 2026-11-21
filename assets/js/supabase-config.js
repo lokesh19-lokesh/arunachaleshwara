@@ -19,12 +19,47 @@ if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.c
   }
 }
 
+const RESTAURANT_CORE_SERVICE = {
+  id: 'restaurant',
+  title: 'Restaurant',
+  category: 'Dining & Food',
+  icon: 'bi-cup-hot-fill',
+  shortDesc: 'Pure vegetarian South Indian meals, tiffin, degree filter kaapi, and direct room delivery.',
+  description: 'Relish authentic South Indian pure vegetarian cuisine, traditional breakfast tiffin, unlimited banana leaf meals, filter coffee, and sattvic temple food prepared with sacred tradition. Enjoy cozy dining or order directly to your hotel room with swift delivery in Tiruvannamalai.',
+  features: [
+    '100% Pure Vegetarian & Sattvic Food',
+    'Authentic South Indian & North Indian Delicacies',
+    'Direct Hotel Room Service & Delivery',
+    'Hygienic Traditional Kitchen & Fresh Ingredients',
+    'Special Temple Prasadam & Fasting Meals',
+    'Online Menu Browsing & 1-Click Ordering'
+  ],
+  pricing: [
+    { name: 'Arunachala Special Meals (Thali)', rate: '₹140', desc: 'Unlimited rice, sambar, rasam, kootu, poriyal, appalam & payasam' },
+    { name: 'Ghee Roast Masala Dosa', rate: '₹85', desc: 'Crispy golden dosa roasted in pure cow ghee with coconut & tomato chutneys' },
+    { name: 'South Indian Filter Kaapi', rate: '₹30', desc: 'Freshly brewed aromatic degree filter coffee in traditional brass dabarah' }
+  ],
+  image: 'assets/images/services/restaurant.jpg',
+  gallery: [
+    'assets/images/services/restaurant.jpg',
+    'assets/images/gallery/Accommodation2.jpg'
+  ]
+};
+
 function getPublicCache(key) {
   try {
     const raw = localStorage.getItem('arn_pub_' + key);
     if (!raw) return null;
     const p = JSON.parse(raw);
-    return p ? p.data : null;
+    let data = p ? p.data : null;
+    if (key === 'services' && Array.isArray(data)) {
+      if (!data.some(s => s && s.id === 'restaurant')) {
+        const accIdx = data.findIndex(s => s && s.id === 'accommodation');
+        if (accIdx !== -1) data.splice(accIdx + 1, 0, RESTAURANT_CORE_SERVICE);
+        else data.unshift(RESTAURANT_CORE_SERVICE);
+      }
+    }
+    return data;
   } catch (e) {}
   return null;
 }
@@ -85,16 +120,13 @@ async function fetchServicesFromSupabase() {
         };
       });
 
-      // Ensure Restaurant service is positioned beside Accommodation
-      if (!mapped.some(s => s.id === 'restaurant') && typeof SERVICES_DATA !== 'undefined') {
-        const restStatic = SERVICES_DATA.find(s => s.id === 'restaurant');
-        if (restStatic) {
-          const accIdx = mapped.findIndex(s => s.id === 'accommodation');
-          if (accIdx !== -1) {
-            mapped.splice(accIdx + 1, 0, restStatic);
-          } else {
-            mapped.unshift(restStatic);
-          }
+      // Ensure Restaurant service is ALWAYS positioned beside Accommodation
+      if (!mapped.some(s => s.id === 'restaurant')) {
+        const accIdx = mapped.findIndex(s => s.id === 'accommodation');
+        if (accIdx !== -1) {
+          mapped.splice(accIdx + 1, 0, RESTAURANT_CORE_SERVICE);
+        } else {
+          mapped.unshift(RESTAURANT_CORE_SERVICE);
         }
       }
 

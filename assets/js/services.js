@@ -223,6 +223,32 @@ let SERVICES_DATA = [
   }
 ];
 
+const RESTAURANT_CORE_SERVICE = {
+  id: 'restaurant',
+  title: 'Restaurant',
+  icon: 'bi-cup-hot-fill',
+  shortDesc: 'Pure vegetarian South Indian meals, tiffin, degree filter kaapi, and direct room delivery.',
+  description: 'Relish authentic South Indian pure vegetarian cuisine, traditional breakfast tiffin, unlimited banana leaf meals, filter coffee, and sattvic temple food prepared with sacred tradition. Enjoy cozy dining or order directly to your hotel room with swift delivery in Tiruvannamalai.',
+  features: [
+    '100% Pure Vegetarian & Sattvic Food',
+    'Authentic South Indian & North Indian Delicacies',
+    'Direct Hotel Room Service & Delivery',
+    'Hygienic Traditional Kitchen & Fresh Ingredients',
+    'Special Temple Prasadam & Fasting Meals',
+    'Online Menu Browsing & 1-Click Ordering'
+  ],
+  pricing: [
+    { name: 'Arunachala Special Meals (Thali)', rate: '₹140', desc: 'Unlimited rice, sambar, rasam, kootu, poriyal, appalam & payasam' },
+    { name: 'Ghee Roast Masala Dosa', rate: '₹85', desc: 'Crispy golden dosa roasted in pure cow ghee with coconut & tomato chutneys' },
+    { name: 'South Indian Filter Kaapi', rate: '₹30', desc: 'Freshly brewed aromatic degree filter coffee in traditional brass dabarah' }
+  ],
+  image: 'assets/images/services/restaurant.jpg',
+  gallery: [
+    'assets/images/services/restaurant.jpg',
+    'assets/images/gallery/Accommodation2.jpg'
+  ]
+};
+
 /**
  * Render a service card (used on homepage & services page)
  */
@@ -235,22 +261,25 @@ function renderServiceCard(service, index) {
         <i class="bi ${service.icon}" style="font-size: 3rem; color: var(--clr-primary); opacity: 0.4;"></i>
       </div>`;
 
+  const isRestaurant = service.id === 'restaurant';
+  const isAccommodation = service.id === 'accommodation';
+
   return `
   <div class="col-lg-3 col-md-6 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
-    <div class="service-card">
+    <div class="service-card ${isRestaurant ? 'border-warning shadow-sm' : ''}">
       <div class="service-card-media">
         <div class="${imgWrapClass}">
           ${imageMarkup}
         </div>
-        <div class="service-card-icon">
+        <div class="service-card-icon" style="${isRestaurant ? 'background: #FFC908; color: #45120E;' : ''}">
           <i class="bi ${service.icon}"></i>
         </div>
       </div>
       <div class="service-card-body">
         <h5>${service.title}</h5>
         <p>${service.shortDesc}</p>
-        <a href="${service.id === 'accommodation' ? 'accommodation.html' : (service.id === 'restaurant' ? 'restaurant.html' : 'service-details.html?id=' + service.id)}" class="btn btn-outline-maroon btn-sm">
-          ${service.id === 'accommodation' ? 'Browse Rooms' : (service.id === 'restaurant' ? 'Order Food Online' : 'View Details')} <i class="bi bi-arrow-right"></i>
+        <a href="${isAccommodation ? 'accommodation.html' : (isRestaurant ? 'restaurant.html' : 'service-details.html?id=' + service.id)}" class="btn ${isRestaurant ? 'btn-warning fw-bold text-dark' : 'btn-outline-maroon'} btn-sm">
+          ${isAccommodation ? 'Browse Rooms' : (isRestaurant ? '<i class="bi bi-cup-hot-fill me-1"></i> Order Food Online' : 'View Details')} <i class="bi bi-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -264,39 +293,33 @@ function renderServicesGrid(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  function ensureRestaurantInList(arr) {
+    if (!arr || !Array.isArray(arr)) return arr;
+    if (!arr.some(s => s && s.id === 'restaurant')) {
+      const restObj = RESTAURANT_CORE_SERVICE;
+      const accIdx = arr.findIndex(s => s && s.id === 'accommodation');
+      if (accIdx !== -1) arr.splice(accIdx + 1, 0, restObj);
+      else arr.unshift(restObj);
+    }
+    return arr;
+  }
+
   // Immediate render from latest cached DB data (if any) or static defaults (0ms instant paint)
   if (typeof getPublicCache === 'function') {
     let cached = getPublicCache('services');
     if (cached && Array.isArray(cached) && cached.length > 0) {
-      // Guarantee restaurant is always positioned beside accommodation
-      if (!cached.some(s => s.id === 'restaurant')) {
-        const defaultRest = SERVICES_DATA.find(s => s.id === 'restaurant');
-        if (defaultRest) {
-          const accIdx = cached.findIndex(s => s.id === 'accommodation');
-          if (accIdx !== -1) cached.splice(accIdx + 1, 0, defaultRest);
-          else cached.unshift(defaultRest);
-        }
-      }
-      SERVICES_DATA = cached;
+      SERVICES_DATA = ensureRestaurantInList(cached);
       window.SERVICES_DATA = SERVICES_DATA;
     }
   }
+  SERVICES_DATA = ensureRestaurantInList(SERVICES_DATA);
   container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
 
   // Always fetch fresh data from Supabase in background so Admin edits reflect immediately
   if (typeof fetchServicesFromSupabase === 'function') {
     fetchServicesFromSupabase().then(dbServices => {
       if (dbServices && dbServices.length > 0) {
-        // Guarantee restaurant is always positioned beside accommodation
-        if (!dbServices.some(s => s.id === 'restaurant')) {
-          const defaultRest = SERVICES_DATA.find(s => s.id === 'restaurant');
-          if (defaultRest) {
-            const accIdx = dbServices.findIndex(s => s.id === 'accommodation');
-            if (accIdx !== -1) dbServices.splice(accIdx + 1, 0, defaultRest);
-            else dbServices.unshift(defaultRest);
-          }
-        }
-        SERVICES_DATA = dbServices;
+        SERVICES_DATA = ensureRestaurantInList(dbServices);
         window.SERVICES_DATA = SERVICES_DATA;
         container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
         if (typeof AOS !== 'undefined') AOS.refresh();
