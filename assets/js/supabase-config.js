@@ -381,6 +381,9 @@ async function saveRestaurantSettingsToSupabase(settings) {
         .upsert([{ id: 1, ...settings, updated_at: new Date().toISOString() }]);
       if (error) console.warn('Supabase restaurant_settings upsert note:', error.message);
     }
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('restaurant_settings', 'settings_saved', settings);
+    }
     return { success: true };
   } catch (err) {
     console.error('saveRestaurantSettings error:', err);
@@ -458,6 +461,9 @@ async function saveMenuItemToSupabase(item) {
       const { error } = await supabaseClient.from('menu_items').upsert([item]);
       if (error) console.warn('Supabase menu item upsert note:', error.message);
     }
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('menu', 'item_saved', item);
+    }
     return { success: true, item };
   } catch (err) {
     console.error('saveMenuItemToSupabase error:', err);
@@ -480,6 +486,9 @@ async function deleteMenuItemFromSupabase(itemId) {
 
     if (supabaseClient) {
       await supabaseClient.from('menu_items').delete().eq('id', itemId);
+    }
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('menu', 'item_deleted', { id: itemId });
     }
     return { success: true };
   } catch (err) {
@@ -510,6 +519,9 @@ async function saveMenuCategoryToSupabase(category) {
     if (supabaseClient) {
       await supabaseClient.from('menu_categories').upsert([category]);
     }
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('menu', 'category_saved', category);
+    }
     return { success: true, category };
   } catch (err) {
     console.error('saveMenuCategoryToSupabase error:', err);
@@ -532,6 +544,9 @@ async function deleteMenuCategoryToSupabase(catSlugOrId) {
 
     if (supabaseClient) {
       await supabaseClient.from('menu_categories').delete().or(`slug.eq.${catSlugOrId},id.eq.${catSlugOrId}`);
+    }
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('menu', 'category_deleted', { slug: catSlugOrId });
     }
     return { success: true };
   } catch (err) {
@@ -612,6 +627,10 @@ async function submitFoodOrderToSupabase(orderData) {
       }
     }
 
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('restaurant_orders', 'new_order', orderRecord);
+    }
+
     return { success: true, orderId, order: orderRecord };
   } catch (err) {
     console.error('Exception in submitFoodOrderToSupabase:', err);
@@ -682,6 +701,11 @@ async function updateFoodOrderStatusInSupabase(orderId, newStatus) {
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .or(`order_id.eq.${orderId},id.eq.${orderId}`);
     }
+
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('restaurant_orders', 'status_updated', { orderId, newStatus });
+    }
+
     return { success: true };
   } catch (err) {
     console.error('updateFoodOrderStatusInSupabase error:', err);
@@ -711,5 +735,15 @@ if (typeof window !== 'undefined') {
   window.submitFoodOrderToSupabase = submitFoodOrderToSupabase;
   window.fetchFoodOrdersFromSupabase = fetchFoodOrdersFromSupabase;
   window.updateFoodOrderStatusInSupabase = updateFoodOrderStatusInSupabase;
+
+  // Auto-load Real-Time Sync on public pages
+  (function initPublicRealtime() {
+    if (typeof window.ArnRealtimeSync === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'assets/js/realtime-sync.js';
+      s.defer = true;
+      document.head.appendChild(s);
+    }
+  })();
 }
 

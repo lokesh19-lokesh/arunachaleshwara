@@ -974,6 +974,10 @@
         localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
         localStorage.removeItem('arn_pub_gallery');
 
+        if (window.ArnRealtimeSync) {
+          window.ArnRealtimeSync.publish('gallery', 'gallery_updated', {});
+        }
+
         bootstrap.Modal.getInstance(document.getElementById('galleryPhotoModal')).hide();
         renderGalleryTable();
       } catch (err) {
@@ -1152,6 +1156,9 @@
         updated_at: new Date().toISOString()
       });
       await logAdminActivity('UPDATE_CMS_POPUP_BANNER', 'website_settings', 'popup_banner');
+      if (window.ArnRealtimeSync) {
+        window.ArnRealtimeSync.publish('popup_banner', 'popup_updated', val);
+      }
       showAdminToast('Welcome popup banner updated successfully!', 'success');
     });
 

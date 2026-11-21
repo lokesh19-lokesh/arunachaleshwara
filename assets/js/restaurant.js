@@ -555,6 +555,29 @@
     renderCategories();
     renderMenuItems();
     updateCartUI();
+
+    // Subscribe to live Real-Time sync without page reload
+    if (window.ArnRealtimeSync && !window.__arnRestSyncSubscribed) {
+      window.__arnRestSyncSubscribed = true;
+      window.ArnRealtimeSync.subscribe('menu', () => {
+        init();
+      });
+      window.ArnRealtimeSync.subscribe('restaurant_settings', () => {
+        init();
+      });
+      window.ArnRealtimeSync.subscribe('restaurant_orders', (action, payload) => {
+        // If customer has an active order confirmation modal open, update status live
+        if (payload && payload.order_id && document.getElementById('successFoodOrderId')) {
+          if (document.getElementById('successFoodOrderId').textContent === payload.order_id) {
+            const badge = document.querySelector('#foodOrderSuccessModal .badge');
+            if (badge && payload.status) {
+              badge.textContent = payload.status;
+              badge.className = 'badge bg-success';
+            }
+          }
+        }
+      });
+    }
   }
 
   // Export to window

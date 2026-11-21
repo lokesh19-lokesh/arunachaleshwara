@@ -252,15 +252,6 @@ function renderGalleryGrid(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // 1. Immediate render from latest cached DB gallery (0ms instant paint on reload)
-  if (typeof getPublicCache === 'function') {
-    const cached = getPublicCache('gallery');
-    if (cached && Array.isArray(cached) && cached.length > 0) {
-      GALLERY_DATA = cached;
-      window.GALLERY_DATA = GALLERY_DATA;
-    }
-  }
-
   const buildGridHTML = (items) => items.map((item, i) => {
     const catsStr = Array.isArray(item.categories) ? item.categories.join(' ') : (item.category || '');
     return `
@@ -283,13 +274,45 @@ function renderGalleryGrid(containerId) {
     </div>`;
   }).join('');
 
-  container.innerHTML = buildGridHTML(GALLERY_DATA);
+  // 1. Check dynamic admin gallery first (arn_custom_gallery), then Supabase public cache
+  let initialGallery = null;
+  try {
+    const custom = localStorage.getItem('arn_custom_gallery');
+    if (custom) {
+      const parsed = JSON.parse(custom);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        initialGallery = parsed;
+      }
+    }
+  } catch (e) {}
 
-  if (typeof initLightbox === 'function') {
-    setTimeout(initLightbox, 60);
+  if (!initialGallery && typeof getPublicCache === 'function') {
+    const cached = getPublicCache('gallery');
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      initialGallery = cached;
+    }
   }
 
-  // 2. Silently hydrate live dynamic gallery from Supabase
+  // If we have dynamic photos already in local/cache, render immediately (0ms paint)
+  // Otherwise show a neat spinner so old hardcoded photos NEVER flash on reload!
+  if (initialGallery) {
+    GALLERY_DATA = initialGallery;
+    window.GALLERY_DATA = GALLERY_DATA;
+    container.innerHTML = buildGridHTML(GALLERY_DATA);
+    if (typeof initLightbox === 'function') {
+      setTimeout(initLightbox, 60);
+    }
+  } else {
+    container.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-warning" style="width: 2.5rem; height: 2.5rem;" role="status">
+          <span class="visually-hidden">Loading sacred gallery...</span>
+        </div>
+        <p class="text-muted small mt-2">Loading sacred temple & pilgrimage gallery...</p>
+      </div>`;
+  }
+
+  // 2. Fetch fresh dynamic gallery from Supabase
   if (typeof fetchGalleryFromSupabase === 'function') {
     fetchGalleryFromSupabase().then(dbGallery => {
       if (dbGallery && Array.isArray(dbGallery) && dbGallery.length > 0) {
@@ -302,9 +325,17 @@ function renderGalleryGrid(containerId) {
         if (typeof AOS !== 'undefined') {
           AOS.refresh();
         }
+      } else if (!initialGallery) {
+        // Fallback to static defaults only if DB is completely empty
+        container.innerHTML = buildGridHTML(GALLERY_DATA);
+        if (typeof initLightbox === 'function') setTimeout(initLightbox, 60);
       }
     }).catch(err => {
       console.warn('Supabase dynamic gallery hydration error:', err);
+      if (!initialGallery) {
+        container.innerHTML = buildGridHTML(GALLERY_DATA);
+        if (typeof initLightbox === 'function') setTimeout(initLightbox, 60);
+      }
     });
   }
 }
@@ -316,45 +347,58 @@ function renderGalleryPreview(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // 1. Immediate render from cached DB gallery (0ms instant paint on reload)
-  if (typeof getPublicCache === 'function') {
-    const cached = getPublicCache('gallery');
-    if (cached && Array.isArray(cached) && cached.length > 0) {
-      GALLERY_DATA = cached;
-      window.GALLERY_DATA = GALLERY_DATA;
-    }
-  }
-
   const buildPreviewHTML = (items) => {
     // Pick first 12 items or curated items
     const previewItems = items.slice(0, 12);
     return previewItems.map(item => `
-    <div class="swiper-slide">
-      <div class="gallery-preview-card">
-        <a href="${item.image}" class="glightbox" data-gallery="home-gallery" data-title="${item.title}" data-description="${item.description}">
-          <div class="gallery-preview-img-wrap">
-            <img src="${item.image}" alt="${item.title}" class="gallery-preview-img" loading="lazy">
-            <div class="gallery-preview-overlay">
-              <span class="gallery-preview-zoom"><i class="bi bi-arrows-fullscreen"></i></span>
+      <div class="swiper-slide">
+        <div class="gallery-card">
+          <a href="${item.image}" class="glightbox" data-gallery="home-gallery" data-title="${item.title}" data-description="${item.description}">
+            <div class="gallery-card-img-wrap">
+              <img src="${item.image}" alt="${item.title}" class="gallery-card-img" loading="lazy">
+              <div class="gallery-card-overlay">
+                <span class="gallery-zoom-badge"><i class="bi bi-arrows-fullscreen"></i></span>
+              </div>
+              <span class="gallery-badge-top">${item.categoryLabel || 'Gallery'}</span>
             </div>
-            <div class="gallery-preview-gradient"></div>
-            <div class="gallery-preview-caption">
-              <span class="gallery-preview-badge">${item.categoryLabel || 'Gallery'}</span>
-              <h6 class="gallery-preview-title">${item.title}</h6>
+            <div class="gallery-card-caption">
+              <h6 class="gallery-card-title">${item.title}</h6>
+              <p class="gallery-card-desc mb-0">${item.description}</p>
             </div>
-          </div>
-        </a>
+          </a>
+        </div>
       </div>
-    </div>`).join('');
+    `).join('');
   };
 
-  container.innerHTML = buildPreviewHTML(GALLERY_DATA);
+  // Check dynamic admin gallery first, then Supabase public cache
+  let initialGallery = null;
+  try {
+    const custom = localStorage.getItem('arn_custom_gallery');
+    if (custom) {
+      const parsed = JSON.parse(custom);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        initialGallery = parsed;
+      }
+    }
+  } catch (e) {}
 
-  if (typeof initLightbox === 'function') {
-    setTimeout(initLightbox, 60);
+  if (!initialGallery && typeof getPublicCache === 'function') {
+    const cached = getPublicCache('gallery');
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      initialGallery = cached;
+    }
   }
 
-  // 2. Silently hydrate live dynamic gallery from Supabase
+  if (initialGallery) {
+    GALLERY_DATA = initialGallery;
+    window.GALLERY_DATA = GALLERY_DATA;
+    container.innerHTML = buildPreviewHTML(GALLERY_DATA);
+  } else {
+    container.innerHTML = buildPreviewHTML(GALLERY_DATA);
+  }
+
+  // Hydrate from Supabase
   if (typeof fetchGalleryFromSupabase === 'function') {
     fetchGalleryFromSupabase().then(dbGallery => {
       if (dbGallery && Array.isArray(dbGallery) && dbGallery.length > 0) {
@@ -369,7 +413,7 @@ function renderGalleryPreview(containerId) {
         }
       }
     }).catch(err => {
-      console.warn('Supabase dynamic gallery preview hydration error:', err);
+      console.warn('Supabase dynamic preview hydration error:', err);
     });
   }
 }
@@ -381,3 +425,21 @@ window.renderGalleryGrid = renderGalleryGrid;
 window.renderGalleryFilters = renderGalleryFilters;
 window.renderGalleryPreview = renderGalleryPreview;
 window.filterGallery = filterGallery;
+
+// Real-Time Sync without page reload
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      if (window.ArnRealtimeSync) {
+        window.ArnRealtimeSync.subscribe('gallery', () => {
+          if (document.getElementById('galleryGrid')) {
+            renderGalleryGrid('galleryGrid');
+          }
+          if (document.getElementById('galleryPreview')) {
+            renderGalleryPreview('galleryPreview');
+          }
+        });
+      }
+    }, 800);
+  });
+}

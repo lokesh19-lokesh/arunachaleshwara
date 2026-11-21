@@ -266,8 +266,17 @@ function renderServicesGrid(containerId) {
 
   // Immediate render from latest cached DB data (if any) or static defaults (0ms instant paint)
   if (typeof getPublicCache === 'function') {
-    const cached = getPublicCache('services');
-    if (cached && cached.length > 0) {
+    let cached = getPublicCache('services');
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      // Guarantee restaurant is always positioned beside accommodation
+      if (!cached.some(s => s.id === 'restaurant')) {
+        const defaultRest = SERVICES_DATA.find(s => s.id === 'restaurant');
+        if (defaultRest) {
+          const accIdx = cached.findIndex(s => s.id === 'accommodation');
+          if (accIdx !== -1) cached.splice(accIdx + 1, 0, defaultRest);
+          else cached.unshift(defaultRest);
+        }
+      }
       SERVICES_DATA = cached;
       window.SERVICES_DATA = SERVICES_DATA;
     }
@@ -278,6 +287,15 @@ function renderServicesGrid(containerId) {
   if (typeof fetchServicesFromSupabase === 'function') {
     fetchServicesFromSupabase().then(dbServices => {
       if (dbServices && dbServices.length > 0) {
+        // Guarantee restaurant is always positioned beside accommodation
+        if (!dbServices.some(s => s.id === 'restaurant')) {
+          const defaultRest = SERVICES_DATA.find(s => s.id === 'restaurant');
+          if (defaultRest) {
+            const accIdx = dbServices.findIndex(s => s.id === 'accommodation');
+            if (accIdx !== -1) dbServices.splice(accIdx + 1, 0, defaultRest);
+            else dbServices.unshift(defaultRest);
+          }
+        }
         SERVICES_DATA = dbServices;
         window.SERVICES_DATA = SERVICES_DATA;
         container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
@@ -673,6 +691,25 @@ window.renderServiceCard = renderServiceCard;
 window.renderServicesGrid = renderServicesGrid;
 window.renderServiceDetails = renderServiceDetails;
 
+// Real-Time Sync without page reload
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      if (window.ArnRealtimeSync) {
+        window.ArnRealtimeSync.subscribe('services', () => {
+          if (typeof renderServiceDetails === 'function' && document.getElementById('serviceDetailContent')) {
+            renderServiceDetails();
+          }
+          if (typeof renderServicesGrid === 'function') {
+            if (document.getElementById('servicesGrid')) renderServicesGrid('servicesGrid');
+            if (document.getElementById('servicesPageGrid')) renderServicesGrid('servicesPageGrid');
+          }
+        });
+      }
+    }, 800);
+  });
+}
+
 /* ==========================================================================
    PUBLIC MODAL BOOKING HANDLERS & PERSISTENCE
    1. Temple Darshan Services
@@ -935,6 +972,10 @@ async function submitDarshanBooking(e) {
     }
   } catch (dbErr) {
     console.warn('Supabase darshan sync fallback to local storage:', dbErr);
+  }
+
+  if (window.ArnRealtimeSync) {
+    window.ArnRealtimeSync.publish('bookings', 'new_booking', bookingRecord);
   }
 
   // Show Success Box
@@ -1247,6 +1288,10 @@ async function submitBusBooking(e) {
     }
   } catch (dbErr) { }
 
+  if (window.ArnRealtimeSync) {
+    window.ArnRealtimeSync.publish('bookings', 'new_booking', bookingRecord);
+  }
+
   document.getElementById('busBookingForm').classList.add('d-none');
   const sBox = document.getElementById('busSuccessBox');
   sBox.classList.remove('d-none');
@@ -1493,6 +1538,10 @@ async function submitBikeBooking(e) {
     }
   } catch (dbErr) { }
 
+  if (window.ArnRealtimeSync) {
+    window.ArnRealtimeSync.publish('bookings', 'new_booking', bookingRecord);
+  }
+
   document.getElementById('bikeBookingForm').classList.add('d-none');
   const sBox = document.getElementById('bikeSuccessBox');
   sBox.classList.remove('d-none');
@@ -1712,6 +1761,10 @@ async function submitPublicTaxiBooking(e) {
     }
   } catch (err) {
     console.warn('Supabase taxi booking sync fallback to local storage:', err);
+  }
+
+  if (window.ArnRealtimeSync) {
+    window.ArnRealtimeSync.publish('bookings', 'new_booking', bookingRecord);
   }
 
   document.getElementById('publicTaxiBookingForm').classList.add('d-none');

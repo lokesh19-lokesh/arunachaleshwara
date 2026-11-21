@@ -543,6 +543,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-config.js"></script>
   <script src="../assets/js/restaurant-data.js"></script>
+  <script src="assets/js/realtime-sync.js"></script>
   <script src="assets/js/admin-core.js"></script>
 
   <script>
@@ -565,6 +566,22 @@
       }
 
       await loadAllRestaurantData();
+
+      // Real-Time Sync Subscription without reload
+      if (window.ArnRealtimeSync) {
+        window.ArnRealtimeSync.subscribe('restaurant_orders', () => {
+          loadFoodOrders();
+        });
+        window.ArnRealtimeSync.subscribe('menu', () => {
+          loadAllRestaurantData();
+        });
+        window.ArnRealtimeSync.subscribe('restaurant_settings', () => {
+          loadAllRestaurantData();
+        });
+        window.ArnRealtimeSync.subscribe('manual_refresh', () => {
+          loadAllRestaurantData();
+        });
+      }
     });
 
     async function loadAllRestaurantData() {

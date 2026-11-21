@@ -533,6 +533,10 @@ async function handleBookingRequestSubmit(e) {
       }
     }
 
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('bookings', 'new_booking', newBookingRecord);
+    }
+
     // Build rich formatted WhatsApp confirmation message
     const guestsSummaryText = individualGuests.map((g, idx) =>
       `  ${idx + 1}. ${g.full_name} (${g.guest_type === 'adult' ? 'Adult' : 'Child'}, ${g.age} yrs)`
@@ -593,5 +597,21 @@ window.openBookingRequestModal = openBookingRequestModal;
 window.onAccGuestCountsChanged = onAccGuestCountsChanged;
 window.copyAdult1ToContact = copyAdult1ToContact;
 window.calculateBookingEstimate = calculateBookingEstimate;
+
+// Live Real-Time Sync without reloading
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      if (window.ArnRealtimeSync) {
+        window.ArnRealtimeSync.subscribe('accommodation', () => {
+          fetchRoomsFromSupabase();
+        });
+        window.ArnRealtimeSync.subscribe('bookings', () => {
+          fetchRoomsFromSupabase();
+        });
+      }
+    }, 800);
+  });
+}
 
 

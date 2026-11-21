@@ -119,12 +119,15 @@ function renderAdminHeader(pageTitle, subtitle = '') {
         ${subtitle ? `<span class="badge d-none d-md-inline-block">${subtitle}</span>` : ''}
       </div>
     </div>
-    <div class="admin-header-actions">
+    <div class="admin-header-actions d-flex align-items-center gap-2">
+      <span class="badge bg-success bg-opacity-10 text-success border border-success d-inline-flex align-items-center gap-1 py-1 px-2" id="realtimeSyncBadge" title="Real-Time Sync Active - Updates automatically without reloading" style="font-size: 0.78rem; font-weight: 600;">
+        <span class="spinner-grow spinner-grow-sm text-success" style="width: 7px; height: 7px;" role="status"></span> Live Sync
+      </span>
       <a href="../accommodation.html" target="_blank" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center gap-1">
         <i class="bi bi-globe"></i> Website
       </a>
-      <button class="btn btn-sm btn-admin-yellow" onclick="location.reload()">
-        <i class="bi bi-arrow-clockwise"></i> Refresh
+      <button class="btn btn-sm btn-admin-yellow d-inline-flex align-items-center gap-1" onclick="if (window.ArnRealtimeSync) { window.ArnRealtimeSync.publish('*', 'manual_refresh', {}); if (typeof showAdminToast === 'function') showAdminToast('Live data refreshed!', 'info'); } else { location.reload(); }" title="Refresh Live Data Without Reload">
+        <i class="bi bi-arrow-clockwise"></i> Live Refresh
       </button>
     </div>
   `;
@@ -436,4 +439,14 @@ window.DEFAULT_WHATSAPP_TEMPLATES = DEFAULT_WHATSAPP_TEMPLATES;
 window.getWhatsAppTemplates = getWhatsAppTemplates;
 window.renderWhatsAppTemplate = renderWhatsAppTemplate;
 window.clearWhatsAppTemplatesCache = clearWhatsAppTemplatesCache;
+
+// Auto-load Real-Time Sync in Admin
+(function initAdminRealtime() {
+  if (typeof window !== 'undefined' && typeof window.ArnRealtimeSync === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'assets/js/realtime-sync.js';
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+})();
 
