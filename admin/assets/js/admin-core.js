@@ -20,9 +20,11 @@ function renderAdminSidebar(activePage) {
     { header: 'BOOKING MANAGEMENT' },
     { id: 'bookings', label: 'All Bookings', icon: 'bi-calendar-check-fill', href: 'bookings.html', module: 'bookings' },
     { id: 'operations', label: 'Room Operations', icon: 'bi-door-open-fill', href: 'operations.html', module: 'accommodation' },
+    { id: 'restaurant-orders', label: 'Food Orders', icon: 'bi-bag-check-fill', href: 'restaurant.html?tab=orders', module: 'bookings' },
 
     { header: 'INVENTORY & CATALOG' },
     { id: 'accommodation', label: 'Accommodation (17 Rooms)', icon: 'bi-building-fill', href: 'accommodation.html', module: 'accommodation' },
+    { id: 'restaurant-menu', label: 'Restaurant & Menu', icon: 'bi-cup-hot-fill', href: 'restaurant.html', module: 'services' },
     { id: 'darshan', label: 'Temple Darshan Catalog', icon: 'bi-flower1', href: 'services.html?tab=darshan', module: 'services' },
     { id: 'bus', label: 'Bus Ticket Routes', icon: 'bi-bus-front-fill', href: 'services.html?tab=bus', module: 'services' },
     { id: 'bikes', label: 'Bike Rentals Fleet', icon: 'bi-bicycle', href: 'services.html?tab=bikes', module: 'services' },

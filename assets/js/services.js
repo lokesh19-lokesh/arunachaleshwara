@@ -25,6 +25,31 @@ let SERVICES_DATA = [
     ]
   },
   {
+    id: 'restaurant',
+    title: 'Restaurant',
+    icon: 'bi-cup-hot-fill',
+    shortDesc: 'Pure vegetarian South Indian meals, tiffin, degree filter kaapi, and direct room delivery.',
+    description: 'Relish authentic South Indian pure vegetarian cuisine, traditional breakfast tiffin, unlimited banana leaf meals, filter coffee, and sattvic temple food prepared with sacred tradition. Enjoy cozy dining or order directly to your hotel room with swift delivery in Tiruvannamalai.',
+    features: [
+      '100% Pure Vegetarian & Sattvic Food',
+      'Authentic South Indian & North Indian Delicacies',
+      'Direct Hotel Room Service & Delivery',
+      'Hygienic Traditional Kitchen & Fresh Ingredients',
+      'Special Temple Prasadam & Fasting Meals',
+      'Online Menu Browsing & 1-Click Ordering'
+    ],
+    pricing: [
+      { name: 'Arunachala Special Meals (Thali)', rate: '₹140', desc: 'Unlimited rice, sambar, rasam, kootu, poriyal, appalam & payasam' },
+      { name: 'Ghee Roast Masala Dosa', rate: '₹85', desc: 'Crispy golden dosa roasted in pure cow ghee with coconut & tomato chutneys' },
+      { name: 'South Indian Filter Kaapi', rate: '₹30', desc: 'Freshly brewed aromatic degree filter coffee in traditional brass dabarah' }
+    ],
+    image: 'assets/images/services/restaurant.jpg',
+    gallery: [
+      'assets/images/services/restaurant.jpg',
+      'assets/images/gallery/Accommodation2.jpg'
+    ]
+  },
+  {
     id: 'temple-darshan',
     title: 'Temple Darshan Services',
     icon: 'bi-building',
@@ -224,8 +249,8 @@ function renderServiceCard(service, index) {
       <div class="service-card-body">
         <h5>${service.title}</h5>
         <p>${service.shortDesc}</p>
-        <a href="${service.id === 'accommodation' ? 'accommodation.html' : 'service-details.html?id=' + service.id}" class="btn btn-outline-maroon btn-sm">
-          ${service.id === 'accommodation' ? 'Browse Rooms' : 'View Details'} <i class="bi bi-arrow-right"></i>
+        <a href="${service.id === 'accommodation' ? 'accommodation.html' : (service.id === 'restaurant' ? 'restaurant.html' : 'service-details.html?id=' + service.id)}" class="btn btn-outline-maroon btn-sm">
+          ${service.id === 'accommodation' ? 'Browse Rooms' : (service.id === 'restaurant' ? 'Order Food Online' : 'View Details')} <i class="bi bi-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -455,6 +480,10 @@ function populateServiceDetailsDOM(service, container) {
             ${service.id === 'accommodation' ? `
             <a href="accommodation.html" class="btn justify-content-center fw-bold" style="background:#FFC908;color:#45120E;border:none;">
               <i class="bi bi-door-open-fill"></i> Browse All 17 Rooms &amp; Book
+            </a>` : ''}
+            ${service.id === 'restaurant' ? `
+            <a href="restaurant.html" class="btn justify-content-center fw-bold fs-6 py-2 shadow-sm" style="background:#FFC908;color:#45120E;border:none;">
+              <i class="bi bi-cup-hot-fill me-1"></i> Order Food Online Now
             </a>` : ''}
             ${service.id === 'taxi-car-rentals' ? `
             <button type="button" class="btn justify-content-center fw-bold fs-6 py-2 shadow-sm" style="background:#FFC908;color:#45120E;border:none;" onclick="openTaxiBookingModal()">

@@ -84,6 +84,20 @@ async function fetchServicesFromSupabase() {
             : (staticMatch && staticMatch.gallery) || [effectiveImage].filter(Boolean)
         };
       });
+
+      // Ensure Restaurant service is positioned beside Accommodation
+      if (!mapped.some(s => s.id === 'restaurant') && typeof SERVICES_DATA !== 'undefined') {
+        const restStatic = SERVICES_DATA.find(s => s.id === 'restaurant');
+        if (restStatic) {
+          const accIdx = mapped.findIndex(s => s.id === 'accommodation');
+          if (accIdx !== -1) {
+            mapped.splice(accIdx + 1, 0, restStatic);
+          } else {
+            mapped.unshift(restStatic);
+          }
+        }
+      }
+
       setPublicCache('services', mapped);
       return mapped;
     }
@@ -313,6 +327,368 @@ async function fetchGalleryFromSupabase() {
   }
 }
 
+/**
+ * Fetch dynamic restaurant settings from Supabase / localStorage / defaults
+ */
+async function fetchRestaurantSettingsFromSupabase() {
+  const defaultSettings = {
+    restaurant_name: 'Arunachaleshwara Pure Veg Restaurant',
+    tagline: '100% Traditional South Indian Pure Vegetarian Dining & Room Delivery',
+    description: 'Serving hot tiffin, unlimited banana leaf meals, Kumbakonam degree filter kaapi, and sattvic temple dishes in Tiruvannamalai.',
+    timings: 'Daily 06:30 AM – 10:30 PM',
+    is_open: true,
+    min_order_amount: 100,
+    delivery_fee: 30,
+    contact_phone: '9010515341',
+    contact_whatsapp: '919010515341',
+    hero_image: 'assets/images/services/restaurant.jpg'
+  };
+
+  try {
+    const rawLocal = localStorage.getItem('arn_restaurant_settings');
+    const localSettings = rawLocal ? JSON.parse(rawLocal) : defaultSettings;
+
+    if (!supabaseClient) return localSettings;
+
+    const { data, error } = await supabaseClient
+      .from('restaurant_settings')
+      .select('*')
+      .order('id', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (!error && data) {
+      const merged = { ...defaultSettings, ...data };
+      localStorage.setItem('arn_restaurant_settings', JSON.stringify(merged));
+      return merged;
+    }
+    return localSettings;
+  } catch (err) {
+    console.warn('Error fetching restaurant settings:', err);
+    return defaultSettings;
+  }
+}
+
+/**
+ * Save restaurant settings (Admin)
+ */
+async function saveRestaurantSettingsToSupabase(settings) {
+  try {
+    localStorage.setItem('arn_restaurant_settings', JSON.stringify(settings));
+    if (supabaseClient) {
+      const { error } = await supabaseClient
+        .from('restaurant_settings')
+        .upsert([{ id: 1, ...settings, updated_at: new Date().toISOString() }]);
+      if (error) console.warn('Supabase restaurant_settings upsert note:', error.message);
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('saveRestaurantSettings error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Fetch dynamic menu categories and menu items
+ */
+async function fetchRestaurantMenuFromSupabase() {
+  const cached = getPublicCache('restaurant_menu');
+  let fallbackCats = typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined' ? DEFAULT_RESTAURANT_CATEGORIES : [];
+  let fallbackItems = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
+
+  // Check localStorage overrides
+  try {
+    const localCats = localStorage.getItem('arn_restaurant_categories');
+    if (localCats) fallbackCats = JSON.parse(localCats);
+    const localItems = localStorage.getItem('arn_restaurant_items');
+    if (localItems) fallbackItems = JSON.parse(localItems);
+  } catch (e) {}
+
+  if (!supabaseClient) {
+    return cached || { categories: fallbackCats, items: fallbackItems };
+  }
+
+  try {
+    const [catRes, itemRes] = await Promise.all([
+      supabaseClient.from('menu_categories').select('*').order('order_num', { ascending: true }),
+      supabaseClient.from('menu_items').select('*').order('order_num', { ascending: true })
+    ]);
+
+    let categories = fallbackCats;
+    let items = fallbackItems;
+
+    if (!catRes.error && catRes.data && catRes.data.length > 0) {
+      categories = catRes.data;
+      localStorage.setItem('arn_restaurant_categories', JSON.stringify(categories));
+    }
+    if (!itemRes.error && itemRes.data && itemRes.data.length > 0) {
+      items = itemRes.data;
+      localStorage.setItem('arn_restaurant_items', JSON.stringify(items));
+    }
+
+    const payload = { categories, items };
+    setPublicCache('restaurant_menu', payload);
+    return payload;
+  } catch (err) {
+    console.warn('Supabase restaurant menu fetch error:', err);
+    return cached || { categories: fallbackCats, items: fallbackItems };
+  }
+}
+
+/**
+ * Save / Update a Menu Item (Admin)
+ */
+async function saveMenuItemToSupabase(item) {
+  try {
+    let items = [];
+    const raw = localStorage.getItem('arn_restaurant_items');
+    if (raw) items = JSON.parse(raw);
+    else if (typeof DEFAULT_MENU_ITEMS !== 'undefined') items = [...DEFAULT_MENU_ITEMS];
+
+    const existingIdx = items.findIndex(x => String(x.id) === String(item.id));
+    if (existingIdx !== -1) {
+      items[existingIdx] = { ...items[existingIdx], ...item };
+    } else {
+      if (!item.id) item.id = 'dish_' + Date.now();
+      items.push(item);
+    }
+    localStorage.setItem('arn_restaurant_items', JSON.stringify(items));
+
+    if (supabaseClient) {
+      const { error } = await supabaseClient.from('menu_items').upsert([item]);
+      if (error) console.warn('Supabase menu item upsert note:', error.message);
+    }
+    return { success: true, item };
+  } catch (err) {
+    console.error('saveMenuItemToSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Delete a Menu Item (Admin)
+ */
+async function deleteMenuItemFromSupabase(itemId) {
+  try {
+    let items = [];
+    const raw = localStorage.getItem('arn_restaurant_items');
+    if (raw) items = JSON.parse(raw);
+    else if (typeof DEFAULT_MENU_ITEMS !== 'undefined') items = [...DEFAULT_MENU_ITEMS];
+
+    items = items.filter(x => String(x.id) !== String(itemId));
+    localStorage.setItem('arn_restaurant_items', JSON.stringify(items));
+
+    if (supabaseClient) {
+      await supabaseClient.from('menu_items').delete().eq('id', itemId);
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('deleteMenuItemFromSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Save / Update a Category (Admin)
+ */
+async function saveMenuCategoryToSupabase(category) {
+  try {
+    let categories = [];
+    const raw = localStorage.getItem('arn_restaurant_categories');
+    if (raw) categories = JSON.parse(raw);
+    else if (typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined') categories = [...DEFAULT_RESTAURANT_CATEGORIES];
+
+    const existingIdx = categories.findIndex(x => String(x.slug || x.id) === String(category.slug || category.id));
+    if (existingIdx !== -1) {
+      categories[existingIdx] = { ...categories[existingIdx], ...category };
+    } else {
+      if (!category.id) category.id = 'cat_' + Date.now();
+      categories.push(category);
+    }
+    localStorage.setItem('arn_restaurant_categories', JSON.stringify(categories));
+
+    if (supabaseClient) {
+      await supabaseClient.from('menu_categories').upsert([category]);
+    }
+    return { success: true, category };
+  } catch (err) {
+    console.error('saveMenuCategoryToSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Delete a Category (Admin)
+ */
+async function deleteMenuCategoryToSupabase(catSlugOrId) {
+  try {
+    let categories = [];
+    const raw = localStorage.getItem('arn_restaurant_categories');
+    if (raw) categories = JSON.parse(raw);
+    else if (typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined') categories = [...DEFAULT_RESTAURANT_CATEGORIES];
+
+    categories = categories.filter(x => x.slug !== catSlugOrId && String(x.id) !== String(catSlugOrId));
+    localStorage.setItem('arn_restaurant_categories', JSON.stringify(categories));
+
+    if (supabaseClient) {
+      await supabaseClient.from('menu_categories').delete().or(`slug.eq.${catSlugOrId},id.eq.${catSlugOrId}`);
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('deleteMenuCategoryToSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Submit Food Order (Customer)
+ */
+async function submitFoodOrderToSupabase(orderData) {
+  try {
+    const orderId = `ARN-FOOD-2026-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+    const nowIso = new Date().toISOString();
+
+    const orderRecord = {
+      order_id: orderId,
+      customer_name: orderData.customerName || 'Devotee Guest',
+      mobile: orderData.mobile || '',
+      email: orderData.email || '',
+      fulfillment_type: orderData.fulfillmentType || 'Room Delivery',
+      room_number: orderData.roomNumber || '',
+      delivery_address: orderData.deliveryAddress || (orderData.roomNumber ? `Room #${orderData.roomNumber}` : 'Restaurant Pickup / Dine-in'),
+      special_instructions: orderData.specialInstructions || '',
+      subtotal: parseFloat(orderData.subtotal) || 0,
+      delivery_fee: parseFloat(orderData.deliveryFee) || 0,
+      total_amount: parseFloat(orderData.totalAmount) || 0,
+      status: 'New Order',
+      payment_status: 'Pending at Delivery / Counter',
+      items: orderData.items || [],
+      created_at: nowIso
+    };
+
+    // Save to localStorage for instant admin & customer receipt
+    try {
+      const raw = localStorage.getItem('arn_food_orders');
+      const orders = raw ? JSON.parse(raw) : [];
+      orders.unshift(orderRecord);
+      localStorage.setItem('arn_food_orders', JSON.stringify(orders));
+    } catch (e) {}
+
+    // Save to Supabase
+    if (supabaseClient) {
+      try {
+        const { data: insertedOrder } = await supabaseClient
+          .from('food_orders')
+          .insert([{
+            order_id: orderRecord.order_id,
+            customer_name: orderRecord.customer_name,
+            mobile: orderRecord.mobile,
+            email: orderRecord.email,
+            fulfillment_type: orderRecord.fulfillment_type,
+            room_number: orderRecord.room_number,
+            delivery_address: orderRecord.delivery_address,
+            special_instructions: orderRecord.special_instructions,
+            subtotal: orderRecord.subtotal,
+            delivery_fee: orderRecord.delivery_fee,
+            total_amount: orderRecord.total_amount,
+            status: orderRecord.status,
+            payment_status: orderRecord.payment_status
+          }])
+          .select()
+          .maybeSingle();
+
+        if (insertedOrder && Array.isArray(orderData.items) && orderData.items.length > 0) {
+          const itemRows = orderData.items.map(it => ({
+            order_id: insertedOrder.id || orderId,
+            item_name: it.name,
+            price: it.price,
+            quantity: it.quantity,
+            total_price: it.price * it.quantity
+          }));
+          await supabaseClient.from('food_order_items').insert(itemRows);
+        }
+      } catch (sbErr) {
+        console.warn('Supabase food_orders insert fallback to localStorage:', sbErr);
+      }
+    }
+
+    return { success: true, orderId, order: orderRecord };
+  } catch (err) {
+    console.error('Exception in submitFoodOrderToSupabase:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Fetch all food orders (Admin)
+ */
+async function fetchFoodOrdersFromSupabase() {
+  let localOrders = [];
+  try {
+    const raw = localStorage.getItem('arn_food_orders');
+    if (raw) localOrders = JSON.parse(raw);
+  } catch (e) {}
+
+  if (!supabaseClient) return localOrders;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('food_orders')
+      .select('*, food_order_items(*)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      const dbMapped = data.map(o => ({
+        ...o,
+        items: o.items || (o.food_order_items || []).map(fi => ({
+          name: fi.item_name,
+          price: fi.price,
+          quantity: fi.quantity
+        }))
+      }));
+      const combined = [...dbMapped];
+      localOrders.forEach(lo => {
+        if (!combined.some(c => c.order_id === lo.order_id)) {
+          combined.push(lo);
+        }
+      });
+      return combined;
+    }
+    return localOrders;
+  } catch (err) {
+    console.warn('fetchFoodOrdersFromSupabase error:', err);
+    return localOrders;
+  }
+}
+
+/**
+ * Update food order status (Admin)
+ */
+async function updateFoodOrderStatusInSupabase(orderId, newStatus) {
+  try {
+    let orders = [];
+    const raw = localStorage.getItem('arn_food_orders');
+    if (raw) orders = JSON.parse(raw);
+    const target = orders.find(o => o.order_id === orderId || String(o.id) === String(orderId));
+    if (target) {
+      target.status = newStatus;
+      target.updated_at = new Date().toISOString();
+      localStorage.setItem('arn_food_orders', JSON.stringify(orders));
+    }
+
+    if (supabaseClient) {
+      await supabaseClient
+        .from('food_orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .or(`order_id.eq.${orderId},id.eq.${orderId}`);
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('updateFoodOrderStatusInSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 // Expose globally
 if (typeof window !== 'undefined') {
   window.SUPABASE_CONFIG = SUPABASE_CONFIG;
@@ -323,5 +699,17 @@ if (typeof window !== 'undefined') {
   window.fetchGalleryFromSupabase = fetchGalleryFromSupabase;
   window.submitEnquiryToSupabase = submitEnquiryToSupabase;
   window.submitContactMessageToSupabase = submitContactMessageToSupabase;
+
+  // Restaurant & Food Ordering functions
+  window.fetchRestaurantSettingsFromSupabase = fetchRestaurantSettingsFromSupabase;
+  window.saveRestaurantSettingsToSupabase = saveRestaurantSettingsToSupabase;
+  window.fetchRestaurantMenuFromSupabase = fetchRestaurantMenuFromSupabase;
+  window.saveMenuItemToSupabase = saveMenuItemToSupabase;
+  window.deleteMenuItemFromSupabase = deleteMenuItemFromSupabase;
+  window.saveMenuCategoryToSupabase = saveMenuCategoryToSupabase;
+  window.deleteMenuCategoryToSupabase = deleteMenuCategoryToSupabase;
+  window.submitFoodOrderToSupabase = submitFoodOrderToSupabase;
+  window.fetchFoodOrdersFromSupabase = fetchFoodOrdersFromSupabase;
+  window.updateFoodOrderStatusInSupabase = updateFoodOrderStatusInSupabase;
 }
 

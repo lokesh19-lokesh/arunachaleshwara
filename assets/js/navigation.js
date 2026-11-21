@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { text: 'Home', href: 'index.html', id: 'home' },
   { text: 'About Us', href: 'about.html', id: 'about' },
   { text: 'Accommodation', href: 'accommodation.html', id: 'accommodation' },
+  { text: 'Restaurant', href: 'restaurant.html', id: 'restaurant' },
   { text: 'Services', href: 'services.html', id: 'services' },
   { text: 'Tour Packages', href: 'tour-packages.html', id: 'tour-packages' },
   { text: 'Gallery', href: 'gallery.html', id: 'gallery' },
@@ -31,6 +32,7 @@ function getCurrentPage() {
   const path = window.location.pathname;
   const filename = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
   if (filename === 'index.html' || filename === '') return 'home';
+  if (filename.startsWith('restaurant')) return 'restaurant';
   if (filename.startsWith('service-details')) return 'services';
   if (filename.startsWith('tour-details')) return 'tour-packages';
   if (filename.startsWith('enquiry')) return 'contact';
@@ -147,6 +149,7 @@ function getFooterHTML() {
           <h5 class="footer-heading">Our Services</h5>
           <ul class="footer-links">
             <li><a href="accommodation.html">Accommodation</a></li>
+            <li><a href="restaurant.html">Pure Veg Restaurant</a></li>
             <li><a href="service-details.html?id=temple-darshan">Temple Darshan</a></li>
             <li><a href="service-details.html?id=taxi-car-rentals">Taxi & Car Rentals</a></li>
             <li><a href="service-details.html?id=bus-ticket-booking">Bus Tickets</a></li>

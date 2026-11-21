@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <title>Restaurant & Food Orders Management – Arunachaleshwara Admin</title>
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Admin Styles -->
+  <link rel="stylesheet" href="assets/css/admin.css">
+
+  <style>
+    .food-thumb-img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #E2D9CC;
+    }
+    .status-badge-new { background-color: #0d6efd; color: white; }
+    .status-badge-accepted { background-color: #6f42c1; color: white; }
+    .status-badge-preparing { background-color: #fd7e14; color: white; }
+    .status-badge-ready { background-color: #20c997; color: white; }
+    .status-badge-out { background-color: #0dcaf0; color: #000; }
+    .status-badge-delivered { background-color: #198754; color: white; }
+    .status-badge-completed { background-color: #198754; color: white; }
+    .status-badge-cancelled { background-color: #dc3545; color: white; }
+
+    .ratio-guide-box {
+      background: #FFFDF9;
+      border: 1.5px dashed #C99535;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+  <div class="admin-wrapper">
+    <!-- Admin Sidebar (Rendered by admin-core.js) -->
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+    <main class="admin-main">
+      <!-- Admin Header (Rendered by admin-core.js) -->
+      <header class="admin-header" id="adminHeader"></header>
+
+      <div class="admin-content">
+
+        <!-- Top KPI Stats Row -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card">
+              <div class="admin-stat-info">
+                <h6>Active Orders Today</h6>
+                <div class="admin-stat-number text-primary" id="kpiActiveOrders">0</div>
+                <div class="admin-stat-sub" id="kpiNewOrdersSub">0 New Orders</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-bag-check-fill"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card green">
+              <div class="admin-stat-info">
+                <h6>Today's Food Revenue</h6>
+                <div class="admin-stat-number text-success" id="kpiFoodRevenue">₹0</div>
+                <div class="admin-stat-sub" id="kpiDeliveredSub">Across 0 delivered orders</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-currency-rupee"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card warning">
+              <div class="admin-stat-info">
+                <h6>Menu Dishes</h6>
+                <div class="admin-stat-number text-warning" id="kpiTotalDishes">0</div>
+                <div class="admin-stat-sub" id="kpiAvailableSub">0 available</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-cup-hot-fill"></i></div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="admin-stat-card blue">
+              <div class="admin-stat-info">
+                <h6>Restaurant Status</h6>
+                <div class="admin-stat-number text-success" id="kpiRestaurantStatus">OPEN</div>
+                <div class="admin-stat-sub">Room Service Active</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-shop"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="restaurantAdminTabs">
+          <li class="nav-item">
+            <button class="nav-link active fw-bold text-dark" id="tabBtnOrders" data-bs-toggle="tab" data-bs-target="#ordersPane">
+              <i class="bi bi-receipt-cutoff text-warning me-1"></i> Live Food Orders (<span id="ordersCountBadge">0</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBtnDishes" data-bs-toggle="tab" data-bs-target="#dishesPane">
+              <i class="bi bi-cup-hot-fill text-warning me-1"></i> Menu Items (<span id="dishesCountBadge">0</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBtnCategories" data-bs-toggle="tab" data-bs-target="#categoriesPane">
+              <i class="bi bi-tags-fill text-warning me-1"></i> Menu Categories (<span id="catsCountBadge">0</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBtnSettings" data-bs-toggle="tab" data-bs-target="#settingsPane">
+              <i class="bi bi-gear-fill text-warning me-1"></i> Restaurant Settings &amp; Timings
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+
+          <!-- TAB 1: INCOMING FOOD ORDERS -->
+          <div class="tab-pane fade show active" id="ordersPane">
+            <div class="admin-card">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-bag-check-fill text-warning"></i> Incoming &amp; Past Food Orders</h6>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadFoodOrders()" title="Refresh Orders">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <!-- Status Filter -->
+                  <select id="filterOrderStatus" class="form-select form-select-sm" style="width: 170px;" onchange="renderOrdersTable()">
+                    <option value="all">All Statuses</option>
+                    <option value="New Order">New Orders</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Preparing">Preparing</option>
+                    <option value="Ready for Pickup">Ready for Pickup</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                  <!-- Search input -->
+                  <input type="text" id="searchOrdersInput" class="form-control form-control-sm" placeholder="Search customer, ID, room..." style="width: 200px;" oninput="renderOrdersTable()">
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer Details</th>
+                      <th>Fulfillment &amp; Room</th>
+                      <th>Items Ordered</th>
+                      <th>Total Amount</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm text-warning me-2"></div> Loading food orders...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: MENU ITEMS CATALOG -->
+          <div class="tab-pane fade" id="dishesPane">
+            <div class="admin-card">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-cup-hot-fill text-warning"></i> Food Dishes &amp; Pricing Management</h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-admin-yellow" onclick="openAddDishModal()">
+                    <i class="bi bi-plus-lg me-1"></i> Add New Dish
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filter Bar for Dishes -->
+              <div class="p-3 border-bottom bg-light d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                <div class="d-flex gap-2">
+                  <select id="filterDishCategory" class="form-select form-select-sm" style="width: 220px;" onchange="renderDishesTable()">
+                    <option value="all">All Categories</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                  <select id="filterDishAvailability" class="form-select form-select-sm" style="width: 150px;" onchange="renderDishesTable()">
+                    <option value="all">All Availability</option>
+                    <option value="available">In Stock</option>
+                    <option value="unavailable">Sold Out</option>
+                  </select>
+                </div>
+                <input type="text" id="searchDishInput" class="form-control form-control-sm" placeholder="Search dish name..." style="width: 220px;" oninput="renderDishesTable()">
+              </div>
+
+              <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Photo</th>
+                      <th>Dish Name &amp; Description</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Special / Tags</th>
+                      <th>Availability</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dishesTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: MENU CATEGORIES -->
+          <div class="tab-pane fade" id="categoriesPane">
+            <div class="admin-card">
+              <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-tags-fill text-warning"></i> Menu Categories</h6>
+                <button class="btn btn-sm btn-admin-yellow" onclick="openAddCategoryModal()">
+                  <i class="bi bi-plus-lg me-1"></i> Add Category
+                </button>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Order #</th>
+                      <th>Category Name</th>
+                      <th>Slug Identifier</th>
+                      <th>Icon</th>
+                      <th>Dishes Count</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="categoriesTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: RESTAURANT SETTINGS & TIMINGS -->
+          <div class="tab-pane fade" id="settingsPane">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-shop text-warning"></i> Restaurant Profile, Timings &amp; Delivery Configuration</h6>
+              </div>
+              <div class="admin-card-body p-4">
+                <form id="restaurantSettingsForm" onsubmit="saveRestaurantSettings(event)">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Restaurant Name *</label>
+                      <input type="text" id="setRestName" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Tagline</label>
+                      <input type="text" id="setRestTagline" class="form-control">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-bold">Overview Description</label>
+                      <textarea id="setRestDesc" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Operational Timings *</label>
+                      <input type="text" id="setRestTimings" class="form-control" placeholder="e.g. Daily 06:30 AM – 10:30 PM" required>
+                    </div>
+                    <div class="col-md-3 col-6">
+                      <label class="form-label small fw-bold">Delivery Fee (₹)</label>
+                      <input type="number" id="setDeliveryFee" class="form-control" min="0" required>
+                    </div>
+                    <div class="col-md-3 col-6">
+                      <label class="form-label small fw-bold">Min. Order Amount (₹)</label>
+                      <input type="number" id="setMinOrder" class="form-control" min="0" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Contact Phone Number</label>
+                      <input type="text" id="setPhone" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">WhatsApp Number for Kitchen Alerts</label>
+                      <input type="text" id="setWhatsApp" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Hero Banner Image URL</label>
+                      <input type="text" id="setHeroImage" class="form-control">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center">
+                      <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" id="setIsOpen" checked>
+                        <label class="form-check-label fw-bold text-dark" for="setIsOpen">
+                          Restaurant Open for Orders
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 pt-3 border-top text-end">
+                    <button type="submit" class="btn btn-admin-yellow fw-bold px-4">
+                      <i class="bi bi-save me-1"></i> Save Restaurant Settings
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD / EDIT DISH -->
+  <div class="modal fade" id="dishModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold" id="dishModalTitle">Add New Food Dish</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="dishForm" onsubmit="saveDish(event)">
+            <input type="hidden" id="dishId">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label small fw-bold">Dish Name (English) *</label>
+                <input type="text" id="dishName" class="form-control" placeholder="e.g. Ghee Roast Masala Dosa" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Price (₹) *</label>
+                <input type="number" id="dishPrice" class="form-control" min="1" placeholder="85" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Regional Name (Tamil / Telugu)</label>
+                <input type="text" id="dishRegionalName" class="form-control" placeholder="e.g. நெய் ரோஸ்ட் / నేతి మసాలా దోశ">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Category *</label>
+                <select id="dishCategory" class="form-select" required>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Description &amp; Inclusions</label>
+                <textarea id="dishDescription" class="form-control" rows="2" placeholder="Served with sambar and 3 chutneys..."></textarea>
+              </div>
+
+              <!-- Image & Aspect Ratio Guide -->
+              <div class="col-12">
+                <label class="form-label small fw-bold">Dish Photo URL</label>
+                <input type="text" id="dishImage" class="form-control" placeholder="assets/images/services/restaurant.jpg">
+
+                <div class="ratio-guide-box mt-2 d-flex align-items-center gap-2">
+                  <i class="bi bi-aspect-ratio text-warning fs-5"></i>
+                  <div>
+                    <strong>Recommended Image Aspect Ratio: 4:3 (Horizontal)</strong> or <strong>16:9</strong> (e.g. 800×600 px or 1200×900 px).
+                    <br><small class="text-muted">High-resolution food photos highlight authentic South Indian presentation.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="dishIsAvailable" checked>
+                  <label class="form-check-label fw-bold" for="dishIsAvailable">Available / In Stock</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="dishIsSpecial">
+                  <label class="form-check-label fw-bold" for="dishIsSpecial">Chef's Special / Temple Highlight</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0 mt-4 border-top">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-yellow fw-bold">
+                <i class="bi bi-check2 me-1"></i> Save Dish
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT CATEGORY -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold" id="categoryModalTitle">Add Menu Category</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="categoryForm" onsubmit="saveCategory(event)">
+            <input type="hidden" id="catId">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Category Name *</label>
+              <input type="text" id="catName" class="form-control" placeholder="e.g. South Indian Breakfast" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Slug Identifier (lowercase, no spaces) *</label>
+              <input type="text" id="catSlug" class="form-control" placeholder="e.g. breakfast" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Bootstrap Icon Class</label>
+              <input type="text" id="catIcon" class="form-control" placeholder="bi-sun-fill">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Display Order Number</label>
+              <input type="number" id="catOrderNum" class="form-control" value="1" min="1">
+            </div>
+            <div class="modal-footer px-0 pb-0 mt-4 border-top">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-yellow fw-bold">Save Category</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VIEW ORDER DETAILS & UPDATE STATUS -->
+  <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-receipt-cutoff text-warning me-2"></i>Order Details: <span id="mOrderId">ARN-FOOD-2026-XXXXX</span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-person-fill text-gold me-1"></i> Customer Information</h6>
+                <div><strong>Name:</strong> <span id="mCustomerName">—</span></div>
+                <div><strong>Mobile:</strong> <a href="#" id="mCustomerPhone" class="fw-bold text-primary"></a></div>
+                <div><strong>Email:</strong> <span id="mCustomerEmail">—</span></div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-geo-alt-fill text-gold me-1"></i> Delivery &amp; Fulfillment</h6>
+                <div><strong>Fulfillment:</strong> <span id="mFulfillment">—</span></div>
+                <div><strong>Room No:</strong> <span class="badge bg-warning text-dark fs-6" id="mRoomNo">—</span></div>
+                <div><strong>Order Placed:</strong> <span id="mOrderTime">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-maroon">Special Cooking / Guest Instructions:</label>
+            <div class="p-2 bg-light rounded border text-muted small" id="mSpecialNotes">None</div>
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive mb-3 border rounded">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Dish Item</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-end">Unit Price</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody id="mItemsTableBody">
+                <!-- Injected dynamically -->
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td colspan="3" class="text-end">Subtotal:</td>
+                  <td class="text-end" id="mSubtotal">₹0</td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="text-end">Delivery Fee:</td>
+                  <td class="text-end" id="mDeliveryFee">₹30</td>
+                </tr>
+                <tr class="fs-6 text-maroon">
+                  <td colspan="3" class="text-end">Grand Total:</td>
+                  <td class="text-end text-success" id="mGrandTotal">₹0</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Change Status & Dispatch WhatsApp -->
+          <div class="p-3 bg-light rounded-3 border">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold mb-1">Update Order Status:</label>
+                <select id="mStatusSelect" class="form-select form-select-sm">
+                  <option value="New Order">New Order</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Preparing">Preparing</option>
+                  <option value="Ready for Pickup">Ready for Pickup</option>
+                  <option value="Out for Delivery">Out for Delivery</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <button type="button" class="btn btn-sm btn-admin-yellow fw-bold" onclick="saveModalOrderStatus()">
+                  <i class="bi bi-check-lg me-1"></i> Update Status
+                </button>
+                <a href="#" id="mWhatsAppBtn" target="_blank" class="btn btn-sm btn-success fw-bold ms-1">
+                  <i class="bi bi-whatsapp me-1"></i> Notify Customer
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/restaurant-data.js"></script>
+  <script src="assets/js/admin-core.js"></script>
+
+  <script>
+    let gCategories = [];
+    let gMenuItems = [];
+    let gOrders = [];
+    let gSettings = {};
+    let gCurrentOrder = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Render Admin Sidebar & Header
+      if (typeof renderAdminSidebar === 'function') renderAdminSidebar('restaurant-menu');
+      if (typeof renderAdminHeader === 'function') renderAdminHeader('Restaurant & Food Orders', 'Menu Catalog, Kitchen Timings & Live Room Delivery');
+
+      // Check URL params for direct tab selection (e.g. ?tab=orders)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('tab') === 'orders') {
+        const btn = document.getElementById('tabBtnOrders');
+        if (btn && window.bootstrap) new bootstrap.Tab(btn).show();
+      }
+
+      await loadAllRestaurantData();
+    });
+
+    async function loadAllRestaurantData() {
+      // 1. Settings
+      if (typeof fetchRestaurantSettingsFromSupabase === 'function') {
+        gSettings = await fetchRestaurantSettingsFromSupabase();
+        populateSettingsForm();
+      }
+      // 2. Menu Catalog
+      if (typeof fetchRestaurantMenuFromSupabase === 'function') {
+        const data = await fetchRestaurantMenuFromSupabase();
+        gCategories = data.categories || [];
+        gMenuItems = data.items || [];
+      } else {
+        gCategories = typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined' ? DEFAULT_RESTAURANT_CATEGORIES : [];
+        gMenuItems = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
+      }
+      // 3. Orders
+      await loadFoodOrders();
+
+      renderCategoriesTable();
+      renderDishesTable();
+      updateKPICards();
+    }
+
+    async function loadFoodOrders() {
+      if (typeof fetchFoodOrdersFromSupabase === 'function') {
+        gOrders = await fetchFoodOrdersFromSupabase();
+      } else {
+        const raw = localStorage.getItem('arn_food_orders');
+        gOrders = raw ? JSON.parse(raw) : [];
+      }
+      renderOrdersTable();
+      updateKPICards();
+    }
+
+    function updateKPICards() {
+      const active = gOrders.filter(o => o.status !== 'Completed' && o.status !== 'Cancelled');
+      const newOrders = gOrders.filter(o => o.status === 'New Order');
+      const delivered = gOrders.filter(o => o.status === 'Delivered' || o.status === 'Completed');
+      const revenue = delivered.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+
+      document.getElementById('kpiActiveOrders').textContent = active.length;
+      document.getElementById('kpiNewOrdersSub').textContent = `${newOrders.length} New Order${newOrders.length !== 1 ? 's' : ''}`;
+      document.getElementById('kpiFoodRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+      document.getElementById('kpiDeliveredSub').textContent = `Across ${delivered.length} delivered order${delivered.length !== 1 ? 's' : ''}`;
+
+      document.getElementById('kpiTotalDishes').textContent = gMenuItems.length;
+      const avail = gMenuItems.filter(m => m.is_available !== false).length;
+      document.getElementById('kpiAvailableSub').textContent = `${avail} available`;
+
+      const statusEl = document.getElementById('kpiRestaurantStatus');
+      if (gSettings.is_open !== false) {
+        statusEl.textContent = 'OPEN';
+        statusEl.className = 'admin-stat-number text-success';
+      } else {
+        statusEl.textContent = 'CLOSED';
+        statusEl.className = 'admin-stat-number text-danger';
+      }
+
+      document.getElementById('ordersCountBadge').textContent = gOrders.length;
+      document.getElementById('dishesCountBadge').textContent = gMenuItems.length;
+      document.getElementById('catsCountBadge').textContent = gCategories.length;
+    }
+
+    /* ----------------------------------------------------
+       ORDERS MANAGEMENT TAB
+       ---------------------------------------------------- */
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const statusFilter = document.getElementById('filterOrderStatus').value;
+      const search = document.getElementById('searchOrdersInput').value.toLowerCase().trim();
+
+      let filtered = gOrders;
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(o => o.status === statusFilter);
+      }
+      if (search) {
+        filtered = filtered.filter(o => {
+          return (
+            (o.order_id && o.order_id.toLowerCase().includes(search)) ||
+            (o.customer_name && o.customer_name.toLowerCase().includes(search)) ||
+            (o.mobile && o.mobile.includes(search)) ||
+            (o.room_number && o.room_number.toLowerCase().includes(search))
+          );
+        });
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No food orders found matching the filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const badgeClass = getStatusBadgeClass(o.status);
+        const itemsCount = (o.items || []).reduce((sum, it) => sum + (it.quantity || 1), 0);
+        const previewItems = (o.items || []).map(it => `${it.name} (×${it.quantity})`).slice(0, 2).join(', ');
+
+        return `
+          <tr>
+            <td>
+              <strong class="text-primary font-monospace">${o.order_id}</strong>
+              <small class="d-block text-muted" style="font-size: 0.75rem;">${formatDate(o.created_at)}</small>
+            </td>
+            <td>
+              <div class="fw-bold">${o.customer_name || 'Devotee'}</div>
+              <small class="text-muted"><i class="bi bi-telephone text-gold me-1"></i>${o.mobile}</small>
+            </td>
+            <td>
+              <div><strong>${o.fulfillment_type || 'Room Delivery'}</strong></div>
+              ${o.room_number ? `<span class="badge bg-warning text-dark"><i class="bi bi-door-open-fill me-1"></i>Room ${o.room_number}</span>` : '<span class="badge bg-light text-secondary border">Pickup/Dine-In</span>'}
+            </td>
+            <td>
+              <div class="small fw-semibold text-truncate" style="max-width: 220px;" title="${previewItems}">
+                ${previewItems || 'Items details'}
+              </div>
+              <small class="text-muted">${itemsCount} item${itemsCount !== 1 ? 's' : ''}</small>
+            </td>
+            <td>
+              <strong class="text-success fs-6">₹${(parseFloat(o.total_amount) || 0).toLocaleString('en-IN')}</strong>
+              <small class="d-block text-muted" style="font-size: 0.72rem;">${o.payment_status || 'Pending'}</small>
+            </td>
+            <td>
+              <span class="badge ${badgeClass} px-2 py-1">${o.status}</span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" onclick="viewOrderDetails('${o.order_id}')" title="View &amp; Update Order">
+                <i class="bi bi-eye-fill"></i> View
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'New Order': return 'status-badge-new';
+        case 'Accepted': return 'status-badge-accepted';
+        case 'Preparing': return 'status-badge-preparing';
+        case 'Ready for Pickup': return 'status-badge-ready';
+        case 'Out for Delivery': return 'status-badge-out';
+        case 'Delivered': return 'status-badge-delivered';
+        case 'Completed': return 'status-badge-completed';
+        case 'Cancelled': return 'status-badge-cancelled';
+        default: return 'bg-secondary text-white';
+      }
+    }
+
+    function viewOrderDetails(orderId) {
+      const order = gOrders.find(o => o.order_id === orderId);
+      if (!order) return;
+      gCurrentOrder = order;
+
+      document.getElementById('mOrderId').textContent = order.order_id;
+      document.getElementById('mCustomerName').textContent = order.customer_name;
+      const phoneEl = document.getElementById('mCustomerPhone');
+      phoneEl.textContent = order.mobile;
+      phoneEl.href = `tel:${order.mobile}`;
+      document.getElementById('mCustomerEmail').textContent = order.email || 'None';
+      document.getElementById('mFulfillment').textContent = order.fulfillment_type;
+      document.getElementById('mRoomNo').textContent = order.room_number ? `#${order.room_number}` : 'N/A';
+      document.getElementById('mOrderTime').textContent = formatDate(order.created_at);
+      document.getElementById('mSpecialNotes').textContent = order.special_instructions || 'None';
+
+      const itemsTbody = document.getElementById('mItemsTableBody');
+      itemsTbody.innerHTML = (order.items || []).map(it => `
+        <tr>
+          <td>${it.name}</td>
+          <td class="text-center">${it.quantity}</td>
+          <td class="text-end">₹${it.price}</td>
+          <td class="text-end font-monospace">₹${it.price * it.quantity}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('mSubtotal').textContent = `₹${(parseFloat(order.subtotal) || 0).toLocaleString('en-IN')}`;
+      document.getElementById('mDeliveryFee').textContent = `₹${(parseFloat(order.delivery_fee) || 0).toLocaleString('en-IN')}`;
+      document.getElementById('mGrandTotal').textContent = `₹${(parseFloat(order.total_amount) || 0).toLocaleString('en-IN')}`;
+
+      document.getElementById('mStatusSelect').value = order.status;
+
+      // WhatsApp quick notify message
+      const waMsg = `*Namaste ${order.customer_name}! Update on Food Order ${order.order_id}*\n\n` +
+        `Your order status is now: *${order.status}*.\n` +
+        `${order.room_number ? `Delivering to Room #${order.room_number}\n` : ''}` +
+        `Total Amount: ₹${order.total_amount}\n\n` +
+        `Thank you for dining with Arunachaleshwara Pure Veg Restaurant!`;
+      document.getElementById('mWhatsAppBtn').href = `https://wa.me/91${order.mobile.replace(/[^0-9]/g, '').slice(-10)}?text=${encodeURIComponent(waMsg)}`;
+
+      const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+      modal.show();
+    }
+
+    async function saveModalOrderStatus() {
+      if (!gCurrentOrder) return;
+      const newStatus = document.getElementById('mStatusSelect').value;
+
+      if (typeof updateFoodOrderStatusInSupabase === 'function') {
+        await updateFoodOrderStatusInSupabase(gCurrentOrder.order_id, newStatus);
+      }
+      gCurrentOrder.status = newStatus;
+      await loadFoodOrders();
+
+      const modalEl = document.getElementById('orderDetailsModal');
+      const bsModal = bootstrap.Modal.getInstance(modalEl);
+      if (bsModal) bsModal.hide();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast(`Order ${gCurrentOrder.order_id} status updated to ${newStatus}`, 'success');
+      } else {
+        alert(`Order status updated to ${newStatus}`);
+      }
+    }
+
+    /* ----------------------------------------------------
+       MENU ITEMS CATALOG TAB
+       ---------------------------------------------------- */
+    function renderDishesTable() {
+      const tbody = document.getElementById('dishesTableBody');
+      const catFilter = document.getElementById('filterDishCategory').value;
+      const availFilter = document.getElementById('filterDishAvailability').value;
+      const search = document.getElementById('searchDishInput').value.toLowerCase().trim();
+
+      // Populate Category dropdowns in filter & modal
+      const catSelect = document.getElementById('filterDishCategory');
+      const dishModalCatSelect = document.getElementById('dishCategory');
+      const currentCatVal = catSelect.value;
+
+      catSelect.innerHTML = `<option value="all">All Categories</option>` + gCategories.map(c => `
+        <option value="${c.slug}">${c.name}</option>
+      `).join('');
+      catSelect.value = currentCatVal;
+
+      dishModalCatSelect.innerHTML = gCategories.map(c => `
+        <option value="${c.slug}">${c.name}</option>
+      `).join('');
+
+      let filtered = gMenuItems;
+      if (catFilter !== 'all') {
+        filtered = filtered.filter(m => m.category_slug === catFilter);
+      }
+      if (availFilter === 'available') {
+        filtered = filtered.filter(m => m.is_available !== false);
+      } else if (availFilter === 'unavailable') {
+        filtered = filtered.filter(m => m.is_available === false);
+      }
+      if (search) {
+        filtered = filtered.filter(m => (m.name && m.name.toLowerCase().includes(search)) || (m.regional_name && m.regional_name.toLowerCase().includes(search)));
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No dishes found. Click "Add New Dish" to add to menu.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(dish => {
+        const catObj = gCategories.find(c => c.slug === dish.category_slug);
+        const catName = catObj ? catObj.name : dish.category_slug;
+
+        return `
+          <tr>
+            <td>
+              <img src="${dish.image || '../assets/images/services/restaurant.jpg'}" alt="${dish.name}" class="food-thumb-img">
+            </td>
+            <td>
+              <div class="fw-bold text-maroon">${dish.name}</div>
+              ${dish.regional_name ? `<small class="text-secondary d-block fst-italic">${dish.regional_name}</small>` : ''}
+              <small class="text-muted d-block line-clamp-2" style="font-size: 0.75rem;">${dish.description || ''}</small>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border">${catName}</span>
+            </td>
+            <td>
+              <strong class="text-maroon fs-6">₹${Number(dish.price).toLocaleString('en-IN')}</strong>
+            </td>
+            <td>
+              ${dish.is_special ? `<span class="badge bg-warning text-dark"><i class="bi bi-star-fill text-danger me-1"></i>Special</span>` : '<span class="text-muted small">Standard</span>'}
+            </td>
+            <td>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" ${dish.is_available !== false ? 'checked' : ''} onchange="toggleDishAvailability('${dish.id}', this.checked)">
+                <label class="form-check-label small ${dish.is_available !== false ? 'text-success' : 'text-danger'}">
+                  ${dish.is_available !== false ? 'In Stock' : 'Sold Out'}
+                </label>
+              </div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="openEditDishModal('${dish.id}')" title="Edit Dish">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteDish('${dish.id}')" title="Delete Dish">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openAddDishModal() {
+      document.getElementById('dishModalTitle').textContent = 'Add New Food Dish';
+      document.getElementById('dishId').value = '';
+      document.getElementById('dishName').value = '';
+      document.getElementById('dishPrice').value = '';
+      document.getElementById('dishRegionalName').value = '';
+      document.getElementById('dishDescription').value = '';
+      document.getElementById('dishImage').value = 'assets/images/services/restaurant.jpg';
+      document.getElementById('dishIsAvailable').checked = true;
+      document.getElementById('dishIsSpecial').checked = false;
+
+      new bootstrap.Modal(document.getElementById('dishModal')).show();
+    }
+
+    function openEditDishModal(dishId) {
+      const dish = gMenuItems.find(d => String(d.id) === String(dishId));
+      if (!dish) return;
+
+      document.getElementById('dishModalTitle').textContent = 'Edit Food Dish';
+      document.getElementById('dishId').value = dish.id;
+      document.getElementById('dishName').value = dish.name;
+      document.getElementById('dishPrice').value = dish.price;
+      document.getElementById('dishRegionalName').value = dish.regional_name || '';
+      document.getElementById('dishCategory').value = dish.category_slug;
+      document.getElementById('dishDescription').value = dish.description || '';
+      document.getElementById('dishImage').value = dish.image || 'assets/images/services/restaurant.jpg';
+      document.getElementById('dishIsAvailable').checked = dish.is_available !== false;
+      document.getElementById('dishIsSpecial').checked = dish.is_special === true;
+
+      new bootstrap.Modal(document.getElementById('dishModal')).show();
+    }
+
+    async function saveDish(e) {
+      e.preventDefault();
+      const id = document.getElementById('dishId').value || ('dish_' + Date.now());
+      const name = document.getElementById('dishName').value.trim();
+      const price = parseFloat(document.getElementById('dishPrice').value) || 0;
+      const regional = document.getElementById('dishRegionalName').value.trim();
+      const category = document.getElementById('dishCategory').value;
+      const desc = document.getElementById('dishDescription').value.trim();
+      const image = document.getElementById('dishImage').value.trim() || 'assets/images/services/restaurant.jpg';
+      const isAvailable = document.getElementById('dishIsAvailable').checked;
+      const isSpecial = document.getElementById('dishIsSpecial').checked;
+
+      const item = {
+        id,
+        name,
+        price,
+        regional_name: regional,
+        category_slug: category,
+        description: desc,
+        image,
+        is_available: isAvailable,
+        is_special: isSpecial,
+        is_veg: true,
+        order_num: gMenuItems.length + 1
+      };
+
+      if (typeof saveMenuItemToSupabase === 'function') {
+        await saveMenuItemToSupabase(item);
+      }
+
+      await loadAllRestaurantData();
+
+      const modalEl = document.getElementById('dishModal');
+      const bsModal = bootstrap.Modal.getInstance(modalEl);
+      if (bsModal) bsModal.hide();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast(`Dish "${name}" saved successfully!`, 'success');
+      }
+    }
+
+    async function toggleDishAvailability(dishId, isAvailable) {
+      const dish = gMenuItems.find(d => String(d.id) === String(dishId));
+      if (!dish) return;
+      dish.is_available = isAvailable;
+      if (typeof saveMenuItemToSupabase === 'function') {
+        await saveMenuItemToSupabase(dish);
+      }
+      renderDishesTable();
+      updateKPICards();
+    }
+
+    async function deleteDish(dishId) {
+      const dish = gMenuItems.find(d => String(d.id) === String(dishId));
+      if (!confirm(`Are you sure you want to delete dish "${dish ? dish.name : dishId}" from menu?`)) return;
+
+      if (typeof deleteMenuItemFromSupabase === 'function') {
+        await deleteMenuItemFromSupabase(dishId);
+      }
+      await loadAllRestaurantData();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast('Dish removed from menu catalog.', 'info');
+      }
+    }
+
+    /* ----------------------------------------------------
+       CATEGORIES MANAGEMENT TAB
+       ---------------------------------------------------- */
+    function renderCategoriesTable() {
+      const tbody = document.getElementById('categoriesTableBody');
+      if (gCategories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No categories configured.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = gCategories.map((cat, idx) => {
+        const count = gMenuItems.filter(m => m.category_slug === cat.slug).length;
+        return `
+          <tr>
+            <td><strong>${cat.order_num || idx + 1}</strong></td>
+            <td><strong class="text-maroon">${cat.name}</strong></td>
+            <td><code>${cat.slug}</code></td>
+            <td><i class="bi ${cat.icon || 'bi-cup-hot-fill'} text-gold fs-5"></i></td>
+            <td><span class="badge bg-light text-dark border">${count} dish${count !== 1 ? 'es' : ''}</span></td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="openEditCategoryModal('${cat.slug}')">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteCategory('${cat.slug}')">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openAddCategoryModal() {
+      document.getElementById('categoryModalTitle').textContent = 'Add Menu Category';
+      document.getElementById('catId').value = '';
+      document.getElementById('catName').value = '';
+      document.getElementById('catSlug').value = '';
+      document.getElementById('catIcon').value = 'bi-cup-hot-fill';
+      document.getElementById('catOrderNum').value = gCategories.length + 1;
+      new bootstrap.Modal(document.getElementById('categoryModal')).show();
+    }
+
+    function openEditCategoryModal(slug) {
+      const cat = gCategories.find(c => c.slug === slug);
+      if (!cat) return;
+      document.getElementById('categoryModalTitle').textContent = 'Edit Menu Category';
+      document.getElementById('catId').value = cat.id || cat.slug;
+      document.getElementById('catName').value = cat.name;
+      document.getElementById('catSlug').value = cat.slug;
+      document.getElementById('catIcon').value = cat.icon || 'bi-cup-hot-fill';
+      document.getElementById('catOrderNum').value = cat.order_num || 1;
+      new bootstrap.Modal(document.getElementById('categoryModal')).show();
+    }
+
+    async function saveCategory(e) {
+      e.preventDefault();
+      const name = document.getElementById('catName').value.trim();
+      const slug = document.getElementById('catSlug').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      const icon = document.getElementById('catIcon').value.trim() || 'bi-cup-hot-fill';
+      const orderNum = parseInt(document.getElementById('catOrderNum').value) || 1;
+      const id = document.getElementById('catId').value || ('cat_' + Date.now());
+
+      const category = { id, name, slug, icon, order_num: orderNum, is_active: true };
+
+      if (typeof saveMenuCategoryToSupabase === 'function') {
+        await saveMenuCategoryToSupabase(category);
+      }
+      await loadAllRestaurantData();
+
+      const modalEl = document.getElementById('categoryModal');
+      const bsModal = bootstrap.Modal.getInstance(modalEl);
+      if (bsModal) bsModal.hide();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast(`Category "${name}" saved!`, 'success');
+      }
+    }
+
+    async function deleteCategory(slug) {
+      if (!confirm(`Are you sure you want to delete category "${slug}"? Dishes under it will remain.`)) return;
+      if (typeof deleteMenuCategoryToSupabase === 'function') {
+        await deleteMenuCategoryToSupabase(slug);
+      }
+      await loadAllRestaurantData();
+    }
+
+    /* ----------------------------------------------------
+       RESTAURANT SETTINGS TAB
+       ---------------------------------------------------- */
+    function populateSettingsForm() {
+      document.getElementById('setRestName').value = gSettings.restaurant_name || 'Arunachaleshwara Pure Veg Restaurant';
+      document.getElementById('setRestTagline').value = gSettings.tagline || '';
+      document.getElementById('setRestDesc').value = gSettings.description || '';
+      document.getElementById('setRestTimings').value = gSettings.timings || 'Daily 06:30 AM – 10:30 PM';
+      document.getElementById('setDeliveryFee').value = gSettings.delivery_fee || 30;
+      document.getElementById('setMinOrder').value = gSettings.min_order_amount || 100;
+      document.getElementById('setPhone').value = gSettings.contact_phone || '9010515341';
+      document.getElementById('setWhatsApp').value = gSettings.contact_whatsapp || '919010515341';
+      document.getElementById('setHeroImage').value = gSettings.hero_image || 'assets/images/services/restaurant.jpg';
+      document.getElementById('setIsOpen').checked = gSettings.is_open !== false;
+    }
+
+    async function saveRestaurantSettings(e) {
+      e.preventDefault();
+      const updated = {
+        restaurant_name: document.getElementById('setRestName').value.trim(),
+        tagline: document.getElementById('setRestTagline').value.trim(),
+        description: document.getElementById('setRestDesc').value.trim(),
+        timings: document.getElementById('setRestTimings').value.trim(),
+        delivery_fee: parseFloat(document.getElementById('setDeliveryFee').value) || 0,
+        min_order_amount: parseFloat(document.getElementById('setMinOrder').value) || 0,
+        contact_phone: document.getElementById('setPhone').value.trim(),
+        contact_whatsapp: document.getElementById('setWhatsApp').value.trim(),
+        hero_image: document.getElementById('setHeroImage').value.trim(),
+        is_open: document.getElementById('setIsOpen').checked
+      };
+
+      if (typeof saveRestaurantSettingsToSupabase === 'function') {
+        await saveRestaurantSettingsToSupabase(updated);
+      }
+      gSettings = updated;
+      updateKPICards();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast('Restaurant profile & operational settings saved!', 'success');
+      } else {
+        alert('Restaurant profile saved successfully!');
+      }
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return '—';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return isoStr;
+      }
+    }
+  </script>
+</body>
+</html>
