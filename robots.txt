@@ -1,6 +1,37 @@
+# Robots.txt for Arunachaleshwara Tours & Travels
+# Domain: https://arunachaleshwaratoursandtravels.in
+
 User-agent: *
 Allow: /
+Disallow: /admin/
 Disallow: /404.html
 
-Sitemap: https://www.arunachaleshwaratravels.com/sitemap.xml
+# Allow AI Search & Answer Engine Crawlers
+User-agent: Googlebot
+Allow: /
 
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://arunachaleshwaratoursandtravels.in/sitemap.xml
