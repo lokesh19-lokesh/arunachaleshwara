@@ -302,8 +302,28 @@
                       <input type="text" id="setWhatsApp" class="form-control">
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label small fw-bold">Hero Banner Image URL</label>
-                      <input type="text" id="setHeroImage" class="form-control">
+                      <label class="form-label small fw-bold d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-image text-warning me-1"></i> Restaurant Hero Banner Photo</span>
+                        <span id="setHeroUploadStatus" class="small"></span>
+                      </label>
+                      <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded-2 border bg-light">
+                        <img id="setHeroImagePreview" src="../assets/images/services/restaurant.jpg" alt="Banner Preview"
+                             style="width: 80px; height: 52px; object-fit: cover; border-radius: 6px; border: 1px solid #CBD5E1; flex-shrink: 0;"
+                             onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
+                        <div class="flex-grow-1">
+                          <div class="d-flex gap-2 mb-1">
+                            <label class="btn btn-sm btn-admin-yellow mb-0 fw-semibold" style="cursor: pointer;">
+                              <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Banner Photo
+                              <input type="file" id="setHeroImageFile" accept="image/*" class="d-none" onchange="handleHeroBannerUpload(this)">
+                            </label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetHeroImage()" title="Reset to default banner">
+                              <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                          </div>
+                          <input type="text" id="setHeroImage" class="form-control form-control-sm font-monospace" placeholder="assets/images/services/restaurant.jpg" oninput="updateHeroImagePreview(this.value)">
+                        </div>
+                      </div>
+                      <div class="form-text" style="font-size: 0.72rem;">Recommended: <strong>16:9 (1920 × 1080 px or 1200 × 675 px)</strong> • Under 5 MB.</div>
                     </div>
                     <div class="col-md-6 d-flex align-items-center">
                       <div class="form-check form-switch mt-4">
@@ -366,16 +386,83 @@
                 <textarea id="dishDescription" class="form-control" rows="2" placeholder="Served with sambar and 3 chutneys..."></textarea>
               </div>
 
-              <!-- Image & Aspect Ratio Guide -->
+              <!-- Food Dish Photo Upload, Preview & Ratio Guide -->
               <div class="col-12">
-                <label class="form-label small fw-bold">Dish Photo URL</label>
-                <input type="text" id="dishImage" class="form-control" placeholder="assets/images/services/restaurant.jpg">
+                <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-1">
+                  <span><i class="bi bi-image text-warning me-1"></i> Dish Photo &amp; Image Upload *</span>
+                  <span id="dishUploadStatus" class="small"></span>
+                </label>
 
-                <div class="ratio-guide-box mt-2 d-flex align-items-center gap-2">
-                  <i class="bi bi-aspect-ratio text-warning fs-5"></i>
-                  <div>
-                    <strong>Recommended Image Aspect Ratio: 4:3 (Horizontal)</strong> or <strong>16:9</strong> (e.g. 800×600 px or 1200×900 px).
-                    <br><small class="text-muted">High-resolution food photos highlight authentic South Indian presentation.</small>
+                <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
+                  <div class="d-flex flex-wrap align-items-center gap-3">
+                    <!-- Photo Thumbnail Preview -->
+                    <div class="position-relative flex-shrink-0" style="width: 120px; height: 90px; border-radius: 10px; overflow: hidden; border: 2px solid #E2D9CC; background: #F8F5EE; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                      <img id="dishImagePreview" src="../assets/images/services/restaurant.jpg" alt="Dish Preview"
+                           style="width: 100%; height: 100%; object-fit: cover;"
+                           onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
+                      <span class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white text-center py-1 fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                        PREVIEW
+                      </span>
+                    </div>
+
+                    <!-- Upload, Presets & Controls -->
+                    <div class="flex-grow-1" style="min-width: 250px;">
+                      <div class="d-flex flex-wrap gap-2 mb-2">
+                        <!-- Direct File Upload Button -->
+                        <label class="btn btn-sm btn-admin-yellow fw-bold mb-0 shadow-sm" style="cursor: pointer;">
+                          <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Food Photo
+                          <input type="file" id="dishImageFile" accept="image/png,image/jpeg,image/webp,image/jpg" class="d-none" onchange="handleDishImageUpload(this)">
+                        </label>
+
+                        <!-- Sample Dish Presets Dropdown -->
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-collection-fill text-warning me-1"></i> Preset Photos
+                          </button>
+                          <ul class="dropdown-menu shadow border-0" style="font-size: 0.85rem; max-height: 280px; overflow-y: auto;">
+                            <li><h6 class="dropdown-header text-maroon fw-bold">South Indian Curated Food Photos</h6></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/services/restaurant.jpg')">
+                              <span class="fs-6">🍛</span> Arunachala Special Meals (Thali)
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/gallery/g4.jpg')">
+                              <span class="fs-6">🥞</span> Ghee Podi Thatte Idli
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/gallery/Accommodation2.jpg')">
+                              <span class="fs-6">🥞</span> Crispy Golden Masala Dosa
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/gallery/g1.jpg')">
+                              <span class="fs-6">🫓</span> Poori Masala &amp; Crispy Medu Vada
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/gallery/g5.jpg')">
+                              <span class="fs-6">☕</span> Degree Filter Kaapi (Coffee)
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetDishImage('assets/images/gallery/g6.jpg')">
+                              <span class="fs-6">🍲</span> Sambar Rice, Rasam &amp; Poriyal
+                            </button></li>
+                          </ul>
+                        </div>
+
+                        <!-- Reset / Default Button -->
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetDishImage()" title="Reset to default food photo">
+                          <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </button>
+                      </div>
+
+                      <!-- Manual URL / Path Input with live preview on typing -->
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white text-muted"><i class="bi bi-link-45deg"></i></span>
+                        <input type="text" id="dishImage" class="form-control font-monospace" placeholder="assets/images/services/... or https://..." oninput="updateDishImagePreview(this.value)">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Aspect Ratio & Quality Guidelines -->
+                  <div class="ratio-guide-box mt-3 d-flex align-items-center gap-2 p-2 rounded-2" style="background: #FFF8E7; border: 1px solid #FFE494;">
+                    <i class="bi bi-aspect-ratio text-warning fs-5 flex-shrink-0"></i>
+                    <div class="small text-dark">
+                      <strong>Recommended Image Aspect Ratio: 4:3 (Horizontal)</strong> or <strong>16:9</strong> (e.g. <code>800 × 600 px</code> or <code>1200 × 900 px</code>).
+                      <span class="text-muted d-block" style="font-size: 0.74rem;">Max 5 MB • JPG, PNG, WebP. Real-time preview updates instantly when you upload or select a photo.</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1041,7 +1128,9 @@
         return `
           <tr>
             <td>
-              <img src="${dish.image || '../assets/images/services/restaurant.jpg'}" alt="${dish.name}" class="food-thumb-img">
+              <img src="${typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(dish.image || 'assets/images/services/restaurant.jpg') : (dish.image || '../assets/images/services/restaurant.jpg')}"
+                   alt="${dish.name}" class="food-thumb-img"
+                   onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
             </td>
             <td>
               <div class="fw-bold text-maroon">${dish.name}</div>
@@ -1088,6 +1177,9 @@
       document.getElementById('dishRegionalName').value = '';
       document.getElementById('dishDescription').value = '';
       document.getElementById('dishImage').value = 'assets/images/services/restaurant.jpg';
+      updateDishImagePreview('assets/images/services/restaurant.jpg');
+      const statusEl = document.getElementById('dishUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
       document.getElementById('dishIsAvailable').checked = true;
       document.getElementById('dishIsSpecial').checked = false;
 
@@ -1105,7 +1197,11 @@
       document.getElementById('dishRegionalName').value = dish.regional_name || '';
       document.getElementById('dishCategory').value = dish.category_slug;
       document.getElementById('dishDescription').value = dish.description || '';
-      document.getElementById('dishImage').value = dish.image || 'assets/images/services/restaurant.jpg';
+      const curImg = dish.image || 'assets/images/services/restaurant.jpg';
+      document.getElementById('dishImage').value = curImg;
+      updateDishImagePreview(curImg);
+      const statusEl = document.getElementById('dishUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
       document.getElementById('dishIsAvailable').checked = dish.is_available !== false;
       document.getElementById('dishIsSpecial').checked = dish.is_special === true;
 
@@ -1278,8 +1374,165 @@
       document.getElementById('setMinOrder').value = gSettings.min_order_amount || 100;
       document.getElementById('setPhone').value = gSettings.contact_phone || '9010515341';
       document.getElementById('setWhatsApp').value = gSettings.contact_whatsapp || '919010515341';
-      document.getElementById('setHeroImage').value = gSettings.hero_image || 'assets/images/services/restaurant.jpg';
+      const hero = gSettings.hero_image || 'assets/images/services/restaurant.jpg';
+      document.getElementById('setHeroImage').value = hero;
+      updateHeroImagePreview(hero);
       document.getElementById('setIsOpen').checked = gSettings.is_open !== false;
+    }
+
+    /* ----------------------------------------------------
+       FOOD DISH & BANNER IMAGE UPLOAD & PREVIEW LOGIC
+       ---------------------------------------------------- */
+    function updateDishImagePreview(url) {
+      const previewEl = document.getElementById('dishImagePreview');
+      if (!previewEl) return;
+      const clean = (url || '').trim();
+      if (clean) {
+        previewEl.src = typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(clean) : clean;
+      } else {
+        previewEl.src = '../assets/images/services/restaurant.jpg';
+      }
+    }
+
+    async function handleDishImageUpload(fileInput) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('dishUploadStatus');
+      const previewEl = document.getElementById('dishImagePreview');
+      const inputEl = document.getElementById('dishImage');
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Food photo is too large. Please select an image under 5 MB.');
+        fileInput.value = '';
+        return;
+      }
+
+      // Show instant preview
+      try {
+        previewEl.src = URL.createObjectURL(file);
+      } catch (e) { }
+
+      statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-warning me-1"></span><span class="text-muted small">Uploading photo...</span>';
+
+      try {
+        let uploadedUrl = null;
+        if (window.adminSupabase && typeof uploadAdminImage === 'function') {
+          try {
+            uploadedUrl = await uploadAdminImage(file, 'restaurant');
+          } catch (uploadErr) {
+            console.warn('Storage upload error, using Data URL fallback:', uploadErr);
+          }
+        }
+
+        if (uploadedUrl) {
+          inputEl.value = uploadedUrl;
+          previewEl.src = uploadedUrl;
+          statusEl.innerHTML = '<span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Photo Uploaded!</span>';
+          if (typeof showAdminToast === 'function') showAdminToast('Food dish photo uploaded successfully!', 'success');
+        } else {
+          // Read as Base64 Data URL so it is 100% saved into database/localStorage
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            const dataUrl = evt.target.result;
+            inputEl.value = dataUrl;
+            previewEl.src = dataUrl;
+            statusEl.innerHTML = '<span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Photo Attached!</span>';
+            if (typeof showAdminToast === 'function') showAdminToast('Food photo attached to dish!', 'success');
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        console.error('handleDishImageUpload error:', err);
+        statusEl.innerHTML = '<span class="text-danger small">Upload failed</span>';
+        alert('Failed to attach food photo: ' + (err.message || err));
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
+    function selectPresetDishImage(val) {
+      if (!val) return;
+      document.getElementById('dishImage').value = val;
+      updateDishImagePreview(val);
+      const statusEl = document.getElementById('dishUploadStatus');
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="text-success fw-semibold small"><i class="bi bi-check2 me-1"></i>Preset Selected</span>';
+      }
+    }
+
+    function resetDishImage() {
+      const defaultImg = 'assets/images/services/restaurant.jpg';
+      document.getElementById('dishImage').value = defaultImg;
+      updateDishImagePreview(defaultImg);
+      const statusEl = document.getElementById('dishUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
+    }
+
+    function updateHeroImagePreview(url) {
+      const previewEl = document.getElementById('setHeroImagePreview');
+      if (!previewEl) return;
+      const clean = (url || '').trim();
+      previewEl.src = clean ? (typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(clean) : clean) : '../assets/images/services/restaurant.jpg';
+    }
+
+    async function handleHeroBannerUpload(fileInput) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('setHeroUploadStatus');
+      const previewEl = document.getElementById('setHeroImagePreview');
+      const inputEl = document.getElementById('setHeroImage');
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Banner image is too large. Please select an image under 5 MB.');
+        fileInput.value = '';
+        return;
+      }
+
+      try {
+        previewEl.src = URL.createObjectURL(file);
+      } catch (e) { }
+
+      statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-warning me-1"></span><span class="text-muted small">Uploading...</span>';
+
+      try {
+        let uploadedUrl = null;
+        if (window.adminSupabase && typeof uploadAdminImage === 'function') {
+          try {
+            uploadedUrl = await uploadAdminImage(file, 'restaurant');
+          } catch (uploadErr) {
+            console.warn('Hero upload failed, falling back to base64:', uploadErr);
+          }
+        }
+
+        if (uploadedUrl) {
+          inputEl.value = uploadedUrl;
+          previewEl.src = uploadedUrl;
+          statusEl.innerHTML = '<span class="text-success fw-bold small">Uploaded!</span>';
+        } else {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            inputEl.value = evt.target.result;
+            previewEl.src = evt.target.result;
+            statusEl.innerHTML = '<span class="text-success fw-bold small">Attached!</span>';
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        console.error('handleHeroBannerUpload error:', err);
+        statusEl.innerHTML = '<span class="text-danger small">Failed</span>';
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
+    function resetHeroImage() {
+      const defaultBanner = 'assets/images/services/restaurant.jpg';
+      document.getElementById('setHeroImage').value = defaultBanner;
+      updateHeroImagePreview(defaultBanner);
+      const statusEl = document.getElementById('setHeroUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
     }
 
     async function saveRestaurantSettings(e) {

@@ -149,7 +149,7 @@
 
         drawerList.innerHTML = cart.map(item => `
           <div class="cart-drawer-item p-3 mb-2 rounded-3 border bg-white d-flex align-items-center justify-content-between gap-3 shadow-sm">
-            <img src="${item.image}" alt="${item.name}" class="rounded-2" style="width: 52px; height: 52px; object-fit: cover; border: 1px solid #E2D9CC;">
+            <img src="${item.image || 'assets/images/services/restaurant.jpg'}" alt="${item.name}" class="rounded-2" style="width: 52px; height: 52px; object-fit: cover; border: 1px solid #E2D9CC;" onerror="this.onerror=null;this.src='assets/images/services/restaurant.jpg';">
             <div class="flex-grow-1 min-w-0">
               <h6 class="mb-1 text-truncate text-maroon fw-bold" style="font-size: 0.95rem;">${item.name}</h6>
               <div class="text-muted small">₹${item.price} × ${item.quantity} = <strong class="text-dark">₹${(item.price * item.quantity).toLocaleString('en-IN')}</strong></div>
@@ -256,7 +256,7 @@
       <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden food-menu-card ${isUnavailable ? 'food-card-unavailable' : ''}">
           <div class="position-relative food-card-image-wrap">
-            <img src="${dish.image || 'assets/images/services/restaurant.jpg'}" alt="${dish.name}" class="card-img-top food-dish-img" loading="lazy">
+            <img src="${dish.image || 'assets/images/services/restaurant.jpg'}" alt="${dish.name}" class="card-img-top food-dish-img" loading="lazy" onerror="this.onerror=null;this.src='assets/images/services/restaurant.jpg';">
             <div class="food-badge-overlay d-flex justify-content-between align-items-center w-100 px-3 py-2">
               <span class="badge bg-success bg-opacity-90 text-white rounded-pill px-2 py-1 small">
                 <i class="bi bi-check-circle-fill me-1"></i> Pure Veg
