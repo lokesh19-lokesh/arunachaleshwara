@@ -105,6 +105,9 @@
                 onclick="setBookingCategory('service')">
                 <i class="bi bi-compass me-1 text-info"></i>Other Services
               </button>
+              <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-secondary fw-semibold">
+                <i class="bi bi-cup-hot-fill me-1 text-danger"></i>Food Orders &amp; Room Service
+              </a>
             </div>
           </div>
         </div>
@@ -178,6 +181,7 @@
                   </option>
                   <option value="bus-booking">🚌 Bus Ticket Booking (Hyderabad &amp; Vijayawada)</option>
                   <option value="bike-rentals">🛵 Bike Rentals (6 Hrs @ ₹300 / 12 Hrs @ ₹600)</option>
+                  <option value="food-order">🍛 Restaurant Food Order &amp; Room Service</option>
                   <option value="service">🗺️ Tour Packages &amp; Other Services</option>
                 </select>
               </div>
@@ -794,6 +798,14 @@
 
     function toggleWalkinBookingType() {
       const type = document.getElementById('wBookingType').value;
+
+      if (type === 'food-order') {
+        const modalEl = document.getElementById('newBookingModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        window.location.href = 'restaurant.html?tab=orders&action=newOrder';
+        return;
+      }
 
       const titles = {
         'accommodation': '<i class="bi bi-building-add me-2 text-warning"></i>Create Accommodation / Room Booking',

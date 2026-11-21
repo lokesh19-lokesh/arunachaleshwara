@@ -137,6 +137,9 @@
                   </button>
                 </div>
                 <div class="d-flex flex-wrap align-items-center gap-2">
+                  <button type="button" class="btn btn-sm btn-admin-yellow fw-bold shadow-sm" onclick="openCreateFoodOrderModal()">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Create Food Order
+                  </button>
                   <!-- Status Filter -->
                   <select id="filterOrderStatus" class="form-select form-select-sm" style="width: 170px;" onchange="renderOrdersTable()">
                     <option value="all">All Statuses</option>
@@ -538,6 +541,193 @@
     </div>
   </div>
 
+  <!-- CREATE FOOD ORDER MODAL (ADMIN POS & ROOM SERVICE) -->
+  <div class="modal fade" id="createFoodOrderModal" tabindex="-1" aria-labelledby="createFoodOrderModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #45120E 0%, #2A0B09 100%); border-bottom: 2px solid #FFC908;">
+          <div>
+            <h5 class="modal-title fw-bold text-white mb-0" id="createFoodOrderModalLabel" style="font-family: var(--ff-heading, 'Cinzel', serif); text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+              <i class="bi bi-cart-plus-fill text-warning me-2"></i>Create Food Order (Room Service &amp; Dine-in)
+            </h5>
+            <small class="text-white-50" style="color: rgba(255, 255, 255, 0.85) !important;">Direct kitchen order dispatch with instant real-time sync</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="adminFoodOrderForm" onsubmit="submitAdminFoodOrder(event)">
+            <div class="row g-3">
+
+              <!-- Customer & Fulfillment Section -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
+                  <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-person-fill text-gold me-1"></i> Guest &amp; Fulfillment Details</h6>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Customer / Devotee Name *</label>
+                      <input type="text" id="adminOrderCustName" class="form-control form-control-sm" placeholder="e.g. Ramesh Kumar" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Mobile / WhatsApp Number *</label>
+                      <input type="tel" id="adminOrderCustMobile" class="form-control form-control-sm" placeholder="e.g. 919010515341" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-bold">Fulfillment Type *</label>
+                      <select id="adminOrderFulfillment" class="form-select form-select-sm fw-semibold" onchange="toggleAdminFulfillmentType()">
+                        <option value="Room Service (Room Delivery)" selected>🏨 Room Service (Hotel Room Delivery)</option>
+                        <option value="Restaurant Dine-In">🍽️ Restaurant Dine-In (Table Service)</option>
+                        <option value="Takeaway / Pickup">🥡 Restaurant Pickup / Takeaway</option>
+                        <option value="Phone / External Delivery">🛵 Phone / External Delivery</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6" id="adminOrderRoomBox">
+                      <label class="form-label small fw-bold" id="adminOrderRoomLabel">Hotel Room Number *</label>
+                      <div class="input-group input-group-sm">
+                        <select id="adminOrderRoomSelect" class="form-select form-select-sm" onchange="syncAdminRoomInput(this.value)">
+                          <option value="Room 101" selected>Room 101 (Standard AC)</option>
+                          <option value="Room 102">Room 102 (Standard AC)</option>
+                          <option value="Room 103">Room 103 (Deluxe AC)</option>
+                          <option value="Room 104">Room 104 (Deluxe AC)</option>
+                          <option value="Room 105">Room 105 (Standard Non-AC)</option>
+                          <option value="Room 106">Room 106 (Standard Non-AC)</option>
+                          <option value="Room 107">Room 107 (Standard Non-AC)</option>
+                          <option value="Room 201">Room 201 (Family Suite AC)</option>
+                          <option value="Room 202">Room 202 (Family Suite AC)</option>
+                          <option value="Room 203">Room 203 (Triple Bed AC)</option>
+                          <option value="Room 204">Room 204 (Triple Bed AC)</option>
+                          <option value="Room 205">Room 205 (Standard AC)</option>
+                          <option value="Room 206">Room 206 (Standard AC)</option>
+                          <option value="Room 301">Room 301 (Grand Temple View Suite)</option>
+                          <option value="Room 302">Room 302 (Deluxe AC)</option>
+                          <option value="Room 303">Room 303 (Deluxe AC)</option>
+                          <option value="Room 304">Room 304 (Deluxe AC)</option>
+                          <option value="__custom__">Custom Room / Table...</option>
+                        </select>
+                        <input type="text" id="adminOrderRoomCustom" class="form-control form-control-sm d-none" placeholder="e.g. Room 205 or Table 4">
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-bold">Special Kitchen Instructions / Notes</label>
+                      <input type="text" id="adminOrderNotes" class="form-control form-control-sm" placeholder="e.g. Less spicy, extra sambar, hot filter coffee, deliver at 1:00 PM">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Menu Items Picker Section -->
+              <div class="col-12">
+                <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-maroon mb-0"><i class="bi bi-menu-button-wide-fill text-gold me-1"></i> Select Food Dishes</h6>
+                    <span class="badge bg-warning text-dark"><i class="bi bi-lightning-charge-fill me-1"></i>POS Fast Picker</span>
+                  </div>
+                  <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                      <label class="form-label small text-muted mb-1">Filter Category</label>
+                      <select id="adminOrderCatFilter" class="form-select form-select-sm" onchange="filterAdminOrderDishes(this.value)">
+                        <option value="all">All Menu Categories</option>
+                      </select>
+                    </div>
+                    <div class="col-md-5">
+                      <label class="form-label small text-muted mb-1">Select Food Item *</label>
+                      <select id="adminOrderDishSelect" class="form-select form-select-sm">
+                        <option value="">Choose dish from menu...</option>
+                      </select>
+                    </div>
+                    <div class="col-md-1 col-6">
+                      <label class="form-label small text-muted mb-1">Qty</label>
+                      <input type="number" id="adminOrderQtyInput" class="form-control form-control-sm text-center" value="1" min="1" max="50">
+                    </div>
+                    <div class="col-md-2 col-6">
+                      <button type="button" class="btn btn-sm btn-admin-yellow w-100 fw-bold" onclick="addDishToAdminOrder()">
+                        <i class="bi bi-plus-lg me-1"></i> Add Dish
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Order Items Table -->
+                  <div class="table-responsive border rounded-2 bg-white" style="max-height: 220px;">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                      <thead class="table-light sticky-top">
+                        <tr class="small text-muted">
+                          <th>Dish Name</th>
+                          <th style="width: 100px;">Rate</th>
+                          <th style="width: 130px;" class="text-center">Quantity</th>
+                          <th style="width: 110px;" class="text-end">Subtotal</th>
+                          <th style="width: 50px;" class="text-center"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminOrderItemsTableBody">
+                        <tr>
+                          <td colspan="5" class="text-center py-3 text-muted small">
+                            <i class="bi bi-basket me-1"></i> No dishes added yet. Select a dish above and click "Add Dish".
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Order Totals Box -->
+                  <div class="row g-2 justify-content-end align-items-center mt-2 pt-2 border-top">
+                    <div class="col-md-4 col-6 text-end">
+                      <span class="small text-muted">Items Subtotal:</span>
+                      <strong class="d-block text-maroon fs-6" id="adminOrderSubtotal">₹0</strong>
+                    </div>
+                    <div class="col-md-4 col-6 text-end">
+                      <span class="small text-muted">Delivery / Pkg (₹):</span>
+                      <input type="number" id="adminOrderDeliveryFee" class="form-control form-control-sm text-end d-inline-block ms-auto" value="0" min="0" step="10" style="width: 90px;" oninput="recalcAdminOrderTotal()">
+                    </div>
+                    <div class="col-md-4 col-12 text-end">
+                      <span class="small text-muted">Grand Total Payable:</span>
+                      <strong class="d-block text-success fs-5 fw-bold" id="adminOrderGrandTotal">₹0</strong>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Order Status & Payment -->
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Order Initial Status *</label>
+                <select id="adminOrderStatus" class="form-select form-select-sm">
+                  <option value="Accepted" selected>Accepted (Kitchen Preparing)</option>
+                  <option value="Preparing">Preparing in Kitchen</option>
+                  <option value="Ready for Pickup">Ready for Pickup / Dispatch</option>
+                  <option value="Out for Delivery">Out for Delivery</option>
+                  <option value="Delivered">Delivered &amp; Handed Over</option>
+                  <option value="New Order">New Order (Pending Review)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Payment Method &amp; Status *</label>
+                <select id="adminOrderPayment" class="form-select form-select-sm">
+                  <option value="Paid (Cash)" selected>💵 Paid in Cash</option>
+                  <option value="Paid (UPI / GPay)">📱 Paid via UPI / GPay / PhonePe</option>
+                  <option value="Bill to Room Folio">🏨 Bill to Room Folio (Pay at Checkout)</option>
+                  <option value="Pending at Delivery">⏳ Pending Payment on Delivery</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div class="modal-footer px-0 pb-0 mt-3 border-top-0 d-flex justify-content-between align-items-center">
+              <div class="small text-muted">
+                <i class="bi bi-broadcast text-success me-1"></i>Real-time Kitchen &amp; Customer Sync
+              </div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-light border" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" id="btnSubmitAdminFoodOrder" class="btn btn-sm btn-admin-yellow fw-bold px-3">
+                  <i class="bi bi-check-circle-fill me-1"></i> Create &amp; Dispatch Order
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -554,18 +744,25 @@
     let gCurrentOrder = null;
 
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Render Admin Sidebar & Header
-      if (typeof renderAdminSidebar === 'function') renderAdminSidebar('restaurant-menu');
-      if (typeof renderAdminHeader === 'function') renderAdminHeader('Restaurant & Food Orders', 'Menu Catalog, Kitchen Timings & Live Room Delivery');
-
       // Check URL params for direct tab selection (e.g. ?tab=orders)
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('tab') === 'orders') {
+      const isOrdersTab = urlParams.get('tab') === 'orders';
+
+      // 1. Render Admin Sidebar & Header
+      if (typeof renderAdminSidebar === 'function') renderAdminSidebar(isOrdersTab ? 'restaurant-orders' : 'restaurant-menu');
+      if (typeof renderAdminHeader === 'function') renderAdminHeader('Restaurant & Food Orders', 'Menu Catalog, Kitchen Timings & Live Room Delivery');
+
+      if (isOrdersTab) {
         const btn = document.getElementById('tabBtnOrders');
         if (btn && window.bootstrap) new bootstrap.Tab(btn).show();
       }
 
       await loadAllRestaurantData();
+
+      // If action=newOrder specified, automatically open Create Food Order modal
+      if (urlParams.get('action') === 'newOrder') {
+        setTimeout(openCreateFoodOrderModal, 350);
+      }
 
       // Real-Time Sync Subscription without reload
       if (window.ArnRealtimeSync) {
@@ -1110,6 +1307,287 @@
         showAdminToast('Restaurant profile & operational settings saved!', 'success');
       } else {
         alert('Restaurant profile saved successfully!');
+      }
+    }
+
+    /* ----------------------------------------------------
+       ADMIN FOOD ORDER CREATION (ROOM SERVICE & POS)
+       ---------------------------------------------------- */
+    let gAdminOrderItems = [];
+
+    function openCreateFoodOrderModal() {
+      const form = document.getElementById('adminFoodOrderForm');
+      if (form) form.reset();
+      gAdminOrderItems = [];
+
+      // Reset fulfillment type & room select
+      const fSelect = document.getElementById('adminOrderFulfillment');
+      if (fSelect) fSelect.value = 'Room Service (Room Delivery)';
+      toggleAdminFulfillmentType();
+
+      // Populate Category filter
+      const catFilter = document.getElementById('adminOrderCatFilter');
+      if (catFilter) {
+        catFilter.innerHTML = `<option value="all">All Menu Categories (${gMenuItems.length})</option>` +
+          gCategories.map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+      }
+
+      // Populate Dish dropdown
+      filterAdminOrderDishes('all');
+
+      // Reset Qty & Totals
+      document.getElementById('adminOrderQtyInput').value = 1;
+      document.getElementById('adminOrderDeliveryFee').value = 0;
+      renderAdminOrderItemsTable();
+
+      const modalEl = document.getElementById('createFoodOrderModal');
+      new bootstrap.Modal(modalEl).show();
+    }
+
+    function toggleAdminFulfillmentType() {
+      const type = document.getElementById('adminOrderFulfillment').value;
+      const roomBox = document.getElementById('adminOrderRoomBox');
+      const roomLabel = document.getElementById('adminOrderRoomLabel');
+      const roomSelect = document.getElementById('adminOrderRoomSelect');
+      const customInput = document.getElementById('adminOrderRoomCustom');
+
+      if (type === 'Room Service (Room Delivery)') {
+        roomBox.classList.remove('d-none');
+        roomLabel.textContent = 'Hotel Room Number *';
+        roomSelect.classList.remove('d-none');
+        customInput.classList.add('d-none');
+        if (!roomSelect.value) roomSelect.value = 'Room 101';
+      } else if (type === 'Restaurant Dine-In') {
+        roomBox.classList.remove('d-none');
+        roomLabel.textContent = 'Restaurant Table Number *';
+        roomSelect.classList.add('d-none');
+        customInput.classList.remove('d-none');
+        customInput.placeholder = 'e.g. Table 4 / Garden 2';
+        if (!customInput.value) customInput.value = 'Table 1';
+      } else {
+        roomBox.classList.add('d-none');
+      }
+    }
+
+    function syncAdminRoomInput(val) {
+      const customInput = document.getElementById('adminOrderRoomCustom');
+      if (val === '__custom__') {
+        customInput.classList.remove('d-none');
+        customInput.focus();
+      } else {
+        customInput.classList.add('d-none');
+      }
+    }
+
+    function filterAdminOrderDishes(catSlug) {
+      const dishSelect = document.getElementById('adminOrderDishSelect');
+      if (!dishSelect) return;
+
+      let items = gMenuItems.filter(m => m.is_available !== false);
+      if (catSlug && catSlug !== 'all') {
+        items = items.filter(m => m.category_slug === catSlug);
+      }
+
+      if (items.length === 0) {
+        dishSelect.innerHTML = `<option value="">No available dishes in this category</option>`;
+        return;
+      }
+
+      dishSelect.innerHTML = `<option value="">Select a dish from menu...</option>` +
+        items.map(m => `<option value="${m.id}" data-name="${m.name}" data-price="${m.price}" data-cat="${m.category_name || ''}">${m.name} — ₹${m.price}</option>`).join('');
+    }
+
+    function addDishToAdminOrder() {
+      const dishSelect = document.getElementById('adminOrderDishSelect');
+      const dishId = dishSelect.value;
+      if (!dishId) {
+        alert('Please select a food dish from the dropdown.');
+        return;
+      }
+
+      const opt = dishSelect.selectedOptions[0];
+      const name = opt.getAttribute('data-name');
+      const price = parseFloat(opt.getAttribute('data-price')) || 0;
+      const category = opt.getAttribute('data-cat') || '';
+      const qty = parseInt(document.getElementById('adminOrderQtyInput').value) || 1;
+
+      // Check if item already in order
+      const existing = gAdminOrderItems.find(it => String(it.id) === String(dishId));
+      if (existing) {
+        existing.quantity += qty;
+      } else {
+        gAdminOrderItems.push({
+          id: dishId,
+          name: name,
+          price: price,
+          quantity: qty,
+          category: category
+        });
+      }
+
+      renderAdminOrderItemsTable();
+      document.getElementById('adminOrderQtyInput').value = 1;
+      dishSelect.value = '';
+    }
+
+    function changeAdminOrderQty(index, delta) {
+      if (!gAdminOrderItems[index]) return;
+      gAdminOrderItems[index].quantity += delta;
+      if (gAdminOrderItems[index].quantity <= 0) {
+        gAdminOrderItems.splice(index, 1);
+      }
+      renderAdminOrderItemsTable();
+    }
+
+    function removeAdminOrderItem(index) {
+      gAdminOrderItems.splice(index, 1);
+      renderAdminOrderItemsTable();
+    }
+
+    function recalcAdminOrderTotal() {
+      const subtotal = gAdminOrderItems.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+      const fee = parseFloat(document.getElementById('adminOrderDeliveryFee').value) || 0;
+      const grandTotal = subtotal + fee;
+
+      document.getElementById('adminOrderSubtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+      document.getElementById('adminOrderGrandTotal').textContent = '₹' + grandTotal.toLocaleString('en-IN');
+    }
+
+    function renderAdminOrderItemsTable() {
+      const tbody = document.getElementById('adminOrderItemsTableBody');
+      if (!tbody) return;
+
+      if (gAdminOrderItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-3 text-muted small">
+              <i class="bi bi-basket me-1"></i> No dishes added yet. Select a dish above and click "Add Dish".
+            </td>
+          </tr>
+        `;
+        recalcAdminOrderTotal();
+        return;
+      }
+
+      tbody.innerHTML = gAdminOrderItems.map((it, idx) => {
+        const itemTotal = it.price * it.quantity;
+        return `
+          <tr>
+            <td>
+              <strong class="text-maroon small">${it.name}</strong>
+              <small class="d-block text-muted" style="font-size: 0.72rem;">${it.category || 'Pure Veg'}</small>
+            </td>
+            <td class="small">₹${it.price}</td>
+            <td class="text-center">
+              <div class="input-group input-group-sm justify-content-center" style="width: 100px; margin: 0 auto;">
+                <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="changeAdminOrderQty(${idx}, -1)">-</button>
+                <span class="input-group-text py-0 px-2 bg-white fw-bold">${it.quantity}</span>
+                <button type="button" class="btn btn-outline-secondary py-0 px-2" onclick="changeAdminOrderQty(${idx}, 1)">+</button>
+              </div>
+            </td>
+            <td class="text-end small fw-bold text-dark">₹${itemTotal.toLocaleString('en-IN')}</td>
+            <td class="text-center">
+              <button type="button" class="btn btn-link text-danger p-0" onclick="removeAdminOrderItem(${idx})" title="Remove item">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      recalcAdminOrderTotal();
+    }
+
+    async function submitAdminFoodOrder(e) {
+      e.preventDefault();
+
+      if (gAdminOrderItems.length === 0) {
+        alert('Please add at least one food dish to the order before submitting.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitAdminFoodOrder');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Creating Order...';
+
+      try {
+        const custName = document.getElementById('adminOrderCustName').value.trim();
+        const mobile = document.getElementById('adminOrderCustMobile').value.trim();
+        const fulfillmentType = document.getElementById('adminOrderFulfillment').value;
+
+        let roomOrTable = '';
+        if (fulfillmentType === 'Room Service (Room Delivery)') {
+          const rSelect = document.getElementById('adminOrderRoomSelect').value;
+          roomOrTable = rSelect === '__custom__' ? document.getElementById('adminOrderRoomCustom').value.trim() : rSelect;
+        } else if (fulfillmentType === 'Restaurant Dine-In') {
+          roomOrTable = document.getElementById('adminOrderRoomCustom').value.trim() || 'Table 1';
+        }
+
+        const notes = document.getElementById('adminOrderNotes').value.trim();
+        const initialStatus = document.getElementById('adminOrderStatus').value;
+        const paymentMethod = document.getElementById('adminOrderPayment').value;
+
+        const subtotal = gAdminOrderItems.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+        const deliveryFee = parseFloat(document.getElementById('adminOrderDeliveryFee').value) || 0;
+        const totalAmount = subtotal + deliveryFee;
+
+        const orderData = {
+          customerName: custName,
+          mobile: mobile,
+          fulfillmentType: fulfillmentType,
+          roomNumber: roomOrTable,
+          deliveryAddress: roomOrTable ? `${fulfillmentType}: ${roomOrTable}` : fulfillmentType,
+          specialInstructions: notes,
+          subtotal: subtotal,
+          deliveryFee: deliveryFee,
+          totalAmount: totalAmount,
+          status: initialStatus,
+          paymentStatus: paymentMethod,
+          items: gAdminOrderItems.map(it => ({
+            name: it.name,
+            price: it.price,
+            quantity: it.quantity,
+            category: it.category
+          }))
+        };
+
+        let result = null;
+        if (typeof submitFoodOrderToSupabase === 'function') {
+          result = await submitFoodOrderToSupabase(orderData);
+        } else {
+          // Local fallback
+          const orderId = `ARN-FOOD-2026-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+          const orderRecord = { ...orderData, order_id: orderId, created_at: new Date().toISOString() };
+          const raw = localStorage.getItem('arn_food_orders');
+          const orders = raw ? JSON.parse(raw) : [];
+          orders.unshift(orderRecord);
+          localStorage.setItem('arn_food_orders', JSON.stringify(orders));
+          result = { success: true, orderId: orderId, data: orderRecord };
+        }
+
+        const modalEl = document.getElementById('createFoodOrderModal');
+        const bsModal = bootstrap.Modal.getInstance(modalEl);
+        if (bsModal) bsModal.hide();
+
+        // Refresh orders & KPIs
+        await loadFoodOrders();
+
+        // Play chime & notification
+        if (window.ArnRealtimeSync && typeof window.ArnRealtimeSync.playNotificationChime === 'function') {
+          window.ArnRealtimeSync.playNotificationChime('order');
+        }
+
+        if (typeof showAdminToast === 'function') {
+          showAdminToast(`Food Order ${result.orderId || ''} created successfully!`, 'success');
+        } else {
+          alert(`Food Order ${result.orderId || ''} created successfully!`);
+        }
+      } catch (err) {
+        console.error('submitAdminFoodOrder error:', err);
+        alert('Error creating food order: ' + (err.message || err));
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Create &amp; Dispatch Order';
       }
     }
 
