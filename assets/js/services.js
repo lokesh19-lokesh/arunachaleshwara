@@ -223,7 +223,7 @@ let SERVICES_DATA = [
   }
 ];
 
-const RESTAURANT_CORE_SERVICE = {
+var RESTAURANT_CORE_SERVICE = (typeof window !== 'undefined' && window.RESTAURANT_CORE_SERVICE) ? window.RESTAURANT_CORE_SERVICE : {
   id: 'restaurant',
   title: 'Restaurant',
   icon: 'bi-cup-hot-fill',
@@ -248,6 +248,7 @@ const RESTAURANT_CORE_SERVICE = {
     'assets/images/gallery/Accommodation2.jpg'
   ]
 };
+if (typeof window !== 'undefined') window.RESTAURANT_CORE_SERVICE = RESTAURANT_CORE_SERVICE;
 
 /**
  * Render a service card (used on homepage & services page)

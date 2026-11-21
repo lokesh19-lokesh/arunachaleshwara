@@ -19,7 +19,7 @@ if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.c
   }
 }
 
-const RESTAURANT_CORE_SERVICE = {
+var RESTAURANT_CORE_SERVICE = (typeof window !== 'undefined' && window.RESTAURANT_CORE_SERVICE) ? window.RESTAURANT_CORE_SERVICE : {
   id: 'restaurant',
   title: 'Restaurant',
   category: 'Dining & Food',
@@ -45,6 +45,7 @@ const RESTAURANT_CORE_SERVICE = {
     'assets/images/gallery/Accommodation2.jpg'
   ]
 };
+if (typeof window !== 'undefined') window.RESTAURANT_CORE_SERVICE = RESTAURANT_CORE_SERVICE;
 
 function getPublicCache(key) {
   try {
