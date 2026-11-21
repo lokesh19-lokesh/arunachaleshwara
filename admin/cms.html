@@ -3,15 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://zifacvpvdrsylgijtfti.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <title>Website CMS – Arunachaleshwara Admin</title>
+  <title>Website CMS &amp; Media – Arunachaleshwara Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/admin.css">
+  <style>
+    .gallery-thumb-cell {
+      width: 76px;
+      height: 56px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease;
+    }
+    .gallery-thumb-cell:hover {
+      transform: scale(1.6);
+      z-index: 10;
+      position: relative;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }
+    .ratio-pill {
+      font-size: 0.72rem;
+      letter-spacing: 0.3px;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+    .guide-ratio-box {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .guide-ratio-box:hover {
+      border-color: #FFC908;
+      box-shadow: 0 2px 8px rgba(255, 201, 8, 0.2);
+    }
+    .preview-canvas-box {
+      border: 2px dashed #FFC908;
+      background: #FFF9EF;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+  </style>
 </head>
 <body class="admin-body">
   <div class="admin-wrapper">
@@ -19,75 +63,204 @@
     <main class="admin-main">
       <header class="admin-header" id="adminHeader"></header>
       <div class="admin-content">
-        <div class="row g-4">
-          <!-- Site Info & Contact Settings -->
-          <div class="col-lg-6">
-            <div class="admin-card h-100">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-building text-warning"></i> Business & Contact Information</h6>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="cmsTabs">
+          <li class="nav-item">
+            <button class="nav-link active fw-bold text-dark" id="tabGalleryBtn" data-bs-toggle="tab" data-bs-target="#galleryTab">
+              <i class="bi bi-images text-warning me-1"></i> Photo &amp; Media Gallery (<span id="galleryCountTab">22</span>)
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabPopupBtn" data-bs-toggle="tab" data-bs-target="#popupTab">
+              <i class="bi bi-window-stack text-warning me-1"></i> Welcome Popup Banner
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabSiteInfoBtn" data-bs-toggle="tab" data-bs-target="#siteInfoTab">
+              <i class="bi bi-building text-warning me-1"></i> Business &amp; Contact Info
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabInvoiceBtn" data-bs-toggle="tab" data-bs-target="#invoiceTab">
+              <i class="bi bi-receipt text-warning me-1"></i> Invoice Branding &amp; Terms
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- ============================================================
+               TAB 1: DYNAMIC PHOTO & MEDIA GALLERY MANAGEMENT
+               ============================================================ -->
+          <div class="tab-pane fade show active" id="galleryTab">
+            <!-- Stats KPI Row -->
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Total Photos</h6>
+                    <div class="admin-stat-number text-maroon" id="kpiGalleryTotal">22</div>
+                    <div class="admin-stat-sub">Across all 5 categories</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-images"></i></div>
+                </div>
               </div>
-              <div class="admin-card-body">
-                <form id="siteInfoForm">
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Website / Brand Name</label>
-                    <input type="text" id="cmsName" class="form-control">
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card green">
+                  <div class="admin-stat-info">
+                    <h6>Live on Website</h6>
+                    <div class="admin-stat-number text-success" id="kpiGalleryActive">22</div>
+                    <div class="admin-stat-sub">Visible to devotees &amp; travelers</div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Tagline</label>
-                    <input type="text" id="cmsTagline" class="form-control">
+                  <div class="admin-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card">
+                  <div class="admin-stat-info">
+                    <h6>Categories</h6>
+                    <div class="admin-stat-number text-warning" id="kpiGalleryCats">5</div>
+                    <div class="admin-stat-sub">Temples, Travel, Rooms, Fleet, Yatra</div>
                   </div>
-                  <div class="row g-2 mb-3">
-                    <div class="col-6">
-                      <label class="form-label small fw-bold">Primary Phone</label>
-                      <input type="text" id="cmsPhone" class="form-control">
+                  <div class="admin-stat-icon"><i class="bi bi-collection-fill"></i></div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-3">
+                <div class="admin-stat-card blue">
+                  <div class="admin-stat-info">
+                    <h6>Database Sync</h6>
+                    <div class="admin-stat-number text-primary" style="font-size: 1.25rem;">Live Active</div>
+                    <div class="admin-stat-sub">Supabase Storage + Local Cache</div>
+                  </div>
+                  <div class="admin-stat-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prominent Image Size & Aspect Ratio Guidelines Card -->
+            <div class="alert alert-warning border border-warning-subtle shadow-sm rounded-3 p-3 mb-4" style="background:#FFF9EF; color:#45120E;">
+              <div class="d-flex align-items-start gap-3">
+                <div class="rounded-circle p-2 bg-warning-subtle text-warning flex-shrink-0">
+                  <i class="bi bi-aspect-ratio fs-4"></i>
+                </div>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+                    <h6 class="fw-bold mb-0 text-maroon"><i class="bi bi-info-circle-fill text-warning me-1"></i> Upload Specifications: Recommended Image Size &amp; Aspect Ratio Guide</h6>
+                    <span class="badge bg-warning text-dark"><i class="bi bi-shield-check me-1"></i>Auto Dimension Detector Active</span>
+                  </div>
+                  <p class="small mb-2 text-muted">
+                    To keep all gallery cards aligned, fast-loading, and crystal-clear on both mobile phones and desktops, please follow the recommended dimensions and ratios when uploading photos:
+                  </p>
+                  <div class="row g-2">
+                    <div class="col-md-6 col-lg-3">
+                      <div class="guide-ratio-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <strong class="small text-dark"><i class="bi bi-car-front-fill text-warning me-1"></i> Vehicles &amp; Fleet</strong>
+                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle ratio-pill">Ratio: 4:3</span>
+                        </div>
+                        <div class="small text-muted">Optimal: <strong>1200 × 900 px</strong></div>
+                        <div class="small text-muted">Standard: <strong>800 × 600 px</strong> (Landscape)</div>
+                      </div>
                     </div>
-                    <div class="col-6">
-                      <label class="form-label small fw-bold">WhatsApp Number</label>
-                      <input type="text" id="cmsWhatsapp" class="form-control">
+                    <div class="col-md-6 col-lg-3">
+                      <div class="guide-ratio-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <strong class="small text-dark"><i class="bi bi-flower1 text-danger me-1"></i> Temple Idols &amp; Sanctum</strong>
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle ratio-pill">Ratio: 3:4</span>
+                        </div>
+                        <div class="small text-muted">Optimal: <strong>900 × 1200 px</strong></div>
+                        <div class="small text-muted">Standard: <strong>600 × 800 px</strong> (Portrait)</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                      <div class="guide-ratio-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <strong class="small text-dark"><i class="bi bi-house-door-fill text-success me-1"></i> Accommodation Rooms</strong>
+                          <span class="badge bg-success-subtle text-success border border-success-subtle ratio-pill">Ratio: 4:3</span>
+                        </div>
+                        <div class="small text-muted">Optimal: <strong>1200 × 900 px</strong></div>
+                        <div class="small text-muted">Standard: <strong>800 × 600 px</strong> (Landscape)</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                      <div class="guide-ratio-box h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <strong class="small text-dark"><i class="bi bi-map-fill text-info me-1"></i> Travel &amp; Festivals</strong>
+                          <span class="badge bg-info-subtle text-info border border-info-subtle ratio-pill">Ratio: 4:3 or 16:9</span>
+                        </div>
+                        <div class="small text-muted">Optimal: <strong>1200 × 900 px</strong> / 1920×1080 px</div>
+                        <div class="small text-muted">Format: <strong>JPG, PNG, WebP</strong> (&lt; 5 MB)</div>
+                      </div>
                     </div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Email Address</label>
-                    <input type="email" id="cmsEmail" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <!-- Gallery Management Card -->
+            <div class="admin-card mb-4">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-images text-warning me-1"></i> Dynamic Photo &amp; Media Gallery</h6>
+                  <small class="text-muted">Add, replace, caption, or reorder photos appearing on <a href="../gallery.html" target="_blank" class="text-primary text-decoration-none fw-semibold">gallery.html <i class="bi bi-box-arrow-up-right"></i></a> and the homepage showcase.</small>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetGalleryToDefaults()" title="Restore the 22 authentic photography records">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset to Defaults
+                  </button>
+                  <button type="button" class="btn btn-admin-yellow btn-sm" onclick="openGalleryModal()">
+                    <i class="bi bi-plus-lg me-1"></i> Add New Gallery Photo
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filter Pills & Search Bar -->
+              <div class="p-3 border-bottom bg-light">
+                <div class="row g-2 align-items-center justify-content-between">
+                  <div class="col-12 col-md-auto">
+                    <div class="btn-group btn-group-sm flex-wrap" role="group" id="galleryCategoryFilterGroup">
+                      <button type="button" class="btn btn-outline-dark active" onclick="filterGalleryCategory('all', this)">All Photos (<span id="badgeFilterAll">22</span>)</button>
+                      <button type="button" class="btn btn-outline-dark" onclick="filterGalleryCategory('temples', this)"><i class="bi bi-flower1 text-danger me-1"></i>Temple (<span id="badgeFilterTemples">9</span>)</button>
+                      <button type="button" class="btn btn-outline-dark" onclick="filterGalleryCategory('travel', this)"><i class="bi bi-map text-primary me-1"></i>Travel (<span id="badgeFilterTravel">2</span>)</button>
+                      <button type="button" class="btn btn-outline-dark" onclick="filterGalleryCategory('accommodation', this)"><i class="bi bi-house-door text-success me-1"></i>Stay (<span id="badgeFilterAcc">2</span>)</button>
+                      <button type="button" class="btn btn-outline-dark" onclick="filterGalleryCategory('vehicles', this)"><i class="bi bi-car-front text-warning me-1"></i>Vehicles (<span id="badgeFilterVehicles">4</span>)</button>
+                      <button type="button" class="btn btn-outline-dark" onclick="filterGalleryCategory('pilgrimage', this)"><i class="bi bi-compass text-info me-1"></i>Yatra (<span id="badgeFilterPilgrimage">5</span>)</button>
+                    </div>
                   </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Office Address</label>
-                    <textarea id="cmsAddress" class="form-control" rows="2"></textarea>
+                  <div class="col-12 col-md-4 col-lg-3">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                      <input type="text" id="gallerySearchInput" class="form-control" placeholder="Search title or caption..." oninput="handleGallerySearch(this.value)">
+                    </div>
                   </div>
-                  <button type="submit" class="btn btn-admin-primary"><i class="bi bi-save me-1"></i> Save Site Details</button>
-                </form>
+                </div>
+              </div>
+
+              <!-- Photos Table -->
+              <div class="table-responsive">
+                <table class="table admin-table mb-0 align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 90px;">Photo</th>
+                      <th>Title &amp; Category</th>
+                      <th>Caption / Description</th>
+                      <th style="width: 80px;" class="text-center">Order</th>
+                      <th style="width: 100px;">Status</th>
+                      <th style="width: 130px;" class="text-end">Quick Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="galleryTableBody">
+                    <tr><td colspan="6" class="text-center py-4 text-muted">Loading gallery items...</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
 
-          <!-- Invoice Header & Legal Terms -->
-          <div class="col-lg-6">
-            <div class="admin-card h-100">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-receipt text-warning"></i> Invoice Branding & Terms</h6>
-              </div>
-              <div class="admin-card-body">
-                <form id="invoiceSettingsForm">
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Organisation Name (on PDF)</label>
-                    <input type="text" id="invOrgName" class="form-control">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">GSTIN (Leave blank if not GST registered)</label>
-                    <input type="text" id="invGstin" class="form-control" placeholder="Optional verified GSTIN">
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label small fw-bold">Invoice Footer Terms & Policies</label>
-                    <textarea id="invTerms" class="form-control" rows="5"></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-admin-yellow"><i class="bi bi-save me-1"></i> Save Invoice Settings</button>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <!-- Welcome Popup Banner Settings -->
-          <div class="col-12">
+          <!-- ============================================================
+               TAB 2: HOMEPAGE WELCOME POPUP BANNER
+               ============================================================ -->
+          <div class="tab-pane fade" id="popupTab">
             <div class="admin-card">
               <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div class="d-flex align-items-center gap-2">
@@ -126,7 +299,6 @@
 
                     <!-- Controls Column -->
                     <div class="col-lg-7">
-                      <!-- Aspect Ratio Guide Notice -->
                       <div class="alert alert-warning py-2 px-3 mb-3 d-flex align-items-start gap-2 rounded-3" style="background-color: #FFF9EF; border-color: #FFC908; color: #45120E;">
                         <i class="bi bi-info-circle-fill fs-5 text-warning flex-shrink-0 mt-1"></i>
                         <div class="small">
@@ -134,12 +306,11 @@
                           <ul class="mb-0 ps-3 mt-1">
                             <li><strong>Aspect Ratio:</strong> Exactly <strong>3:2 (Landscape)</strong> (1.5:1 width-to-height ratio).</li>
                             <li><strong>Optimal Dimensions:</strong> <strong>1536 × 1024 px</strong> (High Resolution) or <strong>1200 × 800 px</strong>.</li>
-                            <li><strong>Supported Formats:</strong> PNG, JPG, or WebP. Keep file size under <strong>2 MB</strong> for smooth website loading.</li>
+                            <li><strong>Supported Formats:</strong> PNG, JPG, or WebP. Keep file size under <strong>2 MB</strong> for smooth loading.</li>
                           </ul>
                         </div>
                       </div>
 
-                      <!-- Image Upload & URL -->
                       <div class="mb-3">
                         <label class="form-label small fw-bold">Banner Image File or URL</label>
                         <div class="d-flex flex-wrap gap-2 mb-2">
@@ -155,13 +326,11 @@
                         <div id="popupUploadStatus" class="small mt-1"></div>
                       </div>
 
-                      <!-- Alt Text -->
                       <div class="mb-3">
                         <label class="form-label small fw-bold">Accessibility Title / Alt Text</label>
                         <input type="text" id="popupAltText" class="form-control form-control-sm" placeholder="Welcome to Arunachaleshwara Tours &amp; Travels – Your Spiritual Journey Begins Here.">
                       </div>
 
-                      <!-- Optional Link -->
                       <div class="mb-3">
                         <label class="form-label small fw-bold">Click Action / Destination URL (Optional)</label>
                         <input type="text" id="popupLinkUrl" class="form-control form-control-sm" placeholder="e.g. tour-packages.html or https://wa.me/919010515341 (leave blank for view-only)">
@@ -177,9 +346,190 @@
               </div>
             </div>
           </div>
+
+          <!-- ============================================================
+               TAB 3: BUSINESS & CONTACT INFORMATION
+               ============================================================ -->
+          <div class="tab-pane fade" id="siteInfoTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-building text-warning"></i> Business &amp; Contact Information</h6>
+              </div>
+              <div class="admin-card-body">
+                <form id="siteInfoForm" style="max-width: 680px;">
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Website / Brand Name</label>
+                    <input type="text" id="cmsName" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Tagline</label>
+                    <input type="text" id="cmsTagline" class="form-control">
+                  </div>
+                  <div class="row g-2 mb-3">
+                    <div class="col-6">
+                      <label class="form-label small fw-bold">Primary Phone</label>
+                      <input type="text" id="cmsPhone" class="form-control">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small fw-bold">WhatsApp Number</label>
+                      <input type="text" id="cmsWhatsapp" class="form-control">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Email Address</label>
+                    <input type="email" id="cmsEmail" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Office Address</label>
+                    <textarea id="cmsAddress" class="form-control" rows="3"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-admin-primary"><i class="bi bi-save me-1"></i> Save Site Details</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================
+               TAB 4: INVOICE BRANDING & TERMS
+               ============================================================ -->
+          <div class="tab-pane fade" id="invoiceTab">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h6 class="admin-card-title"><i class="bi bi-receipt text-warning"></i> Invoice Branding &amp; Terms</h6>
+              </div>
+              <div class="admin-card-body">
+                <form id="invoiceSettingsForm" style="max-width: 680px;">
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Organisation Name (on PDF)</label>
+                    <input type="text" id="invOrgName" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">GSTIN (Leave blank if not GST registered)</label>
+                    <input type="text" id="invGstin" class="form-control" placeholder="Optional verified GSTIN">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label small fw-bold">Invoice Footer Terms &amp; Policies</label>
+                    <textarea id="invTerms" class="form-control" rows="5"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-admin-yellow"><i class="bi bi-save me-1"></i> Save Invoice Settings</button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
     </main>
+  </div>
+
+  <!-- ============================================================
+       MODAL: ADD / EDIT GALLERY PHOTO (WITH SIZE & RATIO DETECTOR)
+       ============================================================ -->
+  <div class="modal fade" id="galleryPhotoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form id="galleryPhotoForm">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title fw-bold" id="galleryModalTitle"><i class="bi bi-image text-warning me-2"></i>Add New Gallery Photo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="editPhotoId" value="">
+
+            <!-- Ratio Guide Box inside modal -->
+            <div class="alert alert-light border border-warning-subtle p-3 mb-3 rounded-3" style="background:#FFFDF7;">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <strong class="text-maroon small"><i class="bi bi-rulers me-1 text-warning"></i> Recommended Image Size &amp; Aspect Ratio:</strong>
+                <span id="modalRatioHintBadge" class="badge bg-warning text-dark">Recommended: 4:3 (Landscape)</span>
+              </div>
+              <div class="small text-muted" id="modalRatioHintText">
+                • <strong>Vehicles, Rooms &amp; Travel:</strong> <strong>4:3 (Landscape)</strong> — Optimal: <strong>1200 × 900 px</strong> (Min: 800 × 600 px)<br>
+                • <strong>Temple Idols &amp; Sanctums:</strong> <strong>3:4 (Portrait)</strong> — Optimal: <strong>900 × 1200 px</strong> (Min: 600 × 800 px)<br>
+                • <strong>Formats:</strong> JPG, PNG, WebP • Maximum file size: <strong>5 MB</strong> (optimal &lt; 800 KB)
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Primary Category *</label>
+                <select id="photoCategory" class="form-select" onchange="onModalCategoryChanged()" required>
+                  <option value="temples">Temple &amp; Darshan (temples)</option>
+                  <option value="travel">Travel Gallery &amp; Girivalam (travel)</option>
+                  <option value="accommodation">Accommodation &amp; Rooms (accommodation)</option>
+                  <option value="vehicles" selected>Vehicles &amp; Fleet (vehicles)</option>
+                  <option value="pilgrimage">Pilgrimage Experiences &amp; Festivals (pilgrimage)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Category Badge Label *</label>
+                <input type="text" id="photoCategoryLabel" class="form-control" placeholder="e.g. Group Fleet, Temple Darshan, Resort Stay" required>
+              </div>
+
+              <div class="col-md-9">
+                <label class="form-label small fw-bold">Photo Title *</label>
+                <input type="text" id="photoTitle" class="form-control" placeholder="e.g. Maruti Suzuki Ertiga AC Cab Fleet" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Display Order (#)</label>
+                <input type="number" id="photoOrder" class="form-control" value="1" min="1" max="999">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Photo Caption / Description *</label>
+                <textarea id="photoDesc" class="form-control" rows="2" placeholder="Brief descriptive caption shown below the photo in the gallery." required></textarea>
+              </div>
+
+              <!-- Upload & Live Preview Section -->
+              <div class="col-12">
+                <label class="form-label small fw-bold">Photo Image File &amp; URL *</label>
+                <div class="row g-3 align-items-center">
+                  <div class="col-md-7">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                      <label class="btn btn-admin-yellow btn-sm text-nowrap m-0 d-inline-flex align-items-center">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Choose Image File to Upload
+                        <input type="file" id="photoFileInput" accept="image/png,image/jpeg,image/webp" style="display: none;" onchange="handleGalleryPhotoUpload(this)">
+                      </label>
+                    </div>
+                    <input type="text" id="photoImageUrl" class="form-control form-control-sm font-monospace mb-1" placeholder="assets/images/services/... or Supabase storage URL" oninput="updateModalPhotoPreview(this.value)" required>
+                    <div id="photoUploadStatus" class="small mt-1"></div>
+                  </div>
+
+                  <!-- Live Preview with Dimensions and Aspect Ratio -->
+                  <div class="col-md-5">
+                    <div class="preview-canvas-box">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-bold text-muted">Preview</span>
+                        <span id="detectedRatioBadge" class="badge bg-secondary">Ratio: Detecting...</span>
+                      </div>
+                      <div class="position-relative d-inline-block w-100" style="max-height: 140px; overflow: hidden; border-radius: 6px;">
+                        <img id="photoImagePreview" src="../assets/images/popup.png" alt="Photo Preview"
+                             style="max-height: 140px; width: 100%; object-fit: contain; background: #FFF9EF; display: block; border-radius: 6px;">
+                      </div>
+                      <div class="small fw-semibold mt-1" id="detectedDimensionsLabel" style="font-size: 0.78rem;">
+                        Select an image to detect size &amp; ratio
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="photoActive" checked>
+                  <label class="form-check-label small fw-bold" for="photoActive">Photo Active &amp; Visible in Gallery</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-admin-yellow fw-bold" id="savePhotoBtn">
+              <i class="bi bi-check-lg me-1"></i> Save Gallery Photo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -187,16 +537,528 @@
   <script src="assets/js/admin-auth.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script>
+    // Authentic Master Default Photos (matches gallery.js)
+    const DEFAULT_GALLERY_PHOTOS = [
+      { id: 1, category: 'temples', categoryLabel: 'Temple & Darshan', categories: ['temples', 'pilgrimage'], title: 'Arulmigu Arunachaleswarar & Unnamalaiamman', description: 'Divine deity darshan of Lord Shiva & Goddess Parvati with the eternal Arunachala Jyoti.', image: 'assets/images/gallery/g1.jpg', order_num: 1, is_active: true },
+      { id: 2, category: 'temples', categoryLabel: 'Temple Darshan', categories: ['temples', 'pilgrimage'], title: 'Sacred Shiva Lingam with Deepams', description: 'Divinely adorned Lingam surrounded by traditional brass lamps, vibhuti, and garlands.', image: 'assets/images/gallery/g2.jpg', order_num: 2, is_active: true },
+      { id: 3, category: 'temples', categoryLabel: 'Sanctum Sanctorum', categories: ['temples'], title: 'Thiru Annamalaiyar Sannadhi', description: 'Sacred sanctum entrance of Lord Arunachaleswarar dating back over a thousand years.', image: 'assets/images/gallery/g3.jpg', order_num: 3, is_active: true },
+      { id: 4, category: 'temples', categoryLabel: 'Historic Heritage', categories: ['temples', 'travel'], title: 'Historic Panorama of Arunachaleswarar Temple', description: 'Majestic bird’s-eye perspective of the 8 Gopurams nestled beneath sacred Mount Arunachala.', image: 'assets/images/gallery/g5.jpg', order_num: 4, is_active: true },
+      { id: 5, category: 'temples', categoryLabel: 'Temple Architecture', categories: ['temples'], title: 'Ancient Shiva-Parvati Granite Relief', description: 'Masterfully sculpted Chola-period stone relief within the temple inner prakaram.', image: 'assets/images/gallery/g7.jpg', order_num: 5, is_active: true },
+      { id: 6, category: 'temples', categoryLabel: 'Sacred Theertham', categories: ['temples', 'travel'], title: 'Brahma Theertham & Rajagopuram Reflection', description: 'The sacred temple tank mirroring the towering 217-foot Eastern Rajagopuram.', image: 'assets/images/gallery/g8.jpg', order_num: 6, is_active: true },
+      { id: 7, category: 'temples', categoryLabel: 'Dawn Darshan', categories: ['temples', 'travel'], title: 'Misty Golden Dawn over Rajagopuram', description: 'Breathtaking sunrise casting a golden spiritual aura over the temple towers.', image: 'assets/images/gallery/g11.jpg', order_num: 7, is_active: true },
+      { id: 8, category: 'temples', categoryLabel: 'Murugan Sannadhi', categories: ['temples'], title: 'Lord Murugan Sanctum with Floral Alankaram', description: 'Sacred shrine of Lord Shanmuga adorned with fresh auspicious flower garlands and deepams.', image: 'assets/images/gallery/g12.jpg', order_num: 8, is_active: true },
+      { id: 9, category: 'temples', categoryLabel: 'Temple & Hill', categories: ['temples', 'travel'], title: 'Arunachaleshwara Temple & Sacred Hill', description: 'The holy hill of Arunachala and the magnificent temple complex.', image: 'assets/images/popup.png', order_num: 9, is_active: true },
+      { id: 10, category: 'travel', categoryLabel: 'Travel Guide', categories: ['travel', 'pilgrimage'], title: 'Girivalam 14 KM Route & Ashta Lingam Guide', description: 'Official route map displaying the 8 Lingams, ashrams, and distance markers along the path.', image: 'assets/images/gallery/travel1.jpg', order_num: 10, is_active: true },
+      { id: 11, category: 'travel', categoryLabel: 'City Landmark', categories: ['travel'], title: 'Namma Tiruvannamalai Welcome Monument', description: 'Iconic civic landmark welcoming thousands of pilgrims entering the holy city.', image: 'assets/images/gallery/g10.jpg', order_num: 11, is_active: true },
+      { id: 12, category: 'accommodation', categoryLabel: 'Accommodation', categories: ['accommodation'], title: 'Premium Pilgrim Guest Villa', description: 'Modern, peaceful 2-story residence offering sanitized, comfortable family rooms in Tiruvannamalai.', image: 'assets/images/gallery/Accommodation1.jpeg', order_num: 12, is_active: true },
+      { id: 13, category: 'accommodation', categoryLabel: 'Resort Stay', categories: ['accommodation', 'travel'], title: 'Peaceful Heritage Ashram Cottage Stay', description: 'Serene courtyard cottages surrounded by lush greenery, walking distance from Ramanasramam.', image: 'assets/images/gallery/Accommodation2.jpg', order_num: 13, is_active: true },
+      { id: 14, category: 'vehicles', categoryLabel: 'Group Fleet', categories: ['vehicles', 'travel'], title: 'Luxury AC Bus for Group Pilgrimages', description: 'Spacious, push-back AC tourist coach for family get-togethers and pilgrim groups.', image: 'assets/images/gallery/Vehicles1.jpg', order_num: 14, is_active: true },
+      { id: 15, category: 'vehicles', categoryLabel: 'Local Darshan', categories: ['vehicles'], title: 'Dedicated Auto Fleet for Local Darshan', description: 'Reliable, courteous auto rickshaws for door-to-door temple visits and elder passenger support.', image: 'assets/images/gallery/Vehicles2.jpg', order_num: 15, is_active: true },
+      { id: 16, category: 'vehicles', categoryLabel: 'Tour Vehicle', categories: ['vehicles', 'travel'], title: 'Open Mahindra Commander for Scenic Routes', description: 'Rugged classic vehicle ideal for scenic spiritual trails and mountain drives.', image: 'assets/images/gallery/Vehicles3.jpg', order_num: 16, is_active: true },
+      { id: 17, category: 'vehicles', categoryLabel: 'Self-Ride Rental', categories: ['vehicles'], title: 'Two-Wheeler Rental for Girivalam Explorers', description: 'Well-maintained, economical scooters for solo devotees and serene mountain exploration.', image: 'assets/images/services/bike-rentals.jpg', order_num: 17, is_active: true },
+      { id: 18, category: 'pilgrimage', categoryLabel: 'Festival Darshan', categories: ['pilgrimage', 'travel'], title: 'Karthigai Deepam Illuminations', description: 'Sacred Arunachala Hill and temple gopurams illuminated with festival lighting at dusk.', image: 'assets/images/gallery/g4.jpg', order_num: 18, is_active: true },
+      { id: 19, category: 'pilgrimage', categoryLabel: 'Sacred Parikrama', categories: ['pilgrimage', 'travel'], title: 'Girivalam Sacred Parikrama & Ashta Lingam', description: 'Sacred aerial map highlighting the 8 cardinal Shiva Lingams encircling Mount Arunachala.', image: 'assets/images/gallery/g6.jpg', order_num: 19, is_active: true },
+      { id: 20, category: 'pilgrimage', categoryLabel: 'Maha Deepam Festival', categories: ['pilgrimage'], title: 'Karthigai Maha Deepam Holy Gathering', description: 'Lakhs of devotees chanting "Annamalaikku Harohara" as the holy flame is lit on the hill peak.', image: 'assets/images/gallery/g9.jpg', order_num: 20, is_active: true },
+      { id: 21, category: 'pilgrimage', categoryLabel: 'Ashram Experience', categories: ['pilgrimage'], title: 'Silent Meditation at Sri Ramanasramam', description: 'Pilgrims immersed in serene self-enquiry meditation around an intricate kolam in the Old Hall.', image: 'assets/images/gallery/Pilgrimage Experiences1.jpg', order_num: 21, is_active: true },
+      { id: 22, category: 'pilgrimage', categoryLabel: 'Holy Shrine', categories: ['pilgrimage'], title: 'Bhagavan Ramana Maharshi Samadhi Shrine', description: 'The sanctified black granite samadhi shrine radiating tranquil grace and spiritual solace.', image: 'assets/images/gallery/Pilgrimage Experiences2.jpg', order_num: 22, is_active: true }
+    ];
+
+    let galleryItems = [];
+    let currentCategoryFilter = 'all';
+    let currentSearchTerm = '';
+
     document.addEventListener('DOMContentLoaded', async () => {
       const user = await requireAdminAuth();
       if (!user) return;
       renderAdminSidebar('cms');
-      renderAdminHeader('Website CMS & Branding', 'Live Dynamic Configuration');
-      loadCmsSettings();
+      renderAdminHeader('Website CMS & Media', 'Live Dynamic Gallery & Configuration');
+      await loadGalleryData();
+      await loadCmsSettings();
     });
 
+    // ============================================================
+    // GALLERY DATA LOADING & RENDERING
+    // ============================================================
+    async function loadGalleryData() {
+      // 1. Initial load from local cache for instant paint
+      try {
+        const rawCustom = localStorage.getItem('arn_custom_gallery');
+        if (rawCustom) {
+          const parsed = JSON.parse(rawCustom);
+          if (Array.isArray(parsed) && parsed.length > 0) galleryItems = parsed;
+        }
+      } catch (e) {}
+
+      if (!galleryItems || galleryItems.length === 0) {
+        galleryItems = [...DEFAULT_GALLERY_PHOTOS];
+      }
+      renderGalleryTable();
+
+      // 2. Hydrate from Supabase (try gallery_items table, then website_settings)
+      if (window.adminSupabase) {
+        try {
+          const { data: dbItems, error: dbErr } = await window.adminSupabase
+            .from('gallery_items')
+            .select('*')
+            .order('order_num', { ascending: true });
+
+          if (!dbErr && dbItems && dbItems.length > 0) {
+            galleryItems = dbItems;
+            localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+            renderGalleryTable();
+            return;
+          }
+
+          // Fallback to website_settings
+          const { data: wsData } = await window.adminSupabase
+            .from('website_settings')
+            .select('value')
+            .eq('key', 'gallery_items')
+            .maybeSingle();
+
+          if (wsData && Array.isArray(wsData.value) && wsData.value.length > 0) {
+            galleryItems = wsData.value;
+            localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+            renderGalleryTable();
+          }
+        } catch (fetchErr) {
+          console.warn('Supabase gallery fetch error, using local data:', fetchErr);
+        }
+      }
+    }
+
+    function renderGalleryTable() {
+      const tbody = document.getElementById('galleryTableBody');
+      if (!tbody) return;
+
+      // Update KPI counters
+      const totalCount = galleryItems.length;
+      const activeCount = galleryItems.filter(x => x.is_active !== false).length;
+      const countTab = document.getElementById('galleryCountTab');
+      const kpiTotal = document.getElementById('kpiGalleryTotal');
+      const kpiActive = document.getElementById('kpiGalleryActive');
+
+      if (countTab) countTab.textContent = totalCount;
+      if (kpiTotal) kpiTotal.textContent = totalCount;
+      if (kpiActive) kpiActive.textContent = activeCount;
+
+      // Update filter button counts
+      updateCategoryBadgeCounts();
+
+      // Filter by category and search term
+      let filtered = galleryItems.filter(item => {
+        const matchCat = currentCategoryFilter === 'all' || 
+          item.category === currentCategoryFilter || 
+          (Array.isArray(item.categories) && item.categories.includes(currentCategoryFilter));
+        
+        const q = currentSearchTerm.toLowerCase();
+        const matchSearch = !q || 
+          (item.title && item.title.toLowerCase().includes(q)) || 
+          (item.description && item.description.toLowerCase().includes(q)) ||
+          (item.categoryLabel && item.categoryLabel.toLowerCase().includes(q));
+
+        return matchCat && matchSearch;
+      });
+
+      // Sort by order_num ascending
+      filtered.sort((a, b) => (a.order_num || 1) - (b.order_num || 1));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">
+          <i class="bi bi-images fs-3 d-block text-secondary mb-1"></i>
+          No photos match the selected category or search query.
+        </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const catBadge = getCategoryBadge(item.category, item.categoryLabel);
+        const activeBadge = item.is_active !== false
+          ? '<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Live</span>'
+          : '<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Hidden</span>';
+        
+        const imgSrc = resolveAdminImgSrc(item.image);
+
+        return `
+        <tr>
+          <td>
+            <a href="${imgSrc}" target="_blank" title="Click to view full photo">
+              <img src="${imgSrc}" class="gallery-thumb-cell" alt="${item.title || 'Photo'}" onerror="this.src='../assets/images/popup.png'">
+            </a>
+          </td>
+          <td>
+            <div class="fw-bold text-maroon">${item.title}</div>
+            <div class="mt-1">${catBadge}</div>
+          </td>
+          <td class="small text-muted" style="max-width: 320px;">
+            ${item.description || '<em class="text-secondary">No caption</em>'}
+          </td>
+          <td class="text-center fw-semibold text-secondary">
+            #${item.order_num || 1}
+          </td>
+          <td>
+            ${activeBadge}
+          </td>
+          <td class="text-end text-nowrap">
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-primary" onclick="openGalleryModal('${item.id}')" title="Edit Photo &amp; Details">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button type="button" class="btn btn-outline-secondary" onclick="togglePhotoVisibility('${item.id}')" title="Toggle Visible/Hidden on website">
+                <i class="bi ${item.is_active !== false ? 'bi-eye-slash' : 'bi-eye'}"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteGalleryPhoto('${item.id}', '${String(item.title).replace(/'/g, "\\'")}')" title="Delete Photo">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function getCategoryBadge(cat, label) {
+      const displayLabel = label || cat;
+      switch (cat) {
+        case 'temples': return `<span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-flower1 me-1"></i>${displayLabel}</span>`;
+        case 'travel': return `<span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="bi bi-map me-1"></i>${displayLabel}</span>`;
+        case 'accommodation': return `<span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-house-door me-1"></i>${displayLabel}</span>`;
+        case 'vehicles': return `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"><i class="bi bi-car-front me-1"></i>${displayLabel}</span>`;
+        case 'pilgrimage': return `<span class="badge bg-info-subtle text-info border border-info-subtle"><i class="bi bi-compass me-1"></i>${displayLabel}</span>`;
+        default: return `<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">${displayLabel}</span>`;
+      }
+    }
+
+    function updateCategoryBadgeCounts() {
+      const getCount = cat => galleryItems.filter(x => x.category === cat || (Array.isArray(x.categories) && x.categories.includes(cat))).length;
+      document.getElementById('badgeFilterAll').textContent = galleryItems.length;
+      document.getElementById('badgeFilterTemples').textContent = getCount('temples');
+      document.getElementById('badgeFilterTravel').textContent = getCount('travel');
+      document.getElementById('badgeFilterAcc').textContent = getCount('accommodation');
+      document.getElementById('badgeFilterVehicles').textContent = getCount('vehicles');
+      document.getElementById('badgeFilterPilgrimage').textContent = getCount('pilgrimage');
+    }
+
+    function filterGalleryCategory(cat, btn) {
+      currentCategoryFilter = cat;
+      const group = document.getElementById('galleryCategoryFilterGroup');
+      if (group) {
+        group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      }
+      if (btn) btn.classList.add('active');
+      renderGalleryTable();
+    }
+
+    function handleGallerySearch(term) {
+      currentSearchTerm = term.trim();
+      renderGalleryTable();
+    }
+
+    // ============================================================
+    // ADD / EDIT MODAL & REAL-TIME ASPECT RATIO DETECTOR
+    // ============================================================
+    function openGalleryModal(id = '') {
+      const form = document.getElementById('galleryPhotoForm');
+      form.reset();
+      document.getElementById('editPhotoId').value = id || '';
+      document.getElementById('photoUploadStatus').textContent = '';
+
+      if (id) {
+        const item = galleryItems.find(x => String(x.id) === String(id));
+        if (!item) return;
+        document.getElementById('galleryModalTitle').innerHTML = `<i class="bi bi-pencil-square text-warning me-2"></i>Edit Photo: ${item.title}`;
+        document.getElementById('photoCategory').value = item.category || 'vehicles';
+        document.getElementById('photoCategoryLabel').value = item.categoryLabel || '';
+        document.getElementById('photoTitle').value = item.title || '';
+        document.getElementById('photoDesc').value = item.description || '';
+        document.getElementById('photoOrder').value = item.order_num || 1;
+        document.getElementById('photoImageUrl').value = item.image || '';
+        document.getElementById('photoActive').checked = item.is_active !== false;
+        updateModalPhotoPreview(item.image || '');
+      } else {
+        document.getElementById('galleryModalTitle').innerHTML = `<i class="bi bi-plus-circle text-warning me-2"></i>Add New Gallery Photo`;
+        document.getElementById('photoCategory').value = currentCategoryFilter !== 'all' ? currentCategoryFilter : 'vehicles';
+        onModalCategoryChanged();
+        document.getElementById('photoOrder').value = galleryItems.length + 1;
+        document.getElementById('photoActive').checked = true;
+        updateModalPhotoPreview('assets/images/services/bike-rentals.jpg');
+      }
+
+      onModalCategoryChanged();
+      new bootstrap.Modal(document.getElementById('galleryPhotoModal')).show();
+    }
+
+    function onModalCategoryChanged() {
+      const cat = document.getElementById('photoCategory').value;
+      const badgeHint = document.getElementById('modalRatioHintBadge');
+      const labelInput = document.getElementById('photoCategoryLabel');
+
+      if (cat === 'temples') {
+        badgeHint.className = 'badge bg-danger text-white';
+        badgeHint.textContent = 'Recommended: 3:4 (Portrait) or 4:3';
+        if (!document.getElementById('editPhotoId').value) labelInput.value = 'Temple & Darshan';
+      } else if (cat === 'vehicles') {
+        badgeHint.className = 'badge bg-warning text-dark';
+        badgeHint.textContent = 'Recommended: 4:3 (Landscape)';
+        if (!document.getElementById('editPhotoId').value) labelInput.value = 'Tour Fleet';
+      } else if (cat === 'accommodation') {
+        badgeHint.className = 'badge bg-success text-white';
+        badgeHint.textContent = 'Recommended: 4:3 (Landscape)';
+        if (!document.getElementById('editPhotoId').value) labelInput.value = 'Accommodation';
+      } else if (cat === 'travel') {
+        badgeHint.className = 'badge bg-primary text-white';
+        badgeHint.textContent = 'Recommended: 4:3 or 16:9';
+        if (!document.getElementById('editPhotoId').value) labelInput.value = 'Travel Guide';
+      } else if (cat === 'pilgrimage') {
+        badgeHint.className = 'badge bg-info text-dark';
+        badgeHint.textContent = 'Recommended: 4:3 or 3:2';
+        if (!document.getElementById('editPhotoId').value) labelInput.value = 'Festival Darshan';
+      }
+    }
+
+    function updateModalPhotoPreview(url) {
+      const img = document.getElementById('photoImagePreview');
+      const ratioBadge = document.getElementById('detectedRatioBadge');
+      const dimLabel = document.getElementById('detectedDimensionsLabel');
+
+      if (!url) {
+        img.src = '../assets/images/popup.png';
+        ratioBadge.textContent = 'No Image';
+        ratioBadge.className = 'badge bg-secondary';
+        dimLabel.textContent = 'Enter a valid image URL or upload an image file.';
+        return;
+      }
+
+      const realSrc = resolveAdminImgSrc(url);
+      img.src = realSrc;
+
+      // Probe image dimensions and calculate aspect ratio
+      const probe = new Image();
+      probe.onload = () => {
+        const w = probe.naturalWidth;
+        const h = probe.naturalHeight;
+        const ratio = (w / h);
+        let ratioDesc = '';
+        let badgeClass = 'badge bg-info text-dark';
+
+        if (Math.abs(ratio - (4/3)) < 0.12) {
+          ratioDesc = '4:3 (Landscape) • Optimal!';
+          badgeClass = 'badge bg-success';
+        } else if (Math.abs(ratio - (3/4)) < 0.12) {
+          ratioDesc = '3:4 (Portrait) • Optimal for Idols!';
+          badgeClass = 'badge bg-success';
+        } else if (Math.abs(ratio - (16/9)) < 0.15) {
+          ratioDesc = '16:9 (Widescreen)';
+          badgeClass = 'badge bg-primary';
+        } else if (Math.abs(ratio - (3/2)) < 0.12) {
+          ratioDesc = '3:2 (Standard Photo)';
+          badgeClass = 'badge bg-primary';
+        } else if (Math.abs(ratio - 1) < 0.1) {
+          ratioDesc = '1:1 (Square)';
+          badgeClass = 'badge bg-warning text-dark';
+        } else {
+          ratioDesc = `${ratio.toFixed(2)}:1`;
+        }
+
+        ratioBadge.textContent = `Ratio: ${ratioDesc}`;
+        ratioBadge.className = badgeClass;
+        dimLabel.innerHTML = `<i class="bi bi-check2-circle text-success me-1"></i>Detected: <strong>${w} × ${h} px</strong> (${ratioDesc})`;
+      };
+      probe.onerror = () => {
+        ratioBadge.textContent = 'Failed to load';
+        ratioBadge.className = 'badge bg-danger';
+        dimLabel.textContent = 'Could not load image file from provided source.';
+      };
+      probe.src = realSrc;
+    }
+
+    async function handleGalleryPhotoUpload(fileInput) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('photoUploadStatus');
+      const localUrl = URL.createObjectURL(file);
+      document.getElementById('photoImagePreview').src = localUrl;
+      statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Uploading photo to Supabase storage...';
+
+      try {
+        // Read image dimensions before upload
+        const dimensions = await new Promise((resolve) => {
+          const probe = new Image();
+          probe.onload = () => {
+            const ratio = (probe.naturalWidth / probe.naturalHeight).toFixed(2);
+            resolve({ w: probe.naturalWidth, h: probe.naturalHeight, ratio });
+          };
+          probe.onerror = () => resolve(null);
+          probe.src = localUrl;
+        });
+
+        const publicUrl = await uploadAdminImage(file, 'gallery');
+        document.getElementById('photoImageUrl').value = publicUrl;
+        updateModalPhotoPreview(publicUrl);
+
+        let dimMsg = '';
+        if (dimensions) {
+          dimMsg = ` (${dimensions.w}×${dimensions.h} px, Ratio: ${dimensions.ratio}:1)`;
+        }
+
+        statusEl.innerHTML = `<span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Uploaded successfully${dimMsg}!</span>`;
+        showAdminToast('Gallery photo uploaded to Supabase Storage!', 'success');
+      } catch (err) {
+        statusEl.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Upload failed: ${err.message || err}</span>`;
+        showAdminToast('Photo upload error: ' + (err.message || err), 'error');
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
+    // Save Gallery Photo Form
+    document.getElementById('galleryPhotoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('savePhotoBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+      const editId = document.getElementById('editPhotoId').value.trim();
+      const title = document.getElementById('photoTitle').value.trim();
+      const category = document.getElementById('photoCategory').value;
+      const categoryLabel = document.getElementById('photoCategoryLabel').value.trim() || category;
+      const desc = document.getElementById('photoDesc').value.trim();
+      const image = document.getElementById('photoImageUrl').value.trim();
+      const orderNum = parseInt(document.getElementById('photoOrder').value) || 1;
+      const isActive = document.getElementById('photoActive').checked;
+
+      const payload = {
+        title,
+        category,
+        category_label: categoryLabel,
+        categories: [category],
+        description: desc,
+        image,
+        order_num: orderNum,
+        is_active: isActive
+      };
+
+      try {
+        if (editId) {
+          // Update existing
+          const idx = galleryItems.findIndex(x => String(x.id) === String(editId));
+          if (idx !== -1) {
+            galleryItems[idx] = { ...galleryItems[idx], ...payload, id: galleryItems[idx].id };
+          }
+          if (window.adminSupabase) {
+            await window.adminSupabase.from('gallery_items').update(payload).eq('id', editId);
+          }
+          showAdminToast(`Photo "${title}" updated successfully!`, 'success');
+        } else {
+          // Add new
+          const newId = Date.now();
+          const newItem = { ...payload, id: newId };
+          galleryItems.push(newItem);
+          if (window.adminSupabase) {
+            await window.adminSupabase.from('gallery_items').insert([{ ...payload }]);
+          }
+          showAdminToast(`New photo "${title}" added to gallery!`, 'success');
+        }
+
+        // Synchronize backup to website_settings key 'gallery_items'
+        if (window.adminSupabase) {
+          await window.adminSupabase.from('website_settings').upsert({
+            key: 'gallery_items',
+            value: galleryItems,
+            updated_by: window.CURRENT_ADMIN_USER?.id,
+            updated_at: new Date().toISOString()
+          });
+        }
+
+        // Cache locally and invalidate public cache for immediate reflection
+        localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+        localStorage.removeItem('arn_pub_gallery');
+
+        bootstrap.Modal.getInstance(document.getElementById('galleryPhotoModal')).hide();
+        renderGalleryTable();
+      } catch (err) {
+        showAdminToast('Error saving photo: ' + (err.message || err), 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Gallery Photo';
+      }
+    });
+
+    async function togglePhotoVisibility(id) {
+      const item = galleryItems.find(x => String(x.id) === String(id));
+      if (!item) return;
+
+      item.is_active = (item.is_active === false);
+
+      try {
+        if (window.adminSupabase) {
+          await window.adminSupabase.from('gallery_items').update({ is_active: item.is_active }).eq('id', id);
+          await window.adminSupabase.from('website_settings').upsert({
+            key: 'gallery_items',
+            value: galleryItems,
+            updated_at: new Date().toISOString()
+          });
+        }
+        localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+        localStorage.removeItem('arn_pub_gallery');
+        renderGalleryTable();
+        showAdminToast(`Photo "${item.title}" is now ${item.is_active ? 'LIVE' : 'HIDDEN'} on the website.`, 'success');
+      } catch (err) {
+        showAdminToast('Error updating status: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteGalleryPhoto(id, title) {
+      if (!confirm(`Are you sure you want to remove photo "${title}" from the website gallery?`)) return;
+
+      galleryItems = galleryItems.filter(x => String(x.id) !== String(id));
+
+      try {
+        if (window.adminSupabase) {
+          await window.adminSupabase.from('gallery_items').delete().eq('id', id);
+          await window.adminSupabase.from('website_settings').upsert({
+            key: 'gallery_items',
+            value: galleryItems,
+            updated_at: new Date().toISOString()
+          });
+        }
+        localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+        localStorage.removeItem('arn_pub_gallery');
+        renderGalleryTable();
+        showAdminToast(`Photo "${title}" removed from gallery.`, 'warning');
+      } catch (err) {
+        showAdminToast('Error deleting photo: ' + err.message, 'error');
+      }
+    }
+
+    async function resetGalleryToDefaults() {
+      if (!confirm('Are you sure you want to restore the 22 authentic default photos for the Arunachaleshwara Gallery? Any custom added photos will be replaced with official images.')) return;
+
+      galleryItems = [...DEFAULT_GALLERY_PHOTOS];
+
+      try {
+        if (window.adminSupabase) {
+          await window.adminSupabase.from('website_settings').upsert({
+            key: 'gallery_items',
+            value: galleryItems,
+            updated_at: new Date().toISOString()
+          });
+        }
+        localStorage.setItem('arn_custom_gallery', JSON.stringify(galleryItems));
+        localStorage.removeItem('arn_pub_gallery');
+        renderGalleryTable();
+        showAdminToast('Gallery restored to authentic default photography collection!', 'success');
+      } catch (err) {
+        showAdminToast('Error resetting gallery: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================================
+    // EXISTING SITE INFO, INVOICE & POPUP SETTINGS
+    // ============================================================
     async function loadCmsSettings() {
       const sb = window.adminSupabase;
+      if (!sb) return;
       const { data } = await sb.from('website_settings').select('*');
       if (!data) return;
 
@@ -326,4 +1188,3 @@
   </script>
 </body>
 </html>
-

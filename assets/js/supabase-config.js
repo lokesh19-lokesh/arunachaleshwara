@@ -261,6 +261,58 @@ async function fetchPopupBannerFromSupabase() {
   }
 }
 
+/**
+ * Fetch fresh dynamic gallery items from Supabase (with public caching)
+ * @returns {Promise<Array|null>}
+ */
+async function fetchGalleryFromSupabase() {
+  const cached = getPublicCache('gallery');
+  if (!supabaseClient) return cached;
+  try {
+    // 1. Try dedicated gallery_items table
+    const { data, error } = await supabaseClient
+      .from('gallery_items')
+      .select('*')
+      .eq('is_active', true)
+      .order('order_num', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      const mapped = data.map(item => ({
+        id: item.id,
+        title: item.title,
+        category: item.category || 'temples',
+        categoryLabel: item.category_label || 'Gallery',
+        categories: Array.isArray(item.categories) && item.categories.length > 0
+          ? item.categories
+          : [item.category || 'temples'],
+        description: item.description || '',
+        image: item.image || '',
+        orderNum: item.order_num || 1
+      }));
+      setPublicCache('gallery', mapped);
+      return mapped;
+    }
+
+    // 2. Fallback to website_settings key 'gallery_items'
+    const { data: wsData, error: wsError } = await supabaseClient
+      .from('website_settings')
+      .select('value')
+      .eq('key', 'gallery_items')
+      .maybeSingle();
+
+    if (!wsError && wsData && Array.isArray(wsData.value) && wsData.value.length > 0) {
+      const activeItems = wsData.value.filter(x => x.is_active !== false);
+      setPublicCache('gallery', activeItems);
+      return activeItems;
+    }
+
+    return cached;
+  } catch (err) {
+    console.warn('Error fetching gallery from Supabase:', err);
+    return cached;
+  }
+}
+
 // Expose globally
 if (typeof window !== 'undefined') {
   window.SUPABASE_CONFIG = SUPABASE_CONFIG;
@@ -268,6 +320,7 @@ if (typeof window !== 'undefined') {
   window.fetchServicesFromSupabase = fetchServicesFromSupabase;
   window.fetchPackagesFromSupabase = fetchPackagesFromSupabase;
   window.fetchPopupBannerFromSupabase = fetchPopupBannerFromSupabase;
+  window.fetchGalleryFromSupabase = fetchGalleryFromSupabase;
   window.submitEnquiryToSupabase = submitEnquiryToSupabase;
   window.submitContactMessageToSupabase = submitContactMessageToSupabase;
 }

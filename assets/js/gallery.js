@@ -4,7 +4,7 @@
    accommodations, fleet, and pilgrimage experiences.
    ============================================================ */
 
-const GALLERY_DATA = [
+let GALLERY_DATA = [
   // 1. Temples & Darshan
   {
     id: 1,
@@ -146,7 +146,7 @@ const GALLERY_DATA = [
     categoryLabel: 'Self-Ride Rental',
     title: 'Two-Wheeler Rental for Girivalam Explorers',
     description: 'Well-maintained, economical scooters for solo devotees and serene mountain exploration.',
-    image: 'assets/images/gallery/Vehicles4.jpg'
+    image: 'assets/images/services/bike-rentals.jpg'
   },
 
   // 5. Pilgrimage Experiences & Festivals
@@ -252,7 +252,16 @@ function renderGalleryGrid(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  container.innerHTML = GALLERY_DATA.map((item, i) => {
+  // 1. Immediate render from latest cached DB gallery (0ms instant paint on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('gallery');
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      GALLERY_DATA = cached;
+      window.GALLERY_DATA = GALLERY_DATA;
+    }
+  }
+
+  const buildGridHTML = (items) => items.map((item, i) => {
     const catsStr = Array.isArray(item.categories) ? item.categories.join(' ') : (item.category || '');
     return `
     <div class="gallery-card-wrapper gallery-filter-item" data-category="${catsStr}" data-aos="fade-up" data-aos-delay="${(i % 6) * 50}">
@@ -263,7 +272,7 @@ function renderGalleryGrid(containerId) {
             <div class="gallery-card-overlay">
               <span class="gallery-zoom-badge"><i class="bi bi-arrows-fullscreen"></i></span>
             </div>
-            <span class="gallery-badge-top">${item.categoryLabel}</span>
+            <span class="gallery-badge-top">${item.categoryLabel || 'Gallery'}</span>
           </div>
           <div class="gallery-card-caption">
             <h6 class="gallery-card-title">${item.title}</h6>
@@ -274,8 +283,29 @@ function renderGalleryGrid(containerId) {
     </div>`;
   }).join('');
 
+  container.innerHTML = buildGridHTML(GALLERY_DATA);
+
   if (typeof initLightbox === 'function') {
     setTimeout(initLightbox, 60);
+  }
+
+  // 2. Silently hydrate live dynamic gallery from Supabase
+  if (typeof fetchGalleryFromSupabase === 'function') {
+    fetchGalleryFromSupabase().then(dbGallery => {
+      if (dbGallery && Array.isArray(dbGallery) && dbGallery.length > 0) {
+        GALLERY_DATA = dbGallery;
+        window.GALLERY_DATA = GALLERY_DATA;
+        container.innerHTML = buildGridHTML(GALLERY_DATA);
+        if (typeof initLightbox === 'function') {
+          setTimeout(initLightbox, 60);
+        }
+        if (typeof AOS !== 'undefined') {
+          AOS.refresh();
+        }
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic gallery hydration error:', err);
+    });
   }
 }
 
@@ -286,14 +316,19 @@ function renderGalleryPreview(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Curated 12 highlights showcasing temples, darshan, fleet, stays, and festivals
-  const featuredIds = [1, 2, 4, 6, 7, 10, 12, 14, 15, 18, 20, 21];
-  const previewItems = featuredIds
-    .map(id => GALLERY_DATA.find(item => item.id === id))
-    .filter(Boolean);
+  // 1. Immediate render from cached DB gallery (0ms instant paint on reload)
+  if (typeof getPublicCache === 'function') {
+    const cached = getPublicCache('gallery');
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      GALLERY_DATA = cached;
+      window.GALLERY_DATA = GALLERY_DATA;
+    }
+  }
 
-  container.innerHTML = previewItems.map(item => {
-    return `
+  const buildPreviewHTML = (items) => {
+    // Pick first 12 items or curated items
+    const previewItems = items.slice(0, 12);
+    return previewItems.map(item => `
     <div class="swiper-slide">
       <div class="gallery-preview-card">
         <a href="${item.image}" class="glightbox" data-gallery="home-gallery" data-title="${item.title}" data-description="${item.description}">
@@ -304,17 +339,38 @@ function renderGalleryPreview(containerId) {
             </div>
             <div class="gallery-preview-gradient"></div>
             <div class="gallery-preview-caption">
-              <span class="gallery-preview-badge">${item.categoryLabel}</span>
+              <span class="gallery-preview-badge">${item.categoryLabel || 'Gallery'}</span>
               <h6 class="gallery-preview-title">${item.title}</h6>
             </div>
           </div>
         </a>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
+  };
+
+  container.innerHTML = buildPreviewHTML(GALLERY_DATA);
 
   if (typeof initLightbox === 'function') {
     setTimeout(initLightbox, 60);
+  }
+
+  // 2. Silently hydrate live dynamic gallery from Supabase
+  if (typeof fetchGalleryFromSupabase === 'function') {
+    fetchGalleryFromSupabase().then(dbGallery => {
+      if (dbGallery && Array.isArray(dbGallery) && dbGallery.length > 0) {
+        GALLERY_DATA = dbGallery;
+        window.GALLERY_DATA = GALLERY_DATA;
+        container.innerHTML = buildPreviewHTML(GALLERY_DATA);
+        if (typeof initLightbox === 'function') {
+          setTimeout(initLightbox, 60);
+        }
+        if (window.gallerySwiperInstance && typeof window.gallerySwiperInstance.update === 'function') {
+          window.gallerySwiperInstance.update();
+        }
+      }
+    }).catch(err => {
+      console.warn('Supabase dynamic gallery preview hydration error:', err);
+    });
   }
 }
 
