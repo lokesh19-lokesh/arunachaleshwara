@@ -1706,7 +1706,7 @@
         transaction_reference: ref,
         notes: notes,
         status: 'Pending Verification',
-        recorded_by: window.CURRENT_ADMIN_USER.id
+        recorded_by: window.CURRENT_ADMIN_USER?.id || null
       }]);
 
       if (error) {
@@ -1740,7 +1740,7 @@
       // Mark transaction verified
       const { error } = await sb.from('payment_transactions').update({
         status: 'Verified',
-        verified_by: window.CURRENT_ADMIN_USER.id,
+        verified_by: window.CURRENT_ADMIN_USER?.id || null,
         verified_at: new Date().toISOString()
       }).eq('id', txnId);
 
@@ -1961,7 +1961,7 @@
       const updatePayload = {
         booking_status: 'Confirmed',
         confirmed_at: new Date().toISOString(),
-        confirmed_by: window.CURRENT_ADMIN_USER.id
+        confirmed_by: window.CURRENT_ADMIN_USER?.id || null
       };
 
       if (type === 'accommodation') {
@@ -1979,7 +1979,7 @@
         await sb.from('booking_room_allocations').insert([{
           booking_id: bookingUuid,
           room_id: roomId,
-          allocated_by: window.CURRENT_ADMIN_USER.id
+          allocated_by: window.CURRENT_ADMIN_USER?.id || null
         }]);
       }
 
@@ -2070,7 +2070,7 @@
         payment_status: b.payment_status,
         payment_method: lastTxn ? lastTxn.payment_method : 'Manual Transfer',
         transaction_reference: lastTxn ? lastTxn.transaction_reference : 'Verified',
-        created_by: window.CURRENT_ADMIN_USER.id
+        created_by: window.CURRENT_ADMIN_USER?.id || null
       }]).select().single();
 
       if (error) {

@@ -534,7 +534,7 @@ async function handleBookingRequestSubmit(e) {
     }
 
     if (window.ArnRealtimeSync) {
-      window.ArnRealtimeSync.publish('bookings', 'new_booking', newBookingRecord);
+      window.ArnRealtimeSync.publish('bookings', 'new_booking', bookingRecord);
     }
 
     // Build rich formatted WhatsApp confirmation message

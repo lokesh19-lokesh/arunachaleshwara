@@ -1172,7 +1172,7 @@
         email: document.getElementById('cmsEmail').value.trim(),
         address: document.getElementById('cmsAddress').value.trim()
       };
-      await window.adminSupabase.from('website_settings').upsert({ key: 'site_info', value: val, updated_by: window.CURRENT_ADMIN_USER.id, updated_at: new Date().toISOString() });
+      await window.adminSupabase.from('website_settings').upsert({ key: 'site_info', value: val, updated_by: window.CURRENT_ADMIN_USER?.id || null, updated_at: new Date().toISOString() });
       await logAdminActivity('UPDATE_CMS_SITE_INFO', 'website_settings', 'site_info');
       showAdminToast('Site contact details saved dynamically!', 'success');
     });
@@ -1188,7 +1188,7 @@
         gstin: document.getElementById('invGstin').value.trim(),
         terms: document.getElementById('invTerms').value.trim()
       };
-      await window.adminSupabase.from('website_settings').upsert({ key: 'invoice_settings', value: val, updated_by: window.CURRENT_ADMIN_USER.id, updated_at: new Date().toISOString() });
+      await window.adminSupabase.from('website_settings').upsert({ key: 'invoice_settings', value: val, updated_by: window.CURRENT_ADMIN_USER?.id || null, updated_at: new Date().toISOString() });
       await logAdminActivity('UPDATE_INVOICE_SETTINGS', 'website_settings', 'invoice_settings');
       showAdminToast('Invoice settings saved!', 'success');
     });

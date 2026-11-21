@@ -713,7 +713,7 @@ function renderTourCard(pkg, index) {
         <div class="tour-card-meta mb-2">
           ${departurePill}
           <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
-          <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
+          <span><i class="bi bi-geo-alt"></i> ${(pkg.places && pkg.places.length) || 0} Places</span>
         </div>
         <div class="tour-card-footer mt-auto pt-2 border-top">
           <span class="tour-card-price">
@@ -761,7 +761,7 @@ function renderTourListItem(pkg, index) {
       <p>${pkg.shortDesc}</p>
       <div class="tour-card-meta mb-3">
         <span><i class="bi bi-clock"></i> ${pkg.duration}</span>
-        <span><i class="bi bi-geo-alt"></i> ${pkg.places.length} Places</span>
+        <span><i class="bi bi-geo-alt"></i> ${(pkg.places && pkg.places.length) || 0} Places</span>
       </div>
       <a href="tour-details.html?id=${pkg.id}" class="btn btn-primary-custom btn-sm">
         View Details <i class="bi bi-arrow-right"></i>

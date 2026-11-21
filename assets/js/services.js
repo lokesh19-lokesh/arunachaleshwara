@@ -432,14 +432,14 @@ function populateServiceDetailsDOM(service, container) {
               <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                 <strong class="text-maroon fs-6"><i class="bi bi-arrow-left-right text-gold me-2"></i>${r.route}</strong>
                 <div class="d-flex align-items-center gap-2">
-                  <span class="badge bg-success-subtle text-success border border-success-subtle">${r.timings.length} Daily Trips</span>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">${(r.timings && r.timings.length) || 0} Daily Trips</span>
                   <button type="button" class="btn btn-sm btn-outline-maroon fw-semibold" onclick="openBusBookingModal('${String(r.route || '').replace(/'/g, "\\'")}')">
                     <i class="bi bi-bus-front me-1"></i> Book This Route
                   </button>
                 </div>
               </div>
               <div class="d-flex flex-wrap gap-2">
-                ${r.timings.map(t => `<span class="badge bg-white text-dark border px-2 py-1"><i class="bi bi-clock me-1 text-gold"></i>${t}</span>`).join('')}
+                ${(r.timings || []).map(t => `<span class="badge bg-white text-dark border px-2 py-1"><i class="bi bi-clock me-1 text-gold"></i>${t}</span>`).join('')}
               </div>
             </div>
           </div>`).join('')}
@@ -467,26 +467,6 @@ function populateServiceDetailsDOM(service, container) {
                   <i class="bi bi-car-front-fill me-1"></i> Book This Cab
                 </button>
               </div>` : ''}
-            </div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      <!-- Bus Routes & Departure Timings (if configured) -->
-      ${service.routes && service.routes.length > 0 ? `
-      <div class="mb-4" data-aos="fade-up" data-aos-delay="150">
-        <h4 class="mb-3"><i class="bi bi-clock-history text-gold me-2"></i>Daily Bus Schedules & Departures</h4>
-        <div class="row g-3">
-          ${service.routes.map(r => `
-          <div class="col-12">
-            <div class="p-3 bg-light rounded-3 border">
-              <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                <strong class="text-maroon fs-6"><i class="bi bi-arrow-left-right text-gold me-2"></i>${r.route}</strong>
-                <span class="badge bg-success-subtle text-success border border-success-subtle">${r.timings.length} Daily Trips</span>
-              </div>
-              <div class="d-flex flex-wrap gap-2">
-                ${r.timings.map(t => `<span class="badge bg-white text-dark border px-2 py-1"><i class="bi bi-clock me-1 text-gold"></i>${t}</span>`).join('')}
-              </div>
             </div>
           </div>`).join('')}
         </div>

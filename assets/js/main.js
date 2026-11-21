@@ -37,13 +37,13 @@ function initPreloader() {
 
   const preloader = document.getElementById('preloader');
   if (!preloader) {
-    document.documentElement.classList.remove('show-preloader');
+    if (document.documentElement) document.documentElement.classList.remove('show-preloader');
     markPreloaderDone();
     return;
   }
 
   // Only show if <head> script flagged initial website open or explicit homepage reload
-  if (!document.documentElement.classList.contains('show-preloader')) {
+  if (document.documentElement && !document.documentElement.classList.contains('show-preloader')) {
     preloader.remove();
     markPreloaderDone();
     return;
@@ -316,7 +316,7 @@ function initWelcomePopupAndAudio() {
     }
 
     // Light-dismiss fallback for browsers without native dialog closedby="any" (e.g., Safari)
-    if (!('closedBy' in HTMLDialogElement.prototype)) {
+    if (typeof HTMLDialogElement !== 'undefined' && !('closedBy' in HTMLDialogElement.prototype)) {
       const isOutsideDialog = (e) => {
         const rect = dialog.getBoundingClientRect();
         return (
@@ -371,7 +371,7 @@ function initWelcomePopupAndAudio() {
  * Preload linked internal pages on hover/touch over HTTP(S) for instant transitions
  */
 function initLinkPrefetch() {
-  if (!window.location.protocol.startsWith('http')) return;
+  if (!window.location || !window.location.protocol || !window.location.protocol.startsWith('http')) return;
   const prefetched = new Set();
 
   const prefetchUrl = (url) => {
