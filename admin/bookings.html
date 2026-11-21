@@ -689,19 +689,19 @@
         'service': 'Traveler Identification Document'
       };
       const descMap = {
-        'accommodation': 'Mandatory: Upload Govt ID proof (Aadhaar / Passport / Voter ID) for room check-in verification.',
-        'bike-rentals': 'Mandatory: Upload valid Driving Licence & Govt ID proof for two-wheeler dispatch.',
-        'taxi-rentals': 'Mandatory: Upload Govt ID proof for vehicle trip boarding and safety.',
-        'temple-darshan': 'Mandatory: Upload Govt ID proof for sacred darshan registration and temple entry.',
-        'bus-booking': 'Mandatory: Upload Govt ID proof for bus passenger manifest verification.',
-        'service': 'Mandatory: Upload Govt ID proof for travel verification.'
+        'accommodation': 'Optional: Upload Govt ID proof (Aadhaar / Passport / Voter ID) for room check-in verification, or present at reception.',
+        'bike-rentals': 'Optional: Upload valid Driving Licence & Govt ID proof, or present during vehicle handover.',
+        'taxi-rentals': 'Optional: Upload Govt ID proof for vehicle trip boarding, or present to driver.',
+        'temple-darshan': 'Optional: Upload Govt ID proof for sacred darshan registration, or carry during temple entry.',
+        'bus-booking': 'Optional: Upload Govt ID proof for bus passenger manifest verification, or show at boarding.',
+        'service': 'Optional: Upload Govt ID proof for travel verification.'
       };
 
       if (typeof BookingDocUploader === 'function') {
         wWalkinDocsUploader = new BookingDocUploader('wWalkinDocsContainer', type, {
-          mandatory: true,
+          mandatory: false,
           title: titleMap[type] || 'Identification Document Upload',
-          description: descMap[type] || 'Mandatory: Upload Govt ID proof (Aadhaar / Driving Licence / Passport / Voter ID). Max 5 MB.',
+          description: descMap[type] || 'Optional: Upload Govt ID proof (Aadhaar / Driving Licence / Passport / Voter ID). Max 5 MB.',
           docTypes: docTypeMap[type] || ['Aadhaar Card', 'Driving Licence', 'Passport', 'Voter ID']
         });
         window['wWalkinDocsContainer_uploader'] = wWalkinDocsUploader;
@@ -2167,9 +2167,9 @@
         }
       }
 
-      // 2. Validate Identification Document (Mandatory)
+      // 2. Validate Identification Document (Optional)
       if (wWalkinDocsUploader && !wWalkinDocsUploader.validate()) {
-        showAdminToast('Identification Document is mandatory. Please upload a valid ID proof.', 'error');
+        showAdminToast('Please check the uploaded ID document (invalid file or size limit exceeded).', 'error');
         return;
       }
       const uploadedDocs = wWalkinDocsUploader ? wWalkinDocsUploader.getDocuments() : [];

@@ -235,12 +235,12 @@ function openBookingRequestModal(categorySlug) {
 
   onAccGuestCountsChanged();
 
-  // Initialize Document Uploader (Mandatory)
+  // Initialize Document Uploader (Optional)
   if (typeof BookingDocUploader !== 'undefined') {
     window['accDocUploader'] = new BookingDocUploader('accDocUploaderContainer', 'accommodation', {
       title: 'Guest Identification Documents (Aadhaar / Passport / Govt ID)',
-      description: 'Mandatory: Upload valid Govt ID proof for guests (Aadhaar, Passport, or Govt ID under 5 MB).',
-      mandatory: true
+      description: 'Optional: Upload valid Govt ID proof for guests (Aadhaar, Passport, or Govt ID under 5 MB) or present directly at check-in counter.',
+      mandatory: false
     });
   }
 
@@ -363,9 +363,8 @@ async function handleBookingRequestSubmit(e) {
       }
     }
 
-    // 2. Validate and collect uploaded identification documents (Mandatory)
+    // 2. Validate and collect uploaded identification documents (Optional)
     if (window['accDocUploader'] && !window['accDocUploader'].validate()) {
-      alert('Guest Identification Document is mandatory. Please upload valid Govt ID proof (Aadhaar / Passport / Govt ID) before submitting.');
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-send-check-fill me-1"></i> SUBMIT BOOKING REQUEST';
       return;
@@ -560,7 +559,7 @@ async function handleBookingRequestSubmit(e) {
       `*PAYMENT DETAILS*\n` +
       `*Estimated Amount:* ₹${estimatedAmount.toLocaleString('en-IN')}\n` +
       `*Payment Status:* NOT PAID (Awaiting Verification)\n` +
-      `*ID Documents Attached:* ${uploadedDocs.length} document(s)\n` +
+      `*ID Documents Attached:* ${uploadedDocs.length > 0 ? uploadedDocs.length + ' document(s)' : 'Not Uploaded (Will provide at check-in counter)'}\n` +
       `*Special Requirements:* ${requirements || 'None'}\n\n` +
       `Please confirm room allocation and share official payment instructions. Om Namah Shivaya!`;
 

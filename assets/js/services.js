@@ -784,12 +784,12 @@ function openDarshanBookingModal(preferredSeva = '') {
     });
   }
 
-  // Initialize secure document uploader
+  // Initialize secure document uploader (Optional)
   if (typeof BookingDocUploader === 'function') {
     window.darshanDocContainer_uploader = new BookingDocUploader('darshanDocContainer', 'temple-darshan', {
       title: 'Devotee Identification Document',
-      description: 'Mandatory: Upload Govt ID proof (Aadhaar / Voter ID / Passport) for temple entry verification. Max 5 MB.',
-      mandatory: true,
+      description: 'Optional: Upload Govt ID proof (Aadhaar / Voter ID / Passport) or carry during temple entry. Max 5 MB.',
+      mandatory: false,
       docTypes: ['Aadhaar Card', 'Voter ID', 'Passport', 'PAN Card', 'Other Govt ID']
     });
   }
@@ -877,9 +877,8 @@ async function submitDarshanBooking(e) {
     }
   }
 
-  // Validate identification documents (Mandatory)
+  // Validate identification documents (Optional)
   if (window.darshanDocContainer_uploader && !window.darshanDocContainer_uploader.validate()) {
-    alert('Devotee Identification Document is mandatory. Please choose and upload your Govt ID proof (Aadhaar / Voter ID / Passport) before proceeding.');
     return;
   }
 
@@ -1098,12 +1097,12 @@ function openBusBookingModal(preferredRoute = '') {
     });
   }
 
-  // Document uploader
+  // Document uploader (Optional)
   if (typeof BookingDocUploader === 'function') {
     window.busDocContainer_uploader = new BookingDocUploader('busDocContainer', 'bus-booking', {
       title: 'Passenger ID Proof Upload',
-      description: 'Mandatory: Upload passenger identification proof (Aadhaar / Voter ID / Passport / Driving Licence). Max 5 MB.',
-      mandatory: true,
+      description: 'Optional: Upload passenger identification proof (Aadhaar / Voter ID / Passport / Driving Licence) or show at boarding. Max 5 MB.',
+      mandatory: false,
       docTypes: ['Aadhaar Card', 'Voter ID', 'Passport', 'Driving Licence', 'Other Govt ID']
     });
   }
@@ -1201,9 +1200,8 @@ async function submitBusBooking(e) {
     }
   }
 
-  // Validate identification documents (Mandatory)
+  // Validate identification documents (Optional)
   if (window.busDocContainer_uploader && !window.busDocContainer_uploader.validate()) {
-    alert('Passenger Identification Document is mandatory. Please upload valid ID proof before proceeding.');
     return;
   }
 
@@ -1375,12 +1373,12 @@ function openBikeBookingModal(preferredPackage = '') {
   autoCalculateBikeReturn();
   calculateBikeFare();
 
-  // Initialize document uploader with mandatory Driving Licence
+  // Initialize document uploader (Optional)
   if (typeof BookingDocUploader === 'function') {
     window.bikeDocContainer_uploader = new BookingDocUploader('bikeDocContainer', 'bike-rentals', {
       title: 'Rider Driving Licence & ID Proof',
-      description: 'Mandatory: Upload valid Driving Licence (required for handover) & Govt ID. Max 5 MB.',
-      mandatory: true,
+      description: 'Optional: Upload valid Driving Licence & Govt ID, or present original licence during vehicle handover. Max 5 MB.',
+      mandatory: false,
       docTypes: ['Driving Licence', 'Aadhaar Card', 'Passport', 'Voter ID']
     });
   }
@@ -1451,18 +1449,12 @@ async function submitBikeBooking(e) {
     return;
   }
 
-  // Validate identification documents (Mandatory)
+  // Validate identification documents (Optional)
   if (window.bikeDocContainer_uploader && !window.bikeDocContainer_uploader.validate()) {
-    alert('Driving Licence / Identification Document is mandatory. Please upload your Driving Licence before proceeding.');
     return;
   }
 
   const docs = window.bikeDocContainer_uploader ? window.bikeDocContainer_uploader.getDocuments() : [];
-  const hasDL = docs.some(d => (d.document_type || '').toLowerCase().includes('licen'));
-  if (!hasDL) {
-    alert('A valid Driving Licence is mandatory for two-wheeler rentals. Please select "Driving Licence" as document type and upload your DL.');
-    return;
-  }
 
   const bookingId = `ARN-BIKE-2026-${String(Math.floor(Math.random() * 90000) + 10000)}`;
 
@@ -1619,12 +1611,12 @@ function openTaxiBookingModal(preferredVehicle = '') {
 
   updatePubTaxiFare();
 
-  // Document uploader
+  // Document uploader (Optional)
   if (typeof BookingDocUploader === 'function') {
     window.taxiDocContainer_uploader = new BookingDocUploader('taxiDocContainer', 'taxi-car-rentals', {
       title: 'Passenger Identification Document',
-      description: 'Mandatory: Upload Govt ID for driver verification & passenger trip manifest. Max 5 MB.',
-      mandatory: true,
+      description: 'Optional: Upload Govt ID for driver verification & passenger trip manifest, or present to driver at pickup. Max 5 MB.',
+      mandatory: false,
       docTypes: ['Aadhaar Card', 'Driving Licence', 'Passport', 'PAN Card', 'Other Govt ID']
     });
   }
@@ -1680,9 +1672,8 @@ async function submitPublicTaxiBooking(e) {
     return;
   }
 
-  // Validate identification documents (Mandatory)
+  // Validate identification documents (Optional)
   if (window.taxiDocContainer_uploader && !window.taxiDocContainer_uploader.validate()) {
-    alert('Passenger Identification Document is mandatory. Please upload valid Govt ID proof before proceeding.');
     return;
   }
 

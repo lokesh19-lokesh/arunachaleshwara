@@ -196,10 +196,10 @@ class BookingDocUploader {
       'Other Govt ID'
     ];
 
-    const isMandatory = this.options.mandatory !== false;
+    const isMandatory = this.options.mandatory === true;
     const mandatoryLabel = isMandatory 
       ? '<span class="badge bg-danger text-white px-2 py-1 ms-1" style="font-size: 0.72rem; vertical-align: middle;"><i class="bi bi-asterisk me-1"></i>Mandatory (Required)</span>' 
-      : '<span class="text-muted fw-normal">(Optional)</span>';
+      : '<span class="badge bg-light text-secondary border px-2 py-1 ms-1" style="font-size: 0.72rem; vertical-align: middle;">Optional</span>';
 
     container.innerHTML = `
       <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
@@ -210,7 +210,7 @@ class BookingDocUploader {
               ${this.options.title || 'Identification Document Upload'} ${mandatoryLabel}
             </label>
             <div class="small text-muted" style="font-size: 0.76rem;">
-              ${this.options.description || 'Mandatory: Upload Govt ID proof (Aadhaar, Driving Licence, Passport, Voter ID). Max 5 MB. PDF, JPG, or PNG.'}
+              ${this.options.description || (isMandatory ? 'Mandatory: Upload Govt ID proof (Aadhaar, Driving Licence, Passport, Voter ID). Max 5 MB. PDF, JPG, or PNG.' : 'Optional: Upload Govt ID proof (Aadhaar, Driving Licence, Passport, Voter ID). Max 5 MB. PDF, JPG, or PNG.')}
             </div>
           </div>
           <span class="badge bg-light text-dark border"><i class="bi bi-shield-lock-fill text-success me-1"></i>Secure &amp; Encrypted</span>
@@ -375,7 +375,7 @@ class BookingDocUploader {
   }
 
   validate() {
-    const isMandatory = this.options.mandatory !== false;
+    const isMandatory = this.options.mandatory === true;
     if (isMandatory && (!this.uploadedDocs || this.uploadedDocs.length === 0)) {
       const container = document.getElementById(this.containerId);
       if (container) {
@@ -395,11 +395,16 @@ class BookingDocUploader {
 
     // Reset error styling if valid
     const container = document.getElementById(this.containerId);
-    if (container) {
+    if (container && typeof container.querySelector === 'function') {
       const card = container.querySelector('.rounded-3');
       if (card) {
-        card.style.border = '1px solid #198754';
-        card.style.background = '#F6FFF9';
+        if (this.uploadedDocs && this.uploadedDocs.length > 0) {
+          card.style.border = '1px solid #198754';
+          card.style.background = '#F6FFF9';
+        } else {
+          card.style.border = '1px solid #e9ecef';
+          card.style.background = '#FBFDFF';
+        }
       }
     }
     return true;
