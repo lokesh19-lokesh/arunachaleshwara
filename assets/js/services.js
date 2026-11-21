@@ -254,6 +254,7 @@ if (typeof window !== 'undefined') window.RESTAURANT_CORE_SERVICE = RESTAURANT_C
  * Render a service card (used on homepage & services page)
  */
 function renderServiceCard(service, index) {
+  if (!service) return '';
   const delay = (index % 4) * 100;
   const imgWrapClass = service.imageFit === 'contain' ? 'service-card-img service-card-img--contain' : 'service-card-img';
   const imageMarkup = service.image
@@ -295,14 +296,15 @@ function renderServicesGrid(containerId) {
   if (!container) return;
 
   function ensureRestaurantInList(arr) {
-    if (!arr || !Array.isArray(arr)) return arr;
-    if (!arr.some(s => s && s.id === 'restaurant')) {
-      const restObj = RESTAURANT_CORE_SERVICE;
-      const accIdx = arr.findIndex(s => s && s.id === 'accommodation');
-      if (accIdx !== -1) arr.splice(accIdx + 1, 0, restObj);
-      else arr.unshift(restObj);
+    if (!arr || !Array.isArray(arr) || arr.length === 0) return SERVICES_DATA;
+    const clean = arr.filter(Boolean);
+    if (!clean.some(s => s && s.id === 'restaurant')) {
+      const restObj = (typeof window !== 'undefined' && window.RESTAURANT_CORE_SERVICE) ? window.RESTAURANT_CORE_SERVICE : RESTAURANT_CORE_SERVICE;
+      const accIdx = clean.findIndex(s => s && s.id === 'accommodation');
+      if (accIdx !== -1) clean.splice(accIdx + 1, 0, restObj);
+      else clean.unshift(restObj);
     }
-    return arr;
+    return clean;
   }
 
   // Immediate render from latest cached DB data (if any) or static defaults (0ms instant paint)
@@ -314,16 +316,22 @@ function renderServicesGrid(containerId) {
     }
   }
   SERVICES_DATA = ensureRestaurantInList(SERVICES_DATA);
-  container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
+  const cardsHtml = SERVICES_DATA.filter(Boolean).map((s, i) => renderServiceCard(s, i)).join('');
+  if (cardsHtml) {
+    container.innerHTML = cardsHtml;
+  }
 
   // Always fetch fresh data from Supabase in background so Admin edits reflect immediately
   if (typeof fetchServicesFromSupabase === 'function') {
     fetchServicesFromSupabase().then(dbServices => {
-      if (dbServices && dbServices.length > 0) {
+      if (dbServices && Array.isArray(dbServices) && dbServices.length > 0) {
         SERVICES_DATA = ensureRestaurantInList(dbServices);
         window.SERVICES_DATA = SERVICES_DATA;
-        container.innerHTML = SERVICES_DATA.map((s, i) => renderServiceCard(s, i)).join('');
-        if (typeof AOS !== 'undefined') AOS.refresh();
+        const freshHtml = SERVICES_DATA.filter(Boolean).map((s, i) => renderServiceCard(s, i)).join('');
+        if (freshHtml) {
+          container.innerHTML = freshHtml;
+        }
+        if (typeof AOS !== 'undefined' && typeof AOS.refresh === 'function') AOS.refresh();
       }
     }).catch(err => {
       console.warn('Supabase dynamic services fetch error:', err);
