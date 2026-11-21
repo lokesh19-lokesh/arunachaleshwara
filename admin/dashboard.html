@@ -237,19 +237,31 @@
       }
     });
 
+    let gRoomChartInstance = null;
+    let gBookingChartInstance = null;
+    let gIsLoadingDashboard = false;
+
     async function loadDashboardData() {
+      if (gIsLoadingDashboard) return;
+      gIsLoadingDashboard = true;
+
       try {
         const sb = window.adminSupabase;
+        if (!sb) {
+          console.warn('adminSupabase client not initialized');
+          gIsLoadingDashboard = false;
+          return;
+        }
         const todayStr = new Date().toISOString().split('T')[0];
 
         const [
-          { data: accBookings },
-          { data: srvBookings },
-          { data: rooms },
-          { data: payments },
-          { data: customers },
-          { data: invoices }
-        ] = await Promise.all([
+          resAcc,
+          resSrv,
+          resRooms,
+          resPay,
+          resCust,
+          resInv
+        ] = await Promise.allSettled([
           sb.from('accommodation_bookings').select('*').order('created_at', { ascending: false }),
           sb.from('service_bookings').select('*').order('created_at', { ascending: false }),
           sb.from('accommodation_rooms').select('*'),
@@ -257,6 +269,13 @@
           sb.from('customers').select('id'),
           sb.from('invoices').select('id')
         ]);
+
+        const accBookings = (resAcc.status === 'fulfilled' && resAcc.value && resAcc.value.data) ? resAcc.value.data : [];
+        const srvBookings = (resSrv.status === 'fulfilled' && resSrv.value && resSrv.value.data) ? resSrv.value.data : [];
+        const rooms = (resRooms.status === 'fulfilled' && resRooms.value && resRooms.value.data) ? resRooms.value.data : [];
+        const payments = (resPay.status === 'fulfilled' && resPay.value && resPay.value.data) ? resPay.value.data : [];
+        const customers = (resCust.status === 'fulfilled' && resCust.value && resCust.value.data) ? resCust.value.data : [];
+        const invoices = (resInv.status === 'fulfilled' && resInv.value && resInv.value.data) ? resInv.value.data : [];
 
         const allBookings = [...(accBookings || []), ...(srvBookings || [])];
         const totalBookings = allBookings.length;
@@ -282,77 +301,124 @@
           .filter(b => b.booking_status !== 'Cancelled')
           .reduce((sum, b) => sum + Number(b.balance_amount || 0), 0);
 
-        // Populate KPI cards
-        document.getElementById('statTotalBookings').textContent = totalBookings;
-        document.getElementById('statTodayBookings').textContent = `${todayBookings} received today`;
-        document.getElementById('statPendingBookings').textContent = pending;
-        document.getElementById('statAwaitingPay').textContent = `${awaiting} awaiting payment / verify`;
-        document.getElementById('statConfirmedBookings').textContent = confirmed;
-        document.getElementById('statCompletedBookings').textContent = `${completed} completed • ${cancelled} cancelled`;
-        document.getElementById('statTotalRooms').textContent = roomList.length;
-        document.getElementById('statRoomSplit').textContent = `${availRooms} Available • ${occRooms} Occupied`;
-        document.getElementById('statRevenue').textContent = formatINR(verifiedRevenue);
-        document.getElementById('statOutstanding').textContent = formatINR(outstanding);
-        document.getElementById('statPendingVerify').textContent = `${pendingVerifications} pending verification`;
-        document.getElementById('statCustomers').textContent = (customers || []).length;
-        document.getElementById('statInvoices').textContent = (invoices || []).length;
+        // Populate KPI cards safely
+        const elTotalB = document.getElementById('statTotalBookings');
+        if (elTotalB) elTotalB.textContent = totalBookings;
+
+        const elTodayB = document.getElementById('statTodayBookings');
+        if (elTodayB) elTodayB.textContent = `${todayBookings} received today`;
+
+        const elPending = document.getElementById('statPendingBookings');
+        if (elPending) elPending.textContent = pending;
+
+        const elAwaiting = document.getElementById('statAwaitingPay');
+        if (elAwaiting) elAwaiting.textContent = `${awaiting} awaiting payment / verify`;
+
+        const elConfirmed = document.getElementById('statConfirmedBookings');
+        if (elConfirmed) elConfirmed.textContent = confirmed;
+
+        const elCompleted = document.getElementById('statCompletedBookings');
+        if (elCompleted) elCompleted.textContent = `${completed} completed • ${cancelled} cancelled`;
+
+        const elTotalRooms = document.getElementById('statTotalRooms');
+        if (elTotalRooms) elTotalRooms.textContent = roomList.length;
+
+        const elRoomSplit = document.getElementById('statRoomSplit');
+        if (elRoomSplit) elRoomSplit.textContent = `${availRooms} Available • ${occRooms} Occupied`;
+
+        const elRev = document.getElementById('statRevenue');
+        if (elRev && typeof formatINR === 'function') elRev.textContent = formatINR(verifiedRevenue);
+
+        const elOut = document.getElementById('statOutstanding');
+        if (elOut && typeof formatINR === 'function') elOut.textContent = formatINR(outstanding);
+
+        const elPendingV = document.getElementById('statPendingVerify');
+        if (elPendingV) elPendingV.textContent = `${pendingVerifications} pending verification`;
+
+        const elCust = document.getElementById('statCustomers');
+        if (elCust) elCust.textContent = (customers || []).length;
+
+        const elInv = document.getElementById('statInvoices');
+        if (elInv) elInv.textContent = (invoices || []).length;
 
         // Render Recent Bookings
         const recentB = (accBookings || []).slice(0, 6);
         const bookingsTbody = document.getElementById('recentBookingsBody');
-        if (recentB.length === 0) {
-          bookingsTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No booking requests yet. Submit a test booking on the Accommodation page!</td></tr>';
-        } else {
-          bookingsTbody.innerHTML = recentB.map(b => `
-            <tr>
-              <td><a href="bookings.html?id=${b.booking_id}" class="fw-bold text-decoration-none text-dark">${b.booking_id}</a></td>
-              <td>
-                <div class="fw-semibold">${b.customer_name}</div>
-                <small class="text-muted">${b.mobile}</small>
-              </td>
-              <td>
-                <div class="small fw-medium">${b.category_name || 'Room'} ${b.allocated_room_number ? `(Room ${b.allocated_room_number})` : ''}</div>
-                <small class="text-muted">${formatDate(b.check_in)} → ${formatDate(b.check_out)}</small>
-              </td>
-              <td class="fw-bold">${formatINR(b.estimated_amount)}</td>
-              <td>${getStatusBadge(b.booking_status)}</td>
-            </tr>
-          `).join('');
+        if (bookingsTbody) {
+          if (recentB.length === 0) {
+            bookingsTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No booking requests yet. Submit a test booking on the Accommodation page!</td></tr>';
+          } else {
+            bookingsTbody.innerHTML = recentB.map(b => `
+              <tr>
+                <td><a href="bookings.html?id=${b.booking_id}" class="fw-bold text-decoration-none text-dark">${b.booking_id}</a></td>
+                <td>
+                  <div class="fw-semibold">${b.customer_name}</div>
+                  <small class="text-muted">${b.mobile}</small>
+                </td>
+                <td>
+                  <div class="small fw-medium">${b.category_name || 'Room'} ${b.allocated_room_number ? `(Room ${b.allocated_room_number})` : ''}</div>
+                  <small class="text-muted">${typeof formatDate === 'function' ? formatDate(b.check_in) : b.check_in} → ${typeof formatDate === 'function' ? formatDate(b.check_out) : b.check_out}</small>
+                </td>
+                <td class="fw-bold">${typeof formatINR === 'function' ? formatINR(b.estimated_amount) : ('₹' + b.estimated_amount)}</td>
+                <td>${typeof getStatusBadge === 'function' ? getStatusBadge(b.booking_status) : b.booking_status}</td>
+              </tr>
+            `).join('');
+          }
         }
 
         // Render Recent Payments
         const recentP = payList.slice(0, 6);
         const payTbody = document.getElementById('recentPaymentsBody');
-        if (recentP.length === 0) {
-          payTbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No manual payments recorded yet.</td></tr>';
-        } else {
-          payTbody.innerHTML = recentP.map(p => `
-            <tr>
-              <td>
-                <div class="fw-bold small">${p.booking_code}</div>
-                <small class="text-muted">${p.customer_name || ''}</small>
-              </td>
-              <td><span class="badge bg-light text-dark border">${p.payment_method}</span></td>
-              <td class="fw-bold text-success">${formatINR(p.amount)}</td>
-              <td>${getStatusBadge(p.status)}</td>
-            </tr>
-          `).join('');
+        if (payTbody) {
+          if (recentP.length === 0) {
+            payTbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No manual payments recorded yet.</td></tr>';
+          } else {
+            payTbody.innerHTML = recentP.map(p => `
+              <tr>
+                <td>
+                  <div class="fw-bold small">${p.booking_code}</div>
+                  <small class="text-muted">${p.customer_name || ''}</small>
+                </td>
+                <td><span class="badge bg-light text-dark border">${p.payment_method}</span></td>
+                <td class="fw-bold text-success">${typeof formatINR === 'function' ? formatINR(p.amount) : ('₹' + p.amount)}</td>
+                <td>${typeof getStatusBadge === 'function' ? getStatusBadge(p.status) : p.status}</td>
+              </tr>
+            `).join('');
+          }
         }
 
-        // Render Charts
-        renderCharts({ availRooms, occRooms, maintRooms, pending, awaiting, confirmed, completed, cancelled });
+        // Render Charts with safety wrapper
+        try {
+          renderCharts({ availRooms, occRooms, maintRooms, pending, awaiting, confirmed, completed, cancelled });
+        } catch (chartErr) {
+          console.warn('Charts render warning (non-fatal):', chartErr);
+        }
 
       } catch (err) {
         console.error('Dashboard load error:', err);
-        showAdminToast('Error loading dashboard statistics', 'error');
+      } finally {
+        gIsLoadingDashboard = false;
       }
     }
 
     function renderCharts(d) {
+      if (typeof Chart === 'undefined') return;
+
       // Room Status Bar Chart
       const ctxRoom = document.getElementById('roomOccupancyChart');
       if (ctxRoom) {
-        new Chart(ctxRoom, {
+        if (gRoomChartInstance) {
+          gRoomChartInstance.destroy();
+          gRoomChartInstance = null;
+        }
+        if (typeof Chart.getChart === 'function') {
+          const existingRoomChart = Chart.getChart(ctxRoom);
+          if (existingRoomChart) {
+            existingRoomChart.destroy();
+          }
+        }
+
+        gRoomChartInstance = new Chart(ctxRoom, {
           type: 'bar',
           data: {
             labels: ['Available Rooms', 'Occupied Rooms', 'Maintenance / Blocked'],
@@ -374,8 +440,19 @@
       // Bookings Status Doughnut
       const ctxBook = document.getElementById('bookingStatusChart');
       if (ctxBook) {
+        if (gBookingChartInstance) {
+          gBookingChartInstance.destroy();
+          gBookingChartInstance = null;
+        }
+        if (typeof Chart.getChart === 'function') {
+          const existingBookChart = Chart.getChart(ctxBook);
+          if (existingBookChart) {
+            existingBookChart.destroy();
+          }
+        }
+
         const hasData = (d.pending + d.awaiting + d.confirmed + d.completed + d.cancelled) > 0;
-        new Chart(ctxBook, {
+        gBookingChartInstance = new Chart(ctxBook, {
           type: 'doughnut',
           data: {
             labels: hasData ? ['Pending', 'Awaiting Pay', 'Confirmed', 'Completed', 'Cancelled'] : ['No Bookings Yet'],
