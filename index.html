@@ -562,7 +562,7 @@
 
   <!-- Page Initialization Script -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function initIndexComponents() {
       // Render Services
       if (typeof renderServicesGrid === 'function') {
         renderServicesGrid('servicesGrid');
@@ -575,7 +575,13 @@
       if (typeof renderGalleryPreview === 'function') {
         renderGalleryPreview('galleryPreview');
       }
-    });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initIndexComponents);
+    } else {
+      initIndexComponents();
+    }
+    window.addEventListener('load', initIndexComponents);
   </script>
 </body>
 </html>

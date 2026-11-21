@@ -1844,3 +1844,23 @@ window.updatePubTaxiFare = updatePubTaxiFare;
 window.submitPublicTaxiBooking = submitPublicTaxiBooking;
 window.sendTaxiBookingViaWhatsApp = sendTaxiBookingViaWhatsApp;
 
+window.renderServicesGrid = renderServicesGrid;
+window.renderServiceCard = renderServiceCard;
+window.SERVICES_DATA = SERVICES_DATA;
+
+// Auto-render services grids immediately if DOM elements exist
+if (typeof document !== 'undefined') {
+  function autoRenderServicesGrids() {
+    if (document.getElementById('servicesGrid')) renderServicesGrid('servicesGrid');
+    if (document.getElementById('servicesPageGrid')) renderServicesGrid('servicesPageGrid');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoRenderServicesGrids);
+  } else {
+    autoRenderServicesGrids();
+  }
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('load', autoRenderServicesGrids);
+  }
+}
+

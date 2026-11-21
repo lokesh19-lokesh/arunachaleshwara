@@ -164,11 +164,17 @@
   <script src="assets/js/main.js" defer></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function initServicesPage() {
       if (typeof renderServicesGrid === 'function') {
         renderServicesGrid('servicesPageGrid');
       }
-    });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initServicesPage);
+    } else {
+      initServicesPage();
+    }
+    window.addEventListener('load', initServicesPage);
   </script>
 </body>
 </html>
