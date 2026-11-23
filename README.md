@@ -10,7 +10,7 @@ A professional, premium, fully responsive, semi-dynamic multi-page website for *
 - **Tagline**: All Travel & Pilgrimage Services Under One Roof!
 - **Location**: Avulpet Bypass, Tiruvannamalai, Tamil Nadu, India
 - **Hotline / WhatsApp**: +91 90105 15341
-- **Email**: arunachalatoursandtravels@gmail.com
+- **Email**: arunachalaeswara2025@gmail.com
 
 ### Color Palette
 - **Primary Maroon**: `#681D17`

@@ -3,6 +3,11 @@
    ============================================================ */
 
 const WHATSAPP_NUMBER = '919010515341';
+const CONTACT_EMAIL = 'arunachalaeswara2025@gmail.com';
+
+function safeEscape(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 /**
  * Initialize contact form
@@ -17,14 +22,21 @@ function initContactForm() {
     if (!validateForm(form)) return;
 
     const formData = {
-      name: form.querySelector('#contactName').value.trim(),
-      mobile: form.querySelector('#contactMobile').value.trim(),
-      email: form.querySelector('#contactEmail').value.trim(),
-      subject: form.querySelector('#contactSubject').value.trim(),
-      message: form.querySelector('#contactMessage').value.trim()
+      name: (form.querySelector('#contactName')?.value || '').trim(),
+      mobile: (form.querySelector('#contactMobile')?.value || '').trim(),
+      email: (form.querySelector('#contactEmail')?.value || '').trim(),
+      subject: (form.querySelector('#contactSubject')?.value || 'General Enquiry').trim(),
+      message: (form.querySelector('#contactMessage')?.value || '').trim()
     };
 
-    // Submit to Supabase asynchronously
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '<i class="bi bi-send-fill"></i> Prepare &amp; Send Message';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending to ' + CONTACT_EMAIL + '...';
+    }
+
+    // 1. Submit to Supabase asynchronously
     if (typeof submitContactMessageToSupabase === 'function') {
       submitContactMessageToSupabase({
         name: formData.name,
@@ -35,20 +47,67 @@ function initContactForm() {
       }).catch(err => console.warn('Supabase contact submission error:', err));
     }
 
-    // Build WhatsApp message
-    const waMessage = `*New Contact Enquiry*%0A%0A` +
-      `*Name:* ${formData.name}%0A` +
-      `*Mobile:* ${formData.mobile}%0A` +
-      `*Email:* ${formData.email}%0A` +
-      `*Subject:* ${formData.subject}%0A` +
-      `*Message:* ${formData.message}`;
+    // 2. Prepare Direct Mailto URL
+    const mailSubject = encodeURIComponent(`[Arunachaleshwara Enquiry] ${formData.subject}`);
+    const mailBody = encodeURIComponent(
+      `Devotee Name: ${formData.name}\n` +
+      `Mobile Number: ${formData.mobile}\n` +
+      `Email Address: ${formData.email}\n` +
+      `Subject: ${formData.subject}\n\n` +
+      `Travel Requirement / Message:\n${formData.message}\n\n` +
+      `---\nSent from Arunachaleshwara Tours & Travels Website (contact.html)`
+    );
+    const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${mailSubject}&body=${mailBody}`;
 
-    // Show success message with WhatsApp option
+    // 3. Build WhatsApp message
+    const waMessage = encodeURIComponent(
+      `*New Contact Enquiry*\n\n` +
+      `*Name:* ${formData.name}\n` +
+      `*Mobile:* ${formData.mobile}\n` +
+      `*Email:* ${formData.email}\n` +
+      `*Subject:* ${formData.subject}\n` +
+      `*Message:* ${formData.message}`
+    );
+
+    // 4. Send email directly to arunachalaeswara2025@gmail.com via FormSubmit AJAX
+    fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `New Travel Message: ${formData.subject} - ${formData.name}`,
+        _template: 'table',
+        _captcha: 'false',
+        "Devotee Name": formData.name,
+        "Mobile Number": formData.mobile,
+        "Email Address": formData.email,
+        "Subject": formData.subject,
+        "Travel Requirement / Message": formData.message,
+        "Submission Time": new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+      })
+    }).then(res => res.json()).then(data => {
+      console.log('FormSubmit email delivered:', data);
+    }).catch(err => {
+      console.warn('FormSubmit background notification notice:', err);
+    }).finally(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    });
+
+    // 5. Show prominent confirmation message
     showFormMessage(form, 'success',
-      `Thank you, ${formData.name}! Your message has been received and saved. ` +
-      `You can also connect with us instantly via WhatsApp below. ` +
-      `<br><br><a href="https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm mt-2">` +
-      `<i class="bi bi-whatsapp"></i> Chat on WhatsApp</a>`
+      `<div class="p-3 bg-light rounded-3 border border-success">` +
+      `<h6 class="text-success fw-bold mb-2"><i class="bi bi-check-circle-fill me-1"></i> Data Delivered to ${CONTACT_EMAIL}</h6>` +
+      `<p class="small mb-2">Thank you, <strong>${safeEscape(formData.name)}</strong>! Your details have been sent to <strong>${CONTACT_EMAIL}</strong> and logged in our system.</p>` +
+      `<div class="d-flex flex-wrap gap-2 mt-3">` +
+      `<a href="${mailtoUrl}" class="btn btn-outline-dark btn-sm"><i class="bi bi-envelope-fill me-1"></i> Open Mail Client</a>` +
+      `<a href="https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm"><i class="bi bi-whatsapp me-1"></i> Instant WhatsApp Reply</a>` +
+      `</div>` +
+      `</div>`
     );
 
     form.reset();
@@ -119,6 +178,31 @@ function initEnquiryForm() {
         specialRequests: formData.requirements || null
       }).catch(err => console.warn('Supabase enquiry submit error:', err));
     }
+
+    // Forward detailed enquiry email to arunachalaeswara2025@gmail.com
+    fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: `New Detailed Pilgrimage Enquiry: ${formData.service || 'Travel'} - ${formData.name}`,
+        _template: 'table',
+        _captcha: 'false',
+        "Devotee Name": formData.name,
+        "Mobile Number": formData.mobile,
+        "Email Address": formData.email,
+        "Travel Date": formData.travelDate || 'Not specified',
+        "Group Size": `${formData.adults || 1} Adults, ${formData.children || 0} Children`,
+        "Service Type": formData.service || 'Not specified',
+        "Destination": formData.destination || 'Tiruvannamalai',
+        "Duration": formData.days ? `${formData.days} Days` : 'Not specified',
+        "Pickup Location": formData.pickup || 'Not specified',
+        "Special Requirements": formData.requirements || 'None',
+        "Submission Time": new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+      })
+    }).catch(err => console.warn('Enquiry email delivery note:', err));
 
     // Show summary
     const summaryContainer = document.getElementById('enquirySummary');

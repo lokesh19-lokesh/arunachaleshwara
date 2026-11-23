@@ -106,7 +106,7 @@
                 <div class="contact-info-icon"><i class="bi bi-envelope-fill"></i></div>
                 <div class="contact-info-text">
                   <h6>Email Address</h6>
-                  <p><a href="mailto:arunachalatoursandtravels@gmail.com">arunachalatoursandtravels@gmail.com</a></p>
+                  <p><a href="mailto:arunachalaeswara2025@gmail.com">arunachalaeswara2025@gmail.com</a></p>
                 </div>
               </div>
 
@@ -129,36 +129,40 @@
               <h3 class="text-maroon mt-1 mb-2">Write To Our Travel Desk</h3>
               <p class="text-muted small mb-4">Fill out the details below. Our team will review your message and connect back promptly.</p>
 
-              <form id="contactForm" novalidate>
+              <form id="contactForm" action="https://formsubmit.co/arunachalaeswara2025@gmail.com" method="POST" novalidate>
+                <input type="hidden" name="_to" value="arunachalaeswara2025@gmail.com">
+                <input type="hidden" name="_subject" value="New Website Contact Message – Arunachaleshwara Tours">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_template" value="table">
                 <div class="row g-3">
                   <!-- Full Name -->
                   <div class="col-md-6">
                     <label for="contactName" class="form-label-custom">Full Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-custom" id="contactName" placeholder="e.g. Ramesh Sharma" required>
+                    <input type="text" class="form-control form-control-custom" id="contactName" name="name" placeholder="e.g. Ramesh Sharma" required>
                   </div>
 
                   <!-- Mobile Number -->
                   <div class="col-md-6">
                     <label for="contactMobile" class="form-label-custom">Mobile Number <span class="text-danger">*</span></label>
-                    <input type="tel" class="form-control form-control-custom" id="contactMobile" placeholder="e.g. 9876543210" data-validate="mobile" required>
+                    <input type="tel" class="form-control form-control-custom" id="contactMobile" name="mobile" placeholder="e.g. 9876543210" data-validate="mobile" required>
                   </div>
 
                   <!-- Email Address -->
                   <div class="col-md-6">
                     <label for="contactEmail" class="form-label-custom">Email Address <span class="text-danger">*</span></label>
-                    <input type="email" class="form-control form-control-custom" id="contactEmail" placeholder="e.g. ramesh@example.com" required>
+                    <input type="email" class="form-control form-control-custom" id="contactEmail" name="email" placeholder="e.g. ramesh@example.com" required>
                   </div>
 
                   <!-- Subject -->
                   <div class="col-md-6">
                     <label for="contactSubject" class="form-label-custom">Subject <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-custom" id="contactSubject" placeholder="e.g. Girivalam Taxi & Room Booking" required>
+                    <input type="text" class="form-control form-control-custom" id="contactSubject" name="subject" placeholder="e.g. Girivalam Taxi & Room Booking" required>
                   </div>
 
                   <!-- Message -->
                   <div class="col-12">
                     <label for="contactMessage" class="form-label-custom">Your Message / Travel Requirement <span class="text-danger">*</span></label>
-                    <textarea class="form-control form-control-custom" id="contactMessage" rows="4" placeholder="Tell us your planned travel dates, group size, and services you need..." required></textarea>
+                    <textarea class="form-control form-control-custom" id="contactMessage" name="message" rows="4" placeholder="Tell us your planned travel dates, group size, and services you need..." required></textarea>
                   </div>
 
                   <!-- Submit Buttons -->
@@ -167,7 +171,7 @@
                       <i class="bi bi-send-fill"></i> Prepare &amp; Send Message
                     </button>
                     <small class="text-muted d-block text-center mt-2">
-                      <i class="bi bi-lock me-1"></i> Your details are strictly used to respond to your pilgrimage enquiry.
+                      <i class="bi bi-shield-check text-success me-1"></i> Your details are delivered directly to arunachalaeswara2025@gmail.com and our travel desk.
                     </small>
                   </div>
                 </div>

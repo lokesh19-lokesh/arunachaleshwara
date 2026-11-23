@@ -6,7 +6,7 @@
 const NAV_CONFIG = {
   phone: '9010515341',
   phoneFormatted: '+91 90105 15341',
-  email: 'arunachalatoursandtravels@gmail.com',
+  email: 'arunachalaeswara2025@gmail.com',
   whatsapp: '919010515341',
   location: 'Avulpet Bypass, Tiruvannamalai',
   facebook: '#',

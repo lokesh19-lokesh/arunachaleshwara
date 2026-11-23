@@ -209,7 +209,7 @@ async function generateInvoicePDF(invoice, orgSettings = null) {
     tagline: 'Divine Pilgrimage & Hospitality Services',
     address: 'Avulpet Bypass, Near Arunachaleswarar Temple, Tiruvannamalai - 606601, Tamil Nadu',
     phone: '+91 90105 15341',
-    email: 'arunachalatoursandtravels@gmail.com',
+    email: 'arunachalaeswara2025@gmail.com',
     gstin: '',
     terms: '1. Check-in: 12:00 PM | Check-out: 11:00 AM.\n2. Please present a valid Govt. photo ID proof at check-in.\n3. Advance payments are non-refundable within 48 hours of check-in.\n4. Thank you for choosing Arunachaleswara Tours & Travels. Om Namah Shivaya.',
     logo_url: null,
