@@ -5,10 +5,10 @@
 let SERVICES_DATA = [
   {
     id: 'accommodation',
-    title: 'Accommodation',
+    title: 'Rooms',
     icon: 'bi-house-door-fill',
     shortDesc: 'Comfortable rooms and hotel bookings for pilgrims and families visiting Tiruvannamalai.',
-    description: 'We provide comfortable and clean accommodation options for pilgrims and families visiting Tiruvannamalai. From budget-friendly rooms to premium hotel bookings, we ensure your stay is peaceful and convenient, located close to the Arunachaleswarar Temple.',
+    description: 'We provide comfortable and clean rooms for pilgrims and families visiting Tiruvannamalai. From budget-friendly rooms to premium hotel bookings, we ensure your stay is peaceful and convenient, located close to the Arunachaleswarar Temple.',
     features: [
       'Comfortable Rooms & Hotel Bookings',
       'Family Rooms & Group Accommodation',
@@ -26,7 +26,7 @@ let SERVICES_DATA = [
   },
   {
     id: 'restaurant',
-    title: 'Restaurant',
+    title: 'Food',
     icon: 'bi-cup-hot-fill',
     shortDesc: 'Pure vegetarian South Indian meals, tiffin, degree filter kaapi, and direct room delivery.',
     description: 'Relish authentic South Indian pure vegetarian cuisine, traditional breakfast tiffin, unlimited banana leaf meals, filter coffee, and sattvic temple food prepared with sacred tradition. Enjoy cozy dining or order directly to your hotel room with swift delivery in Tiruvannamalai.',

@@ -196,7 +196,7 @@ const GALLERY_CATEGORIES = [
   { id: 'all', label: 'All Photos' },
   { id: 'temples', label: 'Temple Gallery' },
   { id: 'travel', label: 'Travel Gallery' },
-  { id: 'accommodation', label: 'Accommodation' },
+  { id: 'accommodation', label: 'Rooms' },
   { id: 'vehicles', label: 'Vehicles' },
   { id: 'pilgrimage', label: 'Pilgrimage Experiences' }
 ];

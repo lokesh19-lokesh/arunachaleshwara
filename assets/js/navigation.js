@@ -17,8 +17,8 @@ const NAV_CONFIG = {
 const NAV_LINKS = [
   { text: 'Home', href: 'index.html', id: 'home' },
   { text: 'About Us', href: 'about.html', id: 'about' },
-  { text: 'Accommodation', href: 'accommodation.html', id: 'accommodation' },
-  { text: 'Restaurant', href: 'restaurant.html', id: 'restaurant' },
+  { text: 'Rooms', href: 'accommodation.html', id: 'accommodation' },
+  { text: 'Food', href: 'restaurant.html', id: 'restaurant' },
   { text: 'Services', href: 'services.html', id: 'services' },
   { text: 'Tour Packages', href: 'tour-packages.html', id: 'tour-packages' },
   { text: 'Gallery', href: 'gallery.html', id: 'gallery' },
@@ -148,8 +148,8 @@ function getFooterHTML() {
         <div class="col-lg-3 col-md-6 col-6">
           <h5 class="footer-heading">Our Services</h5>
           <ul class="footer-links">
-            <li><a href="accommodation.html">Accommodation</a></li>
-            <li><a href="restaurant.html">Pure Veg Restaurant</a></li>
+            <li><a href="accommodation.html">Rooms</a></li>
+            <li><a href="restaurant.html">Pure Veg Food</a></li>
             <li><a href="service-details.html?id=temple-darshan">Temple Darshan</a></li>
             <li><a href="service-details.html?id=taxi-car-rentals">Taxi & Car Rentals</a></li>
             <li><a href="service-details.html?id=bus-ticket-booking">Bus Tickets</a></li>
