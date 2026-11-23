@@ -93,19 +93,14 @@
   <style>
     /* Restaurant Page Specific Theme Styling */
     .restaurant-hero {
-      background: linear-gradient(135deg, rgba(69, 18, 14, 0.94) 0%, rgba(42, 11, 9, 0.96) 100%), url('assets/images/services/restaurant.jpg') center/cover no-repeat;
-      color: #FFFFFF;
-      padding: 70px 0 50px;
+      background: #FFC908;
+      border-bottom: 2px solid #E5B400;
+      color: #45120E;
+      padding: 60px 0 45px;
       position: relative;
     }
     .restaurant-hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 8px;
-      background: linear-gradient(90deg, #FFC908 0%, #E5A800 100%);
+      display: none;
     }
 
     /* Category Navigation Pills */
@@ -231,40 +226,40 @@
   <main>
     <!-- Restaurant Hero Banner -->
     <section class="restaurant-hero">
-      <div class="container text-center">
-        <div class="d-inline-flex align-items-center gap-2 badge px-3 py-2 mb-3 rounded-pill shadow-sm" style="background: rgba(255, 201, 8, 0.15); border: 1px solid #FFC908; color: #FFC908; font-weight: 700; font-size: 0.85rem;">
+      <div class="container text-center position-relative z-1">
+        <div class="d-inline-flex align-items-center gap-2 badge px-3 py-2 mb-3 rounded-pill shadow-sm" style="background: #45120E; color: #FFC908; font-weight: 700; font-size: 0.85rem;">
           <i class="bi bi-patch-check-fill text-warning"></i> 100% PURE VEGETARIAN &amp; SATTVIC CUISINE
         </div>
-        <h1 class="mb-2 text-white" style="font-family: var(--ff-heading, 'Cinzel', serif); font-size: clamp(1.8rem, 4vw, 2.8rem); text-shadow: 0 2px 4px rgba(0,0,0,0.5);" id="restaurantHeroName">
+        <h1 class="mb-2" style="font-family: var(--ff-heading, 'Cinzel', serif); font-size: clamp(1.8rem, 4vw, 2.8rem); color: #45120E; font-weight: 800;" id="restaurantHeroName">
           Arunachaleshwara Pure Veg Restaurant
         </h1>
-        <div class="gold-divider mx-auto mb-3"></div>
-        <p class="lead mx-auto text-white-50 mb-3" style="max-width: 760px; color: rgba(255, 255, 255, 0.9) !important;">
+        <div class="gold-divider mx-auto mb-3" style="background: #45120E;"></div>
+        <p class="lead mx-auto mb-3" style="max-width: 760px; color: #45120E !important; font-weight: 500;">
           Authentic South Indian Breakfast Tiffin, Traditional Banana Leaf Thali Meals, Kumbakonam Degree Filter Kaapi, and Fast Room Delivery for Temple Devotees.
         </p>
 
         <!-- Timings & Room Service Info -->
         <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 mt-3">
-          <span class="badge bg-black bg-opacity-40 px-3 py-2 rounded-pill border border-secondary text-white">
+          <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background: #45120E; color: #FFFFFF; font-weight: 600;">
             <i class="bi bi-clock-fill text-warning me-1"></i> <span id="restaurantHeroTimings">Daily 06:30 AM – 10:30 PM</span>
           </span>
-          <span class="badge bg-black bg-opacity-40 px-3 py-2 rounded-pill border border-secondary text-white">
+          <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background: #45120E; color: #FFFFFF; font-weight: 600;">
             <i class="bi bi-door-open-fill text-warning me-1"></i> Direct Room Service to All 17 Rooms
           </span>
-          <a href="tel:+919010515341" class="btn btn-sm px-3 rounded-pill fw-bold" style="background: #FFC908; color: #45120E;">
+          <a href="tel:+919010515341" class="btn btn-sm px-3 rounded-pill fw-bold shadow-sm" style="background: #45120E; color: #FFC908; border: 1px solid #45120E;">
             <i class="bi bi-telephone-fill me-1"></i> Call Desk: 9010515341
           </a>
-          <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvasDrawer">
-            <i class="bi bi-bag-check-fill text-warning me-1"></i> View Cart <span class="badge bg-warning text-dark rounded-pill ms-1 cart-badge-count d-none">0</span>
+          <button type="button" class="btn btn-sm rounded-pill px-3 fw-bold shadow-sm" style="background: #FFFFFF; color: #45120E; border: 1.5px solid #45120E;" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvasDrawer">
+            <i class="bi bi-bag-check-fill text-maroon me-1"></i> View Cart <span class="badge bg-warning text-dark rounded-pill ms-1 cart-badge-count d-none">0</span>
           </button>
         </div>
 
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="d-flex justify-content-center mt-3">
           <ol class="breadcrumb mb-0 small">
-            <li class="breadcrumb-item"><a href="index.html" class="text-white-50 text-decoration-none">Home</a></li>
-            <li class="breadcrumb-item"><a href="services.html" class="text-white-50 text-decoration-none">Services</a></li>
-            <li class="breadcrumb-item active text-warning" aria-current="page">Food</li>
+            <li class="breadcrumb-item"><a href="index.html" style="color: #45120E; text-decoration: none; font-weight: 600;">Home</a></li>
+            <li class="breadcrumb-item"><a href="services.html" style="color: #45120E; text-decoration: none; font-weight: 600;">Services</a></li>
+            <li class="breadcrumb-item active fw-bold" style="color: #681D17;" aria-current="page">Food</li>
           </ol>
         </nav>
       </div>
