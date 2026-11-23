@@ -353,26 +353,42 @@ function hydrateNavigationFromCMS() {
 }
 
 /**
- * Sticky navbar on scroll (always visible & never hidden)
+ * Sticky navbar on scroll (rock-solid, smooth & zero-shake)
  */
 function initStickyNavbar() {
   const header = document.querySelector('header') || document.querySelector('.site-header');
   const navbar = document.getElementById('mainNavbar');
   if (!navbar && !header) return;
 
-  const handleScroll = () => {
+  let isScrolled = false;
+  let ticking = false;
+
+  const updateHeaderState = () => {
     const scrollPos = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-    if (scrollPos > 25) {
+
+    // Hysteresis threshold: activate at > 60px, deactivate at < 15px.
+    // This deadband eliminates oscillation, reflow jitter, and navbar shaking.
+    if (!isScrolled && scrollPos > 60) {
+      isScrolled = true;
       if (header) header.classList.add('scrolled');
       if (navbar) navbar.classList.add('scrolled');
-    } else {
+    } else if (isScrolled && scrollPos < 15) {
+      isScrolled = false;
       if (header) header.classList.remove('scrolled');
       if (navbar) navbar.classList.remove('scrolled');
+    }
+    ticking = false;
+  };
+
+  const handleScroll = () => {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(updateHeaderState);
     }
   };
 
   window.addEventListener('scroll', handleScroll, { passive: true });
-  handleScroll(); // Run immediately in case page reloads mid-scroll
+  updateHeaderState(); // Run immediately in case page reloads mid-scroll
 }
 
 /**

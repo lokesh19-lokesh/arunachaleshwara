@@ -477,9 +477,9 @@ function initScrollBus() {
       roadFill.style.height = `${(progress * 100).toFixed(1)}%`;
     }
 
-    if (scrollY > lastScrollY + 2) {
+    if (scrollY > lastScrollY + 8) {
       currentDirection = 'down';
-    } else if (scrollY < lastScrollY - 2) {
+    } else if (scrollY < lastScrollY - 8) {
       currentDirection = 'up';
     }
     lastScrollY = scrollY;

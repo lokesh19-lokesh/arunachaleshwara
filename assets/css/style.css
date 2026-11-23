@@ -423,6 +423,10 @@ header,
   z-index: 1050;
   background-color: var(--clr-white);
   transition: box-shadow var(--transition);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 header.scrolled,
@@ -523,15 +527,19 @@ header.scrolled .top-bar,
 /* ---------- Main Navbar (Permanently Sticky & Visible) ---------- */
 .main-navbar {
   background-color: var(--clr-white);
-  padding: 0.4rem 0;
-  transition: padding var(--transition), box-shadow var(--transition);
+  padding: 0.35rem 0;
   position: relative;
   z-index: 1051;
   width: 100%;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: box-shadow 0.25s ease;
 }
 
 .main-navbar.scrolled {
-  padding: 0.28rem 0;
+  padding: 0.35rem 0;
+  box-shadow: 0 4px 20px rgba(53, 37, 31, 0.08);
 }
 
 .navbar-brand-wrapper {
@@ -542,13 +550,14 @@ header.scrolled .top-bar,
 }
 
 .navbar-brand-wrapper img {
-  height: 76px;
+  height: 64px;
   width: auto;
-  transition: var(--transition);
+  object-fit: contain;
+  display: block;
 }
 
 .main-navbar.scrolled .navbar-brand-wrapper img {
-  height: 60px;
+  height: 64px;
 }
 
 .brand-text {
@@ -3245,14 +3254,9 @@ html.show-preloader .page-preloader.loaded {
   opacity: 1;
 }
 
-/* Subtle driving vibration animation */
-@keyframes busDriveVibration {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-}
-
+/* Smooth driving without vibration or shaking */
 .scroll-bus-vehicle.is-driving .scroll-bus-svg {
-  animation: busDriveVibration 0.12s ease-in-out infinite;
+  animation: none;
 }
 
 /* Reduced motion preference */
