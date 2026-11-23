@@ -73,12 +73,8 @@ function renderAdminSidebar(activePage) {
   });
 
   sidebarEl.innerHTML = `
-    <a href="dashboard.html" class="admin-sidebar-brand">
-      <img src="../assets/images/logo/logo.png" alt="Arunachaleshwara">
-      <div class="admin-sidebar-brand-text">
-        ARUNACHALESHWARA
-        <span>ADMIN PORTAL</span>
-      </div>
+    <a href="dashboard.html" class="admin-sidebar-brand" title="Arunachaleshwara Admin Portal">
+      <img src="../assets/images/logo/logo.png" alt="Arunachaleshwara Tours & Travels">
     </a>
     <nav class="admin-nav">
       ${navHtml}
