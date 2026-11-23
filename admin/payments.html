@@ -338,7 +338,7 @@
     let activePreset = 'all';
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('payments');
       if (!user) return;
       if (!canAccessModule('payments')) { alert('Permission denied.'); window.location.href = 'dashboard.html'; return; }
       renderAdminSidebar('payments');

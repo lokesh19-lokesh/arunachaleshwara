@@ -896,19 +896,19 @@ Please reply if you need the PDF copy re-attached. Om Namah Shivaya!`,
         updateLivePreview(k);
       }
 
-      // 4. Immediately trigger settings and logs data load (0ms fast path)
-      loadWaData();
-
-      // 5. Asynchronous non-blocking background auth verification
+      // 4. Authenticate and enforce RBAC
       if (typeof requireAdminAuth === 'function') {
-        requireAdminAuth().then(user => {
-          if (user) {
-            if (typeof renderAdminSidebar === 'function') renderAdminSidebar('whatsapp');
-            if (typeof renderAdminHeader === 'function') renderAdminHeader('WhatsApp Settings & Templates', 'Dynamic Routing & Live Message Customization');
-          }
-        }).catch(err => {
-          console.warn('Auth check warning:', err);
-        });
+        try {
+          const user = await requireAdminAuth('whatsapp');
+          if (!user) return;
+          if (typeof renderAdminSidebar === 'function') renderAdminSidebar('whatsapp');
+          if (typeof renderAdminHeader === 'function') renderAdminHeader('WhatsApp Settings & Templates', 'Dynamic Routing & Live Message Customization');
+          loadWaData();
+        } catch (err) {
+          console.warn('Auth check error:', err);
+        }
+      } else {
+        loadWaData();
       }
     }
 
@@ -918,9 +918,6 @@ Please reply if you need the PDF copy re-attached. Om Namah Shivaya!`,
     } else {
       initWhatsAppPage();
     }
-
-    // Immediate 0ms boot: trigger data load synchronously
-    try { loadWaData(); } catch (e) {}
 
     // Real-Time Sync without page reload
     if (window.ArnRealtimeSync) {

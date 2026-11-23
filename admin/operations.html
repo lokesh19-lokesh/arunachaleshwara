@@ -61,7 +61,7 @@
   <script src="assets/js/admin-core.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('accommodation');
       if (!user) return;
       renderAdminSidebar('operations');
       renderAdminHeader('Room Operations Desk', 'Check-Ins & Check-Outs');

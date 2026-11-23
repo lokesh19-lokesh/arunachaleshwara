@@ -293,7 +293,7 @@
     let roomsList = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('accommodation');
       if (!user) return;
       if (!canAccessModule('accommodation')) {
         alert('Permission denied.');

@@ -1013,7 +1013,7 @@
     ];
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('services');
       if (!user) return;
 
       const urlParams = new URLSearchParams(window.location.search);

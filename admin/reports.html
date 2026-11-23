@@ -427,17 +427,17 @@
     }
 
     // Initialization
-    function initReportsPage() {
+    async function initReportsPage() {
       if (typeof requireAdminAuth === 'function') {
-        requireAdminAuth().then(user => {
+        try {
+          const user = await requireAdminAuth('reports');
           if (!user) return;
           if (typeof renderAdminSidebar === 'function') renderAdminSidebar('reports');
           if (typeof renderAdminHeader === 'function') renderAdminHeader('Reports & Analytics', 'Verified Financial Ledger');
           loadReport();
-        }).catch(err => {
-          console.warn('Auth check handled fallback:', err);
-          loadReport();
-        });
+        } catch (err) {
+          console.warn('Auth check handled error:', err);
+        }
       } else {
         loadReport();
       }

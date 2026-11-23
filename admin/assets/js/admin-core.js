@@ -10,7 +10,7 @@ function renderAdminSidebar(activePage) {
   const sidebarEl = document.getElementById('adminSidebar');
   if (!sidebarEl) return;
 
-  const user = window.CURRENT_ADMIN_USER || { fullName: 'Admin', role: 'Super Admin', isMainAdmin: true };
+  const user = window.CURRENT_ADMIN_USER || { fullName: 'Admin', role: 'Staff', isMainAdmin: false, assignedModules: [] };
   const initials = (user.fullName || 'A').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
   const navItems = [

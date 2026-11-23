@@ -123,7 +123,7 @@
   <script src="assets/js/admin-core.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth(null, true);
       if (!user) return;
       if (!user.isMainAdmin) {
         alert('Only the Main Admin can manage Sub-Admin accounts.');

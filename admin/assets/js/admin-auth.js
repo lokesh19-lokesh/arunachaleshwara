@@ -209,9 +209,10 @@ async function fetchFreshAdminProfile(user) {
 
 /**
  * Verify Active Session & Load RBAC Profile (Instant via sessionStorage + background revalidation)
+ * Optionally enforces module permission or Main Admin privilege with automatic redirect.
  * Must be called at the top of every protected admin page
  */
-async function requireAdminAuth() {
+async function requireAdminAuth(requiredModule = null, requireMainAdmin = false) {
   if (!adminSupabase) {
     window.location.href = 'login.html';
     return null;
@@ -227,16 +228,36 @@ async function requireAdminAuth() {
 
   const user = session.user;
 
+  function verifyAccess(profile) {
+    if (!profile) return false;
+    if (requireMainAdmin && !profile.isMainAdmin) {
+      alert('Access Denied: Main Admin privileges required.');
+      window.location.href = 'dashboard.html';
+      return false;
+    }
+    if (requiredModule && !canAccessModule(requiredModule)) {
+      alert(`Access Denied: You do not have permission to access the ${requiredModule} module.`);
+      window.location.href = 'dashboard.html';
+      return false;
+    }
+    return true;
+  }
+
   // Fast path: return cached RBAC profile in < 2ms & revalidate silently in background
   const cached = getCachedAdminProfile(user.id);
   if (cached) {
     window.CURRENT_ADMIN_USER = cached;
+    if (!verifyAccess(cached)) return null;
+
     fetchFreshAdminProfile(user).then(fresh => {
       if (!fresh) {
         clearCachedAdminProfile();
         adminSupabase.auth.signOut().finally(() => { window.location.href = 'login.html'; });
       } else {
         window.CURRENT_ADMIN_USER = fresh;
+        if (!verifyAccess(fresh)) {
+          return;
+        }
       }
     }).catch(() => {});
     return cached;
@@ -246,6 +267,7 @@ async function requireAdminAuth() {
   const fresh = await fetchFreshAdminProfile(user);
   if (fresh) {
     window.CURRENT_ADMIN_USER = fresh;
+    if (!verifyAccess(fresh)) return null;
     return fresh;
   }
 
@@ -260,7 +282,8 @@ async function requireAdminAuth() {
  * Check if current user has permission to access a module
  */
 function canAccessModule(moduleName) {
-  if (!window.CURRENT_ADMIN_USER || window.CURRENT_ADMIN_USER.isMainAdmin) return true;
+  if (!window.CURRENT_ADMIN_USER) return false;
+  if (window.CURRENT_ADMIN_USER.isMainAdmin) return true;
   if (moduleName === 'dashboard') return true;
   return Array.isArray(window.CURRENT_ADMIN_USER.assignedModules) && window.CURRENT_ADMIN_USER.assignedModules.includes(moduleName);
 }

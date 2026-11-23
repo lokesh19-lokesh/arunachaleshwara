@@ -1439,17 +1439,17 @@
     let sigCanvas, sigCtx, isSigDrawing = false;
 
     // Initialization
-    function initInvoicesPage() {
+    async function initInvoicesPage() {
       if (typeof requireAdminAuth === 'function') {
-        requireAdminAuth().then(user => {
+        try {
+          const user = await requireAdminAuth('invoices');
           if (!user) return;
           if (typeof renderAdminSidebar === 'function') renderAdminSidebar('invoices');
           if (typeof renderAdminHeader === 'function') renderAdminHeader('Invoices & Receipts', 'In-App Canvas Studio');
           loadInvoices();
-        }).catch(err => {
-          console.warn('Auth check fallback:', err);
-          loadInvoices();
-        });
+        } catch (err) {
+          console.warn('Auth check error:', err);
+        }
       } else {
         loadInvoices();
       }

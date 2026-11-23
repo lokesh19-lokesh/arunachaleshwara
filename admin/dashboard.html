@@ -30,11 +30,11 @@
             <h5 class="fw-bold text-dark mb-1" id="welcomeText">Loading Dashboard...</h5>
             <p class="text-muted small mb-0">Live statistics pulled directly from Supabase PostgreSQL. No payment gateway active (100% Manual Verification Workflow).</p>
           </div>
-          <div class="d-flex flex-wrap gap-2">
-            <a href="bookings.html" class="btn btn-sm btn-admin-primary"><i class="bi bi-calendar-check me-1"></i> Manage Bookings</a>
-            <a href="operations.html" class="btn btn-sm btn-admin-yellow"><i class="bi bi-door-open me-1"></i> Room Operations</a>
-            <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-warning text-dark border-warning bg-warning-subtle fw-semibold"><i class="bi bi-bag-check-fill text-warning me-1"></i> Food Orders <span class="badge bg-warning text-dark ms-1" id="statBadgeFoodOrders">0</span></a>
-            <a href="services.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-compass me-1"></i> Services &amp; Tours</a>
+          <div class="d-flex flex-wrap gap-2" id="dashboardQuickActions">
+            <a href="bookings.html" class="btn btn-sm btn-admin-primary" data-rbac-module="bookings"><i class="bi bi-calendar-check me-1"></i> Manage Bookings</a>
+            <a href="operations.html" class="btn btn-sm btn-admin-yellow" data-rbac-module="accommodation"><i class="bi bi-door-open me-1"></i> Room Operations</a>
+            <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-warning text-dark border-warning bg-warning-subtle fw-semibold" data-rbac-module="bookings"><i class="bi bi-bag-check-fill text-warning me-1"></i> Food Orders <span class="badge bg-warning text-dark ms-1" id="statBadgeFoodOrders">0</span></a>
+            <a href="services.html" class="btn btn-sm btn-outline-secondary" data-rbac-module="services"><i class="bi bi-compass me-1"></i> Services &amp; Tours</a>
           </div>
         </div>
 
@@ -326,6 +326,14 @@
       renderAdminSidebar('dashboard');
       renderAdminHeader('Dashboard Overview', user.role);
       document.getElementById('welcomeText').textContent = `Welcome back, ${user.fullName}!`;
+
+      // Filter quick action buttons based on RBAC module permissions
+      document.querySelectorAll('#dashboardQuickActions [data-rbac-module]').forEach(btn => {
+        const mod = btn.getAttribute('data-rbac-module');
+        if (mod && typeof canAccessModule === 'function' && !canAccessModule(mod)) {
+          btn.style.display = 'none';
+        }
+      });
 
       loadDashboardData();
 

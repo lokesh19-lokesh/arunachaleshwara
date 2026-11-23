@@ -568,7 +568,7 @@
     let currentSearchTerm = '';
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('cms');
       if (!user) return;
       renderAdminSidebar('cms');
       renderAdminHeader('Website CMS & Media', 'Live Dynamic Gallery & Configuration');

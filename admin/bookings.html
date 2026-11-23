@@ -517,7 +517,7 @@
     let whatsappTemplates = {};
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const user = await requireAdminAuth();
+      const user = await requireAdminAuth('bookings');
       if (!user) return;
       if (!canAccessModule('bookings')) {
         alert('You do not have permission to access Bookings.');
