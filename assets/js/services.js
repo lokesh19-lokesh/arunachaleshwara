@@ -267,7 +267,7 @@ function renderServiceCard(service, index) {
   const isAccommodation = service.id === 'accommodation';
 
   return `
-  <div class="col-lg-3 col-md-6 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="${delay}">
+  <div class="col-lg-3 col-md-6 col-6 mb-3 mb-md-4" data-aos="fade-up" data-aos-delay="${delay}">
     <div class="service-card ${isRestaurant ? 'border-warning shadow-sm' : ''}">
       <div class="service-card-media">
         <div class="${imgWrapClass}">
