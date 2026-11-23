@@ -99,7 +99,7 @@ function renderAdminSidebar(activePage) {
 }
 
 /**
- * Render Top Header Bar
+ * Render Top Header Bar with Live Sync, Role-Based Notification Bell, and Actions
  */
 function renderAdminHeader(pageTitle, subtitle = '') {
   const headerEl = document.getElementById('adminHeader');
@@ -119,6 +119,57 @@ function renderAdminHeader(pageTitle, subtitle = '') {
       <span class="badge bg-success bg-opacity-10 text-success border border-success d-inline-flex align-items-center gap-1 py-1 px-2" id="realtimeSyncBadge" title="Real-Time Sync Active - Updates automatically without reloading" style="font-size: 0.78rem; font-weight: 600;">
         <span class="spinner-grow spinner-grow-sm text-success" style="width: 7px; height: 7px;" role="status"></span> Live Sync
       </span>
+
+      <!-- Role-Based Notification Bell with Dropdown -->
+      <div class="dropdown notification-dropdown-wrapper position-relative" id="adminNotifWrapper">
+        <button class="btn btn-sm btn-outline-secondary position-relative d-inline-flex align-items-center justify-content-center notification-bell-btn" id="adminNotifBellBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifications">
+          <i class="bi bi-bell-fill fs-6" id="adminNotifBellIcon" style="color: #45120E;"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notification-badge" id="adminNotifBadge">0</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end shadow-lg notification-dropdown-menu p-0 border-0" id="adminNotifDropdown" style="width: 380px; max-width: 92vw; border-radius: 12px; overflow: hidden; z-index: 1060; border: 1px solid rgba(0,0,0,0.08) !important;">
+          <!-- Dropdown Header -->
+          <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <span class="fw-bold text-dark fs-6"><i class="bi bi-bell-fill me-1 text-warning"></i>Notifications</span>
+              <span class="badge bg-danger rounded-pill px-2 py-1" id="adminNotifUnreadCountBadge" style="font-size: 0.72rem;">0 unread</span>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+              <!-- Sound Mute/Unmute Toggle -->
+              <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 d-inline-flex align-items-center gap-1" id="adminNotifSoundToggle" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.toggleSound()" title="Toggle Notification Sound ('Bemp' alert)" style="font-size: 0.75rem; height: 26px;">
+                <i class="bi bi-volume-up-fill text-success" id="adminNotifSoundIcon"></i>
+                <span id="adminNotifSoundLabel" class="d-none d-sm-inline">Sound</span>
+              </button>
+              <!-- Test "Bemp" Sound -->
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.playBempSound(true)" title="Test 'Bemp' Chime" style="font-size: 0.75rem; height: 26px;">
+                <i class="bi bi-music-note-beamed text-primary"></i>
+              </button>
+              <!-- Clear / Mark All Read -->
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2 text-muted" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.clearAll()" title="Clear All" style="font-size: 0.75rem; height: 26px;">
+                <i class="bi bi-check2-all"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- RBAC Filter Indicator -->
+          <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
+            <span class="text-muted"><i class="bi bi-shield-check text-primary me-1"></i>Role Access:</span>
+            <span class="badge bg-secondary bg-opacity-10 text-secondary" id="adminNotifRoleBadge">Loading RBAC...</span>
+          </div>
+
+          <!-- Notification Items List -->
+          <div class="notification-list-container" id="adminNotifList" style="max-height: 380px; overflow-y: auto;">
+            <!-- Rendered dynamically by ArnAdminNotifications -->
+          </div>
+
+          <!-- Dropdown Footer -->
+          <div class="p-2 bg-light border-top text-center">
+            <a href="restaurant.html?tab=orders" class="small text-decoration-none fw-semibold text-primary d-inline-block py-1" id="adminNotifFooterLink">
+              View All Orders &amp; Activity &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
       <a href="../accommodation.html" target="_blank" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center gap-1">
         <i class="bi bi-globe"></i> Website
       </a>
@@ -127,7 +178,471 @@ function renderAdminHeader(pageTitle, subtitle = '') {
       </button>
     </div>
   `;
+
+  // Auto-init notifications
+  if (window.ArnAdminNotifications && typeof window.ArnAdminNotifications.init === 'function') {
+    window.ArnAdminNotifications.init();
+  }
 }
+
+/**
+ * Role-Based Admin Notification Engine with Audible "Bemp" Alert Chime
+ */
+const ArnAdminNotifications = {
+  STORAGE_KEY: 'arn_admin_notifications',
+  SOUND_MUTED_KEY: 'arn_admin_sound_muted',
+  _audioCtx: null,
+  _initialized: false,
+
+  isSoundMuted() {
+    try {
+      return localStorage.getItem(this.SOUND_MUTED_KEY) === 'true';
+    } catch (e) {
+      return false;
+    }
+  },
+
+  setSoundMuted(muted) {
+    try {
+      localStorage.setItem(this.SOUND_MUTED_KEY, muted ? 'true' : 'false');
+    } catch (e) {}
+    this.updateSoundButtonUI();
+  },
+
+  toggleSound() {
+    const next = !this.isSoundMuted();
+    this.setSoundMuted(next);
+    if (!next) {
+      this.playBempSound(true);
+      if (typeof showAdminToast === 'function') {
+        showAdminToast('Notification sound enabled ("Bemp" chime)', 'info');
+      }
+    } else {
+      if (typeof showAdminToast === 'function') {
+        showAdminToast('Notification sound muted', 'warning');
+      }
+    }
+  },
+
+  updateSoundButtonUI() {
+    const icon = document.getElementById('adminNotifSoundIcon');
+    const label = document.getElementById('adminNotifSoundLabel');
+    const muted = this.isSoundMuted();
+    if (icon) {
+      icon.className = muted ? 'bi bi-volume-mute-fill text-danger' : 'bi bi-volume-up-fill text-success';
+    }
+    if (label) {
+      label.textContent = muted ? 'Muted' : 'Sound';
+    }
+  },
+
+  /**
+   * Synthesize dual-tone "Bemp" alert sound via Web Audio API
+   */
+  playBempSound(force = false) {
+    try {
+      if (this.isSoundMuted() && !force) return;
+
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+
+      if (!this._audioCtx || this._audioCtx.state === 'closed') {
+        this._audioCtx = new AudioCtx();
+      }
+      const ctx = this._audioCtx;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+
+      const now = ctx.currentTime;
+
+      // Master Gain for smooth volume control
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.28, now);
+      master.connect(ctx.destination);
+
+      // Punchy tone ("Bem"): Triangle wave ramping 440 -> 554 Hz
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(440.0, now);
+      osc1.frequency.exponentialRampToValueAtTime(554.37, now + 0.08);
+      gain1.gain.setValueAtTime(0.24, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(master);
+      osc1.start(now);
+      osc1.stop(now + 0.13);
+
+      // High resonant chime ("-p!"): Sine wave peaking at 784 -> 880 Hz
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(783.99, now + 0.06);
+      osc2.frequency.exponentialRampToValueAtTime(880.00, now + 0.16);
+      gain2.gain.setValueAtTime(0.001, now);
+      gain2.gain.setValueAtTime(0.30, now + 0.06);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      osc2.connect(gain2);
+      gain2.connect(master);
+      osc2.start(now + 0.06);
+      osc2.stop(now + 0.39);
+
+      // Rich harmonic overtone (C6 1046.5 Hz)
+      const osc3 = ctx.createOscillator();
+      const gain3 = ctx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(1046.50, now + 0.07);
+      gain3.gain.setValueAtTime(0.001, now);
+      gain3.gain.setValueAtTime(0.12, now + 0.07);
+      gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
+      osc3.connect(gain3);
+      gain3.connect(master);
+      osc3.start(now + 0.07);
+      osc3.stop(now + 0.31);
+    } catch (e) {
+      console.warn('Notification audio playback note:', e);
+    }
+  },
+
+  /**
+   * Check if current admin user has RBAC permission for a notification
+   */
+  canUserAccessNotification(notif) {
+    if (!notif) return false;
+    const user = window.CURRENT_ADMIN_USER;
+
+    // If no user context loaded yet or Main Admin -> full access to all notifications
+    if (!user || user.isMainAdmin) return true;
+
+    // Check modules required by this notification
+    const rawModules = Array.isArray(notif.modules)
+      ? notif.modules
+      : [notif.module || notif.targetModule];
+    const requiredModules = rawModules.filter(Boolean);
+
+    // If notification has no specific module restrictions, allow
+    if (!requiredModules.length) return true;
+
+    // Sub-Admin assigned modules check
+    const userModules = Array.isArray(user.assignedModules) ? user.assignedModules : [];
+    return requiredModules.some(m => {
+      if (userModules.includes(m)) return true;
+      if (typeof window.canAccessModule === 'function' && window.canAccessModule(m)) return true;
+      return false;
+    });
+  },
+
+  /**
+   * Load stored notifications from localStorage
+   */
+  getAllNotifications() {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+
+    // Initial seed notifications if none exist
+    const defaultSeeds = [
+      {
+        id: 'notif_seed_food_1',
+        type: 'food_order',
+        modules: ['services', 'bookings'],
+        title: 'New Food Order #ARN-FD-1002',
+        message: 'Ghee Roast Dosa x 2, Degree Filter Kaapi x 1 • ₹240',
+        timestamp: Date.now() - 10 * 60 * 1000,
+        link: 'restaurant.html?tab=orders',
+        read: false
+      },
+      {
+        id: 'notif_seed_room_2',
+        type: 'room_booking',
+        modules: ['accommodation', 'bookings'],
+        title: 'New Room Booking #ARN-BK-2026',
+        message: 'Deluxe Temple View Room (Room 104) • 2 Nights',
+        timestamp: Date.now() - 35 * 60 * 1000,
+        link: 'bookings.html',
+        read: false
+      },
+      {
+        id: 'notif_seed_pay_3',
+        type: 'payment',
+        modules: ['payments', 'invoices'],
+        title: 'Manual Payment Verified #ARN-PAY-501',
+        message: 'UPI ₹2,500 advance verified for Room 104',
+        timestamp: Date.now() - 80 * 60 * 1000,
+        link: 'payments.html',
+        read: true
+      }
+    ];
+
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(defaultSeeds));
+    } catch (e) {}
+    return defaultSeeds;
+  },
+
+  /**
+   * Save notifications to localStorage
+   */
+  saveNotifications(notifs) {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notifs.slice(0, 35)));
+    } catch (e) {}
+  },
+
+  /**
+   * Get notifications visible to current admin user (filtered strictly by RBAC)
+   */
+  getAccessibleNotifications() {
+    const all = this.getAllNotifications();
+    return all.filter(n => this.canUserAccessNotification(n));
+  },
+
+  /**
+   * Push incoming notification with RBAC filtering, "bemp" sound, bell shake & badge
+   */
+  pushNotification(notif) {
+    if (!notif) return false;
+
+    // Strict RBAC gate: Do not record, do not sound, do not show if user lacks module access
+    if (!this.canUserAccessNotification(notif)) {
+      return false;
+    }
+
+    const item = {
+      id: notif.id || `notif_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      type: notif.type || 'general',
+      modules: Array.isArray(notif.modules) ? notif.modules : [notif.module || 'dashboard'],
+      title: notif.title || 'New Notification',
+      message: notif.message || '',
+      link: notif.link || 'dashboard.html',
+      timestamp: notif.timestamp || Date.now(),
+      read: false
+    };
+
+    const all = this.getAllNotifications();
+    all.unshift(item);
+    this.saveNotifications(all);
+
+    // Play audible "bemp" sound
+    this.playBempSound();
+
+    // Trigger bell shake animation
+    this.shakeBell();
+
+    // Re-render UI
+    this.render();
+
+    // Show toast
+    if (typeof showAdminToast === 'function') {
+      showAdminToast(`🔔 ${item.title}: ${item.message}`, 'info');
+    }
+
+    return true;
+  },
+
+  shakeBell() {
+    const bell = document.getElementById('adminNotifBellIcon');
+    if (bell) {
+      bell.classList.remove('bell-ring');
+      void bell.offsetWidth; // trigger reflow
+      bell.classList.add('bell-ring');
+      setTimeout(() => bell.classList.remove('bell-ring'), 900);
+    }
+  },
+
+  markAsRead(id, navigateUrl = null) {
+    const all = this.getAllNotifications();
+    const target = all.find(n => n.id === id);
+    if (target) {
+      target.read = true;
+      this.saveNotifications(all);
+      this.render();
+    }
+    if (navigateUrl && navigateUrl !== '#') {
+      window.location.href = navigateUrl;
+    }
+  },
+
+  clearAll() {
+    // Clear only accessible notifications
+    const all = this.getAllNotifications();
+    const remaining = all.filter(n => !this.canUserAccessNotification(n));
+    this.saveNotifications(remaining);
+    this.render();
+    if (typeof showAdminToast === 'function') {
+      showAdminToast('All notifications marked as read / cleared', 'info');
+    }
+  },
+
+  formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Just now';
+    const diff = Math.max(0, Math.floor((Date.now() - Number(timestamp)) / 1000));
+    if (diff < 45) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+  },
+
+  getIconInfo(type) {
+    switch (type) {
+      case 'food_order':
+        return { icon: 'bi-cup-hot-fill', bg: '#FEF3C7', color: '#D97706', label: 'Food Order' };
+      case 'room_booking':
+        return { icon: 'bi-door-open-fill', bg: '#DBEAFE', color: '#2563EB', label: 'Room Booking' };
+      case 'service_booking':
+        return { icon: 'bi-compass-fill', bg: '#F3E8FF', color: '#7C3AED', label: 'Tour Service' };
+      case 'payment':
+        return { icon: 'bi-cash-stack', bg: '#D1FAE5', color: '#059669', label: 'Payment' };
+      case 'enquiry':
+      case 'customer':
+        return { icon: 'bi-chat-dots-fill', bg: '#E0E7FF', color: '#4F46E5', label: 'Devotee Enquiry' };
+      default:
+        return { icon: 'bi-bell-fill', bg: '#F1F5F9', color: '#475569', label: 'Alert' };
+    }
+  },
+
+  updateRoleFilter() {
+    const badge = document.getElementById('adminNotifRoleBadge');
+    if (!badge) return;
+    const user = window.CURRENT_ADMIN_USER;
+    if (!user) {
+      badge.textContent = 'Admin';
+      badge.className = 'badge bg-secondary bg-opacity-10 text-secondary';
+      return;
+    }
+
+    if (user.isMainAdmin) {
+      badge.textContent = 'Super Admin (All Modules)';
+      badge.className = 'badge bg-warning bg-opacity-25 text-dark fw-bold border border-warning';
+    } else {
+      const mods = Array.isArray(user.assignedModules) ? user.assignedModules : [];
+      const roleName = user.role || 'Sub-Admin';
+      badge.textContent = `${roleName}: [${mods.join(', ') || 'None'}]`;
+      badge.className = 'badge bg-primary bg-opacity-10 text-primary border border-primary';
+    }
+
+    // Refresh rendering with new RBAC context
+    this.render();
+  },
+
+  render() {
+    const listEl = document.getElementById('adminNotifList');
+    const badgeEl = document.getElementById('adminNotifBadge');
+    const unreadCountBadge = document.getElementById('adminNotifUnreadCountBadge');
+    if (!listEl) return;
+
+    const accessible = this.getAccessibleNotifications();
+    const unreadCount = accessible.filter(n => !n.read).length;
+
+    // Update bell badges
+    if (badgeEl) {
+      if (unreadCount > 0) {
+        badgeEl.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badgeEl.classList.remove('d-none');
+        badgeEl.classList.add('badge-pulse');
+        setTimeout(() => badgeEl.classList.remove('badge-pulse'), 500);
+      } else {
+        badgeEl.classList.add('d-none');
+      }
+    }
+
+    if (unreadCountBadge) {
+      unreadCountBadge.textContent = `${unreadCount} unread`;
+      unreadCountBadge.className = unreadCount > 0 ? 'badge bg-danger rounded-pill px-2 py-1' : 'badge bg-secondary rounded-pill px-2 py-1';
+    }
+
+    this.updateSoundButtonUI();
+
+    if (accessible.length === 0) {
+      listEl.innerHTML = `
+        <div class="text-center py-5 px-3">
+          <i class="bi bi-bell-slash text-muted" style="font-size: 2.2rem; opacity: 0.5;"></i>
+          <p class="text-muted small mt-2 mb-0 fw-semibold">No notifications for your role</p>
+          <span class="text-muted" style="font-size: 0.72rem;">New updates for your assigned modules will show here</span>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = accessible.map(item => {
+      const icon = this.getIconInfo(item.type);
+      const timeStr = this.formatTimeAgo(item.timestamp);
+      const isUnread = !item.read;
+
+      return `
+        <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="window.ArnAdminNotifications.markAsRead('${item.id}', '${item.link || '#'}')">
+          <div class="notification-icon-box" style="background-color: ${icon.bg}; color: ${icon.color};">
+            <i class="bi ${icon.icon}"></i>
+          </div>
+          <div class="flex-grow-1" style="min-width: 0;">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+              <span class="fw-bold text-dark text-truncate" style="font-size: 0.82rem;">${escapeHtml(item.title)}</span>
+              <span class="text-muted text-nowrap" style="font-size: 0.70rem;">${timeStr}</span>
+            </div>
+            <p class="text-muted mb-1 text-truncate" style="font-size: 0.76rem; max-width: 260px;" title="${escapeHtml(item.message)}">
+              ${escapeHtml(item.message)}
+            </p>
+            <div class="d-flex align-items-center gap-1">
+              <span class="badge bg-light text-secondary border py-0 px-1" style="font-size: 0.65rem;">${icon.label}</span>
+              ${isUnread ? '<span class="badge bg-danger bg-opacity-10 text-danger py-0 px-1" style="font-size: 0.65rem;">New</span>' : ''}
+            </div>
+          </div>
+          ${isUnread ? '<span class="notif-unread-dot" title="Unread"></span>' : ''}
+        </div>
+      `;
+    }).join('');
+  },
+
+  init() {
+    this.render();
+    this.updateRoleFilter();
+
+    // Audio unlock listener for browser autoplay policy
+    const unlockAudio = () => {
+      if (this._audioCtx && this._audioCtx.state === 'suspended') {
+        this._audioCtx.resume().catch(() => {});
+      }
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+
+    // Fallback toggle for notification bell in case Bootstrap dropdown is not initialized
+    const bellBtn = document.getElementById('adminNotifBellBtn');
+    const dropdown = document.getElementById('adminNotifDropdown');
+    if (bellBtn && dropdown) {
+      bellBtn.onclick = (e) => {
+        // If bootstrap dropdown is not active, toggle manually
+        if (!bellBtn.getAttribute('data-bs-toggle-active')) {
+          e.stopPropagation();
+          dropdown.classList.toggle('show');
+        }
+      };
+      document.addEventListener('click', (e) => {
+        if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.remove('show');
+        }
+      });
+    }
+
+    // Subscribe to cross-tab storage changes for notifications
+    window.addEventListener('storage', (e) => {
+      if (e.key === this.STORAGE_KEY) {
+        this.render();
+      }
+    });
+
+    this._initialized = true;
+  }
+};
+
+window.ArnAdminNotifications = ArnAdminNotifications;
 
 /**
  * Toast Notifications

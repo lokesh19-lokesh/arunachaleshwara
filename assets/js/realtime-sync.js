@@ -182,17 +182,56 @@
         // Animate live sync badge if present
         this.flashLiveBadge();
 
-        // If on admin and an external new order or booking arrived, notify with sound & toast
+        // If on admin and an external event arrived, push to ArnAdminNotifications (with RBAC & Bemp chime)
         if (isExternal && window.location.pathname.includes('/admin/')) {
-          if (topic === 'restaurant_orders' && (action === 'new_order' || action === 'INSERT')) {
-            playNotificationChime('order');
-            if (typeof showAdminToast === 'function') {
-              showAdminToast('🔔 New Food Order Received Live! Table updated without reload.', 'success');
+          if (window.ArnAdminNotifications && typeof window.ArnAdminNotifications.pushNotification === 'function') {
+            if (topic === 'restaurant_orders' && (action === 'new_order' || action === 'INSERT')) {
+              const orderId = payload?.order_number || payload?.id || 'New';
+              const itemsDesc = Array.isArray(payload?.items) 
+                ? payload.items.map(i => `${i.name || i.title || 'Item'} x${i.quantity || 1}`).slice(0, 2).join(', ')
+                : (payload?.fulfillment_type === 'room_delivery' ? `Room ${payload?.room_number || ''} Delivery` : 'Room Delivery / Dine-in');
+              const totalAmount = payload?.total_amount ? ` • ₹${payload.total_amount}` : '';
+              
+              window.ArnAdminNotifications.pushNotification({
+                type: 'food_order',
+                modules: ['services', 'bookings'],
+                title: `New Food Order #${orderId}`,
+                message: `${itemsDesc}${totalAmount}`,
+                link: 'restaurant.html?tab=orders'
+              });
+            } else if (topic === 'bookings' && (action === 'new_booking' || action === 'INSERT' || action === 'walkin_created')) {
+              const bId = payload?.booking_id || payload?.id || 'New';
+              const type = payload?.booking_type || 'Room';
+              const name = payload?.customer_name || payload?.primary_devotee_name || 'Guest';
+              const isRoom = type.toLowerCase().includes('room') || payload?.room_category;
+              
+              window.ArnAdminNotifications.pushNotification({
+                type: isRoom ? 'room_booking' : 'service_booking',
+                modules: isRoom ? ['accommodation', 'bookings'] : ['services', 'bookings'],
+                title: `New ${isRoom ? 'Room Booking' : 'Service Booking'} #${bId}`,
+                message: `${name} • ${payload?.room_category || payload?.service_type || type}`,
+                link: isRoom ? 'bookings.html' : 'services.html'
+              });
+            } else if (topic === 'payments' && (action === 'payment_received' || action === 'INSERT')) {
+              window.ArnAdminNotifications.pushNotification({
+                type: 'payment',
+                modules: ['payments', 'invoices'],
+                title: `New Payment Received #${payload?.receipt_no || payload?.id || 'New'}`,
+                message: `₹${payload?.amount || 0} via ${payload?.payment_method || 'UPI'} • ${payload?.customer_name || 'Guest'}`,
+                link: 'payments.html'
+              });
             }
-          } else if (topic === 'bookings' && (action === 'new_booking' || action === 'INSERT')) {
-            playNotificationChime('success');
-            if (typeof showAdminToast === 'function') {
-              showAdminToast('🔔 New Booking Received Live! Updating without reload.', 'success');
+          } else {
+            if (topic === 'restaurant_orders' && (action === 'new_order' || action === 'INSERT')) {
+              playNotificationChime('order');
+              if (typeof showAdminToast === 'function') {
+                showAdminToast('🔔 New Food Order Received Live! Table updated without reload.', 'success');
+              }
+            } else if (topic === 'bookings' && (action === 'new_booking' || action === 'INSERT')) {
+              playNotificationChime('success');
+              if (typeof showAdminToast === 'function') {
+                showAdminToast('🔔 New Booking Received Live! Updating without reload.', 'success');
+              }
             }
           }
         }

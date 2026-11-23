@@ -238,7 +238,137 @@ body.admin-body {
 .admin-header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+
+/* ============================================================
+   ADMIN NOTIFICATION BELL & DROPDOWN STYLES
+   ============================================================ */
+
+.notification-bell-btn {
+  background: #FFFFFF;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-maroon);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-bell-btn:hover,
+.notification-bell-btn:focus,
+.notification-bell-btn.show {
+  background: var(--admin-cream);
+  border-color: var(--admin-yellow) !important;
+  color: var(--admin-maroon-dark);
+}
+
+.notification-badge {
+  font-size: 0.65rem !important;
+  font-weight: 700;
+  padding: 0.22em 0.45em !important;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.35);
+  animation: badgePopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(18deg); }
+  30% { transform: rotate(-18deg); }
+  45% { transform: rotate(12deg); }
+  60% { transform: rotate(-12deg); }
+  75% { transform: rotate(6deg); }
+  85% { transform: rotate(-6deg); }
+}
+
+.bell-ring {
+  animation: bellRing 0.85s ease;
+  transform-origin: top center;
+  color: #DC2626 !important;
+}
+
+@keyframes badgePulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.4); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.badge-pulse {
+  animation: badgePulse 0.4s ease-in-out;
+}
+
+@keyframes badgePopIn {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.notification-dropdown-menu {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16), 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  animation: fadeInDropdown 0.2s ease;
+  background-color: #FFFFFF;
+}
+
+@keyframes fadeInDropdown {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-item {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: #F8FAFC;
+}
+
+.notification-item.unread {
+  background-color: #FFFDF7;
+}
+
+.notification-item.unread:hover {
+  background-color: #FFF9EF;
+}
+
+.notification-icon-box {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.notif-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #EF4444;
+  display: inline-block;
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
 }
 
 .admin-content {

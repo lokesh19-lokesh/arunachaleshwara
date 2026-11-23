@@ -247,6 +247,9 @@ async function requireAdminAuth(requiredModule = null, requireMainAdmin = false)
   const cached = getCachedAdminProfile(user.id);
   if (cached) {
     window.CURRENT_ADMIN_USER = cached;
+    if (window.ArnAdminNotifications && typeof window.ArnAdminNotifications.updateRoleFilter === 'function') {
+      window.ArnAdminNotifications.updateRoleFilter();
+    }
     if (!verifyAccess(cached)) return null;
 
     fetchFreshAdminProfile(user).then(fresh => {
@@ -255,6 +258,9 @@ async function requireAdminAuth(requiredModule = null, requireMainAdmin = false)
         adminSupabase.auth.signOut().finally(() => { window.location.href = 'login.html'; });
       } else {
         window.CURRENT_ADMIN_USER = fresh;
+        if (window.ArnAdminNotifications && typeof window.ArnAdminNotifications.updateRoleFilter === 'function') {
+          window.ArnAdminNotifications.updateRoleFilter();
+        }
         if (!verifyAccess(fresh)) {
           return;
         }
@@ -267,6 +273,9 @@ async function requireAdminAuth(requiredModule = null, requireMainAdmin = false)
   const fresh = await fetchFreshAdminProfile(user);
   if (fresh) {
     window.CURRENT_ADMIN_USER = fresh;
+    if (window.ArnAdminNotifications && typeof window.ArnAdminNotifications.updateRoleFilter === 'function') {
+      window.ArnAdminNotifications.updateRoleFilter();
+    }
     if (!verifyAccess(fresh)) return null;
     return fresh;
   }
