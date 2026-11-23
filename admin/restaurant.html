@@ -1820,15 +1820,6 @@
         is_veg: true,
         order_num: gMenuItems.length + 1
       };
-        regional_name: regional,
-        category_slug: category,
-        description: desc,
-        image,
-        is_available: isAvailable,
-        is_special: isSpecial,
-        is_veg: true,
-        order_num: gMenuItems.length + 1
-      };
 
       if (typeof saveMenuItemToSupabase === 'function') {
         await saveMenuItemToSupabase(item);
