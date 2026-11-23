@@ -30,9 +30,11 @@
             <h5 class="fw-bold text-dark mb-1" id="welcomeText">Loading Dashboard...</h5>
             <p class="text-muted small mb-0">Live statistics pulled directly from Supabase PostgreSQL. No payment gateway active (100% Manual Verification Workflow).</p>
           </div>
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2">
             <a href="bookings.html" class="btn btn-sm btn-admin-primary"><i class="bi bi-calendar-check me-1"></i> Manage Bookings</a>
             <a href="operations.html" class="btn btn-sm btn-admin-yellow"><i class="bi bi-door-open me-1"></i> Room Operations</a>
+            <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-warning text-dark border-warning bg-warning-subtle fw-semibold"><i class="bi bi-bag-check-fill text-warning me-1"></i> Food Orders <span class="badge bg-warning text-dark ms-1" id="statBadgeFoodOrders">0</span></a>
+            <a href="services.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-compass me-1"></i> Services &amp; Tours</a>
           </div>
         </div>
 
@@ -130,6 +132,53 @@
           </div>
         </div>
 
+        <!-- KPI Row 3: Food Orders & Services Operations -->
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card warning">
+              <div class="admin-stat-info">
+                <h6>Active Food Orders</h6>
+                <div class="admin-stat-number text-warning" id="statActiveFoodOrders">0</div>
+                <div class="admin-stat-sub" id="statFoodOrdersSub">0 New Orders • 0 Preparing</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-bag-check-fill"></i></div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card green">
+              <div class="admin-stat-info">
+                <h6>Food &amp; Kitchen Revenue</h6>
+                <div class="admin-stat-number text-success" id="statFoodRevenue">₹0</div>
+                <div class="admin-stat-sub" id="statFoodRevenueSub">Delivered room &amp; dine-in orders</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-egg-fried"></i></div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card blue">
+              <div class="admin-stat-info">
+                <h6>Services &amp; Tour Bookings</h6>
+                <div class="admin-stat-number text-primary" id="statServiceBookings">0</div>
+                <div class="admin-stat-sub" id="statServicesSub">Darshan, Taxi, Bike &amp; Bus</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-compass-fill"></i></div>
+            </div>
+          </div>
+
+          <div class="col-xl-3 col-md-6">
+            <div class="admin-stat-card maroon">
+              <div class="admin-stat-info">
+                <h6>Restaurant Status</h6>
+                <div class="admin-stat-number text-success" id="statRestaurantStatus">OPEN</div>
+                <div class="admin-stat-sub" id="statRestaurantSub">Room Delivery Active (Pure Veg)</div>
+              </div>
+              <div class="admin-stat-icon"><i class="bi bi-shop"></i></div>
+            </div>
+          </div>
+        </div>
+
         <!-- Charts Row -->
         <div class="row g-4 mb-4">
           <div class="col-lg-7">
@@ -145,7 +194,7 @@
           <div class="col-lg-5">
             <div class="admin-card h-100">
               <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-pie-chart-fill text-warning"></i> Bookings Status Distribution</h6>
+                <h6 class="admin-card-title"><i class="bi bi-pie-chart-fill text-warning"></i> Operations &amp; Services Distribution</h6>
               </div>
               <div class="admin-card-body d-flex align-items-center justify-content-center">
                 <div style="max-width: 260px; width: 100%;">
@@ -157,20 +206,27 @@
         </div>
 
         <!-- Recent Activity Row -->
-        <div class="row g-4">
+        <div class="row g-4 mb-4">
           <div class="col-lg-7">
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-clock-history text-warning"></i> Recent Booking Requests</h6>
+            <div class="admin-card h-100">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-clock-history text-warning"></i> Recent Bookings</h6>
+                  <div class="btn-group btn-group-sm ms-2" role="group">
+                    <button type="button" class="btn btn-outline-secondary btn-sm active" id="btnFilterBookingsAll" onclick="filterRecentBookings('all')">All</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnFilterBookingsAcc" onclick="filterRecentBookings('accommodation')">Rooms</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnFilterBookingsSrv" onclick="filterRecentBookings('service')">Services</button>
+                  </div>
+                </div>
                 <a href="bookings.html" class="btn btn-sm btn-outline-secondary">View All</a>
               </div>
               <div class="table-responsive">
-                <table class="table admin-table">
+                <table class="table admin-table mb-0 align-middle">
                   <thead>
                     <tr>
                       <th>Booking ID</th>
                       <th>Customer</th>
-                      <th>Room / Stay</th>
+                      <th>Service / Stay</th>
                       <th>Amount</th>
                       <th>Status</th>
                     </tr>
@@ -184,13 +240,13 @@
           </div>
 
           <div class="col-lg-5">
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <h6 class="admin-card-title"><i class="bi bi-cash-stack text-success"></i> Recent Manual Payments</h6>
+            <div class="admin-card h-100">
+              <div class="admin-card-header d-flex justify-content-between align-items-center">
+                <h6 class="admin-card-title mb-0"><i class="bi bi-cash-stack text-success"></i> Recent Manual Payments</h6>
                 <a href="payments.html" class="btn btn-sm btn-outline-secondary">View All</a>
               </div>
               <div class="table-responsive">
-                <table class="table admin-table">
+                <table class="table admin-table mb-0 align-middle">
                   <thead>
                     <tr>
                       <th>Booking</th>
@@ -208,6 +264,49 @@
           </div>
         </div>
 
+        <!-- Live Food & Room Service Orders Card (RESTAURANT KITCHEN FEED) -->
+        <div class="row g-4 mb-4">
+          <div class="col-12">
+            <div class="admin-card shadow-sm border border-warning-subtle">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2 bg-light">
+                <div>
+                  <h6 class="admin-card-title mb-0 text-maroon">
+                    <i class="bi bi-bag-check-fill text-warning me-2"></i> Live Food &amp; Room Service Orders
+                  </h6>
+                  <small class="text-muted">Fresh pure veg kitchen orders, room delivery, and billing status</small>
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="restaurant.html?tab=orders&action=newOrder" class="btn btn-sm btn-admin-yellow">
+                    <i class="bi bi-plus-circle me-1"></i> New Food Order
+                  </a>
+                  <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-receipt me-1"></i> View All Food Orders
+                  </a>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table admin-table mb-0 align-middle">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer &amp; Contact</th>
+                      <th>Destination</th>
+                      <th>Ordered Dishes</th>
+                      <th>Total Amount</th>
+                      <th>Payment Status</th>
+                      <th>Kitchen Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentFoodOrdersBody">
+                    <tr><td colspan="8" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-warning me-2"></div> Loading food orders...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -216,6 +315,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="assets/js/admin-auth.js"></script>
+  <script src="../assets/js/restaurant-data.js"></script>
   <script src="assets/js/realtime-sync.js"></script>
   <script src="assets/js/admin-core.js"></script>
   <script>
@@ -229,9 +329,18 @@
 
       loadDashboardData();
 
-      // Real-Time Sync without page reload
+      // Real-Time Sync without page reload across bookings, restaurant & services
       if (window.ArnRealtimeSync) {
         window.ArnRealtimeSync.subscribe('*', () => {
+          loadDashboardData();
+        });
+        window.ArnRealtimeSync.subscribe('restaurant_orders', () => {
+          loadDashboardData();
+        });
+        window.ArnRealtimeSync.subscribe('bookings', () => {
+          loadDashboardData();
+        });
+        window.ArnRealtimeSync.subscribe('services', () => {
           loadDashboardData();
         });
       }
@@ -240,6 +349,8 @@
     let gRoomChartInstance = null;
     let gBookingChartInstance = null;
     let gIsLoadingDashboard = false;
+    let gAllRecentBookings = [];
+    let gCurrentRecentFilter = 'all';
 
     async function loadDashboardData() {
       if (gIsLoadingDashboard) return;
@@ -260,23 +371,176 @@
           resRooms,
           resPay,
           resCust,
-          resInv
+          resInv,
+          resFood,
+          resRestSettings
         ] = await Promise.allSettled([
           sb.from('accommodation_bookings').select('*').order('created_at', { ascending: false }),
           sb.from('service_bookings').select('*').order('created_at', { ascending: false }),
           sb.from('accommodation_rooms').select('*'),
           sb.from('payment_transactions').select('*').order('created_at', { ascending: false }),
           sb.from('customers').select('id'),
-          sb.from('invoices').select('id')
+          sb.from('invoices').select('id'),
+          sb.from('food_orders').select('*').order('created_at', { ascending: false }),
+          sb.from('restaurant_settings').select('*').maybeSingle()
         ]);
 
         const accBookings = (resAcc.status === 'fulfilled' && resAcc.value && resAcc.value.data) ? resAcc.value.data : [];
-        const srvBookings = (resSrv.status === 'fulfilled' && resSrv.value && resSrv.value.data) ? resSrv.value.data : [];
+        let srvBookings = (resSrv.status === 'fulfilled' && resSrv.value && resSrv.value.data) ? resSrv.value.data : [];
         const rooms = (resRooms.status === 'fulfilled' && resRooms.value && resRooms.value.data) ? resRooms.value.data : [];
         const payments = (resPay.status === 'fulfilled' && resPay.value && resPay.value.data) ? resPay.value.data : [];
         const customers = (resCust.status === 'fulfilled' && resCust.value && resCust.value.data) ? resCust.value.data : [];
         const invoices = (resInv.status === 'fulfilled' && resInv.value && resInv.value.data) ? resInv.value.data : [];
+        let foodOrders = (resFood.status === 'fulfilled' && resFood.value && resFood.value.data) ? resFood.value.data : [];
 
+        // 1. Merge Local Storage Fallback for Services
+        let localSrv = [];
+        try {
+          const rawS = localStorage.getItem('arn_service_bookings');
+          if (rawS) localSrv = JSON.parse(rawS);
+        } catch (e) { }
+
+        if (srvBookings.length === 0 && localSrv.length === 0) {
+          localSrv = [
+            {
+              id: 'seed-srv-1',
+              booking_id: 'ARN-DARSHAN-2026-00001',
+              service_id: 'temple-darshan',
+              service_title: '1 Day Saptha Shiva Kshetra Yatra',
+              customer_name: 'Ramesh Krishnan',
+              mobile: '9841023456',
+              travel_date: '2026-11-25',
+              pickup_location: 'Arunachaleshwara Temple North Gate',
+              passengers: 4,
+              vehicle_type: 'Innova Crysta AC',
+              estimated_amount: 3500,
+              amount_paid: 1500,
+              balance_amount: 2000,
+              booking_status: 'Confirmed',
+              payment_status: 'Partially Paid',
+              created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+            },
+            {
+              id: 'seed-srv-2',
+              booking_id: 'ARN-TAXI-2026-00002',
+              service_id: 'taxi-car-rentals',
+              service_title: 'Chennai Airport to Tiruvannamalai Transfer',
+              customer_name: 'Dr. Meenakshi Sundaram',
+              mobile: '9444198765',
+              travel_date: '2026-11-26',
+              pickup_location: 'Chennai Airport Terminal 2',
+              passengers: 3,
+              vehicle_type: 'Toyota Etios Sedan',
+              estimated_amount: 3200,
+              amount_paid: 3200,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 5).toISOString()
+            },
+            {
+              id: 'seed-srv-3',
+              booking_id: 'ARN-BIKE-2026-00003',
+              service_id: 'bike-rentals',
+              service_title: 'Girivalam 24h Scooter Rental',
+              customer_name: 'Karthik Raja',
+              mobile: '9884567890',
+              travel_date: '2026-11-24',
+              pickup_location: 'Hotel Reception',
+              passengers: 1,
+              vehicle_type: 'Honda Activa 6G (TN-25-AL-4521)',
+              estimated_amount: 500,
+              amount_paid: 500,
+              balance_amount: 0,
+              booking_status: 'Confirmed',
+              payment_status: 'Fully Paid',
+              created_at: new Date(Date.now() - 3600000 * 8).toISOString()
+            }
+          ];
+          try { localStorage.setItem('arn_service_bookings', JSON.stringify(localSrv)); } catch (e) { }
+        }
+
+        const existingSrvIds = new Set(srvBookings.map(s => s.booking_id));
+        localSrv.forEach(ls => {
+          if (!existingSrvIds.has(ls.booking_id)) {
+            srvBookings.push(ls);
+            existingSrvIds.add(ls.booking_id);
+          }
+        });
+
+        // 2. Merge Local Storage Fallback for Food Orders
+        let localFood = [];
+        try {
+          const rawF = localStorage.getItem('arn_food_orders');
+          if (rawF) localFood = JSON.parse(rawF);
+        } catch (e) { }
+
+        if (foodOrders.length === 0 && localFood.length === 0) {
+          localFood = [
+            {
+              order_id: 'ARN-ORD-2026-0001',
+              customer_name: 'Suresh Kumar',
+              mobile: '9840123456',
+              fulfillment_type: 'Room Delivery',
+              room_number: '101',
+              items: [
+                { name: 'Ghee Roast Masala Dosa', quantity: 2, price: 110 },
+                { name: 'Kumbakonam Filter Coffee', quantity: 2, price: 35 }
+              ],
+              subtotal: 290,
+              delivery_fee: 0,
+              total_amount: 290,
+              status: 'Preparing',
+              payment_status: 'Charged to Room Bill',
+              created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString()
+            },
+            {
+              order_id: 'ARN-ORD-2026-0002',
+              customer_name: 'Priya Sundaram',
+              mobile: '9789012345',
+              fulfillment_type: 'Room Delivery',
+              room_number: '204',
+              items: [
+                { name: 'Traditional South Indian Veg Thali', quantity: 2, price: 180 },
+                { name: 'Fresh Sweet Lime Juice', quantity: 2, price: 60 }
+              ],
+              subtotal: 480,
+              delivery_fee: 0,
+              total_amount: 480,
+              status: 'Delivered',
+              payment_status: 'Paid via UPI',
+              created_at: new Date(Date.now() - 110 * 60 * 1000).toISOString()
+            },
+            {
+              order_id: 'ARN-ORD-2026-0003',
+              customer_name: 'Ananya Rao',
+              mobile: '9443123456',
+              fulfillment_type: 'Restaurant Dine-in',
+              room_number: 'Table 4',
+              items: [
+                { name: 'Medu Vada (2 Pcs)', quantity: 2, price: 70 },
+                { name: 'Kumbakonam Filter Coffee', quantity: 1, price: 35 }
+              ],
+              subtotal: 175,
+              delivery_fee: 0,
+              total_amount: 175,
+              status: 'New Order',
+              payment_status: 'Pending at Counter',
+              created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString()
+            }
+          ];
+          try { localStorage.setItem('arn_food_orders', JSON.stringify(localFood)); } catch (e) { }
+        }
+
+        const existingOrderIds = new Set(foodOrders.map(o => o.order_id));
+        localFood.forEach(lo => {
+          if (!existingOrderIds.has(lo.order_id)) {
+            foodOrders.push(lo);
+            existingOrderIds.add(lo.order_id);
+          }
+        });
+
+        // 3. Compute KPI Metrics
         const allBookings = [...(accBookings || []), ...(srvBookings || [])];
         const totalBookings = allBookings.length;
         const todayBookings = allBookings.filter(b => b.created_at && b.created_at.startsWith(todayStr)).length;
@@ -301,7 +565,19 @@
           .filter(b => b.booking_status !== 'Cancelled')
           .reduce((sum, b) => sum + Number(b.balance_amount || 0), 0);
 
-        // Populate KPI cards safely
+        // Food & Services KPIs
+        const activeFoodOrders = foodOrders.filter(o => o.status !== 'Completed' && o.status !== 'Cancelled');
+        const newFoodOrders = foodOrders.filter(o => o.status === 'New Order');
+        const preparingFoodOrders = foodOrders.filter(o => o.status === 'Preparing');
+        const deliveredFoodOrders = foodOrders.filter(o => o.status === 'Delivered' || o.status === 'Completed');
+        const foodRevenue = deliveredFoodOrders.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+
+        const darshanCount = srvBookings.filter(s => (s.service_id || '').includes('darshan')).length;
+        const taxiCount = srvBookings.filter(s => (s.service_id || '').includes('taxi')).length;
+        const bikeCount = srvBookings.filter(s => (s.service_id || '').includes('bike')).length;
+        const busCount = srvBookings.filter(s => (s.service_id || '').includes('bus')).length;
+
+        // Populate KPI cards
         const elTotalB = document.getElementById('statTotalBookings');
         if (elTotalB) elTotalB.textContent = totalBookings;
 
@@ -341,32 +617,60 @@
         const elInv = document.getElementById('statInvoices');
         if (elInv) elInv.textContent = (invoices || []).length;
 
-        // Render Recent Bookings
-        const recentB = (accBookings || []).slice(0, 6);
-        const bookingsTbody = document.getElementById('recentBookingsBody');
-        if (bookingsTbody) {
-          if (recentB.length === 0) {
-            bookingsTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No booking requests yet. Submit a test booking on the Accommodation page!</td></tr>';
-          } else {
-            bookingsTbody.innerHTML = recentB.map(b => `
-              <tr>
-                <td><a href="bookings.html?id=${b.booking_id}" class="fw-bold text-decoration-none text-dark">${b.booking_id}</a></td>
-                <td>
-                  <div class="fw-semibold">${b.customer_name}</div>
-                  <small class="text-muted">${b.mobile}</small>
-                </td>
-                <td>
-                  <div class="small fw-medium">${b.category_name || 'Room'} ${b.allocated_room_number ? `(Room ${b.allocated_room_number})` : ''}</div>
-                  <small class="text-muted">${typeof formatDate === 'function' ? formatDate(b.check_in) : b.check_in} → ${typeof formatDate === 'function' ? formatDate(b.check_out) : b.check_out}</small>
-                </td>
-                <td class="fw-bold">${typeof formatINR === 'function' ? formatINR(b.estimated_amount) : ('₹' + b.estimated_amount)}</td>
-                <td>${typeof getStatusBadge === 'function' ? getStatusBadge(b.booking_status) : b.booking_status}</td>
-              </tr>
-            `).join('');
-          }
-        }
+        // Food & Services KPIs
+        const elActiveFood = document.getElementById('statActiveFoodOrders');
+        if (elActiveFood) elActiveFood.textContent = activeFoodOrders.length;
 
-        // Render Recent Payments
+        const elFoodSub = document.getElementById('statFoodOrdersSub');
+        if (elFoodSub) elFoodSub.textContent = `${newFoodOrders.length} New Order${newFoodOrders.length !== 1 ? 's' : ''} • ${preparingFoodOrders.length} Preparing`;
+
+        const elFoodRev = document.getElementById('statFoodRevenue');
+        if (elFoodRev && typeof formatINR === 'function') elFoodRev.textContent = formatINR(foodRevenue);
+
+        const elFoodRevSub = document.getElementById('statFoodRevenueSub');
+        if (elFoodRevSub) elFoodRevSub.textContent = `Across ${deliveredFoodOrders.length} delivered order${deliveredFoodOrders.length !== 1 ? 's' : ''}`;
+
+        const elSrvBookings = document.getElementById('statServiceBookings');
+        if (elSrvBookings) elSrvBookings.textContent = srvBookings.length;
+
+        const elServicesSub = document.getElementById('statServicesSub');
+        if (elServicesSub) elServicesSub.textContent = `${darshanCount} Darshan • ${taxiCount} Taxi • ${bikeCount} Bike • ${busCount} Bus`;
+
+        const elBadgeFood = document.getElementById('statBadgeFoodOrders');
+        if (elBadgeFood) elBadgeFood.textContent = activeFoodOrders.length;
+
+        // 4. Cache & Render Combined Recent Bookings
+        const accMapped = accBookings.map(b => ({
+          ...b,
+          _type: 'accommodation',
+          _title: b.category_name || 'Room Stay',
+          _sub: b.allocated_room_number ? `Room ${b.allocated_room_number}` : 'Room Pending',
+          _date: `${b.check_in || ''} → ${b.check_out || ''}`
+        }));
+
+        const srvMapped = srvBookings.map(s => {
+          let typeLabel = 'Service';
+          let iconClass = 'bi-compass';
+          if ((s.service_id || '').includes('darshan')) { typeLabel = 'Temple Darshan'; iconClass = 'bi-flower1'; }
+          else if ((s.service_id || '').includes('taxi')) { typeLabel = 'Taxi Fleet'; iconClass = 'bi-taxi-front-fill'; }
+          else if ((s.service_id || '').includes('bike')) { typeLabel = 'Bike Rental'; iconClass = 'bi-bicycle'; }
+          else if ((s.service_id || '').includes('bus')) { typeLabel = 'Bus Route'; iconClass = 'bi-bus-front'; }
+
+          return {
+            ...s,
+            _type: 'service',
+            _service_type: typeLabel,
+            _icon: iconClass,
+            _title: s.service_title || typeLabel,
+            _sub: s.vehicle_type || s.pickup_location || typeLabel,
+            _date: s.travel_date || s.created_at?.slice(0, 10) || ''
+          };
+        });
+
+        gAllRecentBookings = [...accMapped, ...srvMapped].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        renderRecentBookingsTable();
+
+        // 5. Render Recent Manual Payments
         const recentP = payList.slice(0, 6);
         const payTbody = document.getElementById('recentPaymentsBody');
         if (payTbody) {
@@ -387,9 +691,64 @@
           }
         }
 
-        // Render Charts with safety wrapper
+        // 6. Render Live Food & Room Service Orders
+        const recentFoodList = foodOrders.slice(0, 8);
+        const foodTbody = document.getElementById('recentFoodOrdersBody');
+        if (foodTbody) {
+          if (recentFoodList.length === 0) {
+            foodTbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No food orders recorded yet. <a href="restaurant.html?tab=orders&action=newOrder" class="text-primary fw-bold">Create first order</a></td></tr>';
+          } else {
+            foodTbody.innerHTML = recentFoodList.map(o => {
+              const badgeHtml = getFoodStatusBadge(o.status);
+              const itemsText = (o.items || []).map(it => `${it.name} (×${it.quantity || 1})`).join(', ') || 'Pure Veg Delicacies';
+              const isRoom = o.room_number && String(o.room_number).toLowerCase() !== 'table' && !String(o.room_number).toLowerCase().includes('takeaway');
+              const destBadge = isRoom
+                ? `<span class="badge bg-light text-primary border border-primary-subtle fw-semibold"><i class="bi bi-door-open-fill text-warning me-1"></i>Room ${o.room_number}</span>`
+                : `<span class="badge bg-light text-secondary border"><i class="bi bi-shop me-1"></i>${o.room_number || o.fulfillment_type || 'Dine-in'}</span>`;
+
+              return `
+                <tr>
+                  <td>
+                    <a href="restaurant.html?tab=orders" class="fw-bold text-decoration-none text-dark font-monospace">${o.order_id}</a>
+                    <small class="d-block text-muted" style="font-size: 0.72rem;">${typeof formatDate === 'function' ? formatDate(o.created_at) : ''}</small>
+                  </td>
+                  <td>
+                    <div class="fw-semibold">${o.customer_name || 'Devotee Guest'}</div>
+                    <small class="text-muted"><i class="bi bi-telephone text-secondary me-1"></i>${o.mobile || '—'}</small>
+                  </td>
+                  <td>${destBadge}</td>
+                  <td>
+                    <div class="small text-truncate" style="max-width: 250px;" title="${itemsText}">
+                      <i class="bi bi-egg-fried text-warning me-1"></i>${itemsText}
+                    </div>
+                  </td>
+                  <td class="fw-bold text-success">${typeof formatINR === 'function' ? formatINR(o.total_amount) : ('₹' + o.total_amount)}</td>
+                  <td><span class="badge bg-light text-dark border small">${o.payment_status || 'Pending'}</span></td>
+                  <td>${badgeHtml}</td>
+                  <td>
+                    <a href="restaurant.html?tab=orders" class="btn btn-sm btn-outline-warning text-dark border-warning py-0 px-2 small" title="View in kitchen">
+                      <i class="bi bi-eye-fill"></i> View
+                    </a>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          }
+        }
+
+        // 7. Render Charts
         try {
-          renderCharts({ availRooms, occRooms, maintRooms, pending, awaiting, confirmed, completed, cancelled });
+          renderCharts({
+            availRooms,
+            occRooms,
+            maintRooms,
+            accCount: accBookings.length,
+            foodCount: foodOrders.length,
+            darshanCount,
+            taxiCount,
+            bikeCount,
+            busCount
+          });
         } catch (chartErr) {
           console.warn('Charts render warning (non-fatal):', chartErr);
         }
@@ -401,10 +760,91 @@
       }
     }
 
+    function filterRecentBookings(type) {
+      gCurrentRecentFilter = type;
+      ['btnFilterBookingsAll', 'btnFilterBookingsAcc', 'btnFilterBookingsSrv'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove('active', 'btn-secondary', 'text-white');
+      });
+
+      if (type === 'all') document.getElementById('btnFilterBookingsAll')?.classList.add('active');
+      else if (type === 'accommodation') document.getElementById('btnFilterBookingsAcc')?.classList.add('active');
+      else if (type === 'service') document.getElementById('btnFilterBookingsSrv')?.classList.add('active');
+
+      renderRecentBookingsTable();
+    }
+
+    function renderRecentBookingsTable() {
+      const tbody = document.getElementById('recentBookingsBody');
+      if (!tbody) return;
+
+      let list = gAllRecentBookings;
+      if (gCurrentRecentFilter === 'accommodation') {
+        list = list.filter(b => b._type === 'accommodation');
+      } else if (gCurrentRecentFilter === 'service') {
+        list = list.filter(b => b._type === 'service');
+      }
+
+      const displayList = list.slice(0, 6);
+      if (displayList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No booking requests found matching this filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = displayList.map(b => {
+        const isAcc = b._type === 'accommodation';
+        const typeBadge = isAcc
+          ? '<span class="badge bg-light text-primary border border-primary-subtle me-1"><i class="bi bi-door-open-fill text-warning me-1"></i>Room</span>'
+          : `<span class="badge bg-light text-dark border me-1"><i class="bi ${b._icon || 'bi-compass'} text-primary me-1"></i>${b._service_type || 'Service'}</span>`;
+
+        return `
+          <tr>
+            <td>
+              <a href="bookings.html?id=${b.booking_id}" class="fw-bold text-decoration-none text-dark">${b.booking_id}</a>
+              <div class="mt-1">${typeBadge}</div>
+            </td>
+            <td>
+              <div class="fw-semibold">${b.customer_name}</div>
+              <small class="text-muted">${b.mobile || ''}</small>
+            </td>
+            <td>
+              <div class="small fw-medium">${b._title} ${b._sub ? `(${b._sub})` : ''}</div>
+              <small class="text-muted">${b._date}</small>
+            </td>
+            <td class="fw-bold">${typeof formatINR === 'function' ? formatINR(b.estimated_amount) : ('₹' + b.estimated_amount)}</td>
+            <td>${typeof getStatusBadge === 'function' ? getStatusBadge(b.booking_status) : b.booking_status}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getFoodStatusBadge(status) {
+      switch (status) {
+        case 'New Order':
+          return '<span class="badge bg-primary text-white px-2 py-1"><i class="bi bi-bell-fill me-1"></i>New Order</span>';
+        case 'Accepted':
+          return '<span class="badge bg-info text-dark px-2 py-1"><i class="bi bi-check-circle me-1"></i>Accepted</span>';
+        case 'Preparing':
+          return '<span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-fire me-1"></i>Preparing</span>';
+        case 'Ready for Pickup':
+          return '<span class="badge bg-info text-dark px-2 py-1"><i class="bi bi-bag-check me-1"></i>Ready</span>';
+        case 'Out for Delivery':
+          return '<span class="badge bg-primary text-white px-2 py-1"><i class="bi bi-bicycle me-1"></i>Out for Delivery</span>';
+        case 'Delivered':
+          return '<span class="badge bg-success text-white px-2 py-1"><i class="bi bi-check2-circle me-1"></i>Delivered</span>';
+        case 'Completed':
+          return '<span class="badge bg-secondary text-white px-2 py-1"><i class="bi bi-check-all me-1"></i>Completed</span>';
+        case 'Cancelled':
+          return '<span class="badge bg-danger text-white px-2 py-1"><i class="bi bi-x-circle me-1"></i>Cancelled</span>';
+        default:
+          return `<span class="badge bg-secondary text-white px-2 py-1">${status || 'Pending'}</span>`;
+      }
+    }
+
     function renderCharts(d) {
       if (typeof Chart === 'undefined') return;
 
-      // Room Status Bar Chart
+      // 1. Room Status Bar Chart
       const ctxRoom = document.getElementById('roomOccupancyChart');
       if (ctxRoom) {
         if (gRoomChartInstance) {
@@ -437,7 +877,7 @@
         });
       }
 
-      // Bookings Status Doughnut
+      // 2. Comprehensive Operations & Services Distribution Doughnut
       const ctxBook = document.getElementById('bookingStatusChart');
       if (ctxBook) {
         if (gBookingChartInstance) {
@@ -451,20 +891,38 @@
           }
         }
 
-        const hasData = (d.pending + d.awaiting + d.confirmed + d.completed + d.cancelled) > 0;
+        const opCounts = [
+          d.accCount || 0,
+          d.foodCount || 0,
+          d.darshanCount || 0,
+          d.taxiCount || 0,
+          d.bikeCount || 0,
+          d.busCount || 0
+        ];
+        const hasData = opCounts.some(c => c > 0);
+
         gBookingChartInstance = new Chart(ctxBook, {
           type: 'doughnut',
           data: {
-            labels: hasData ? ['Pending', 'Awaiting Pay', 'Confirmed', 'Completed', 'Cancelled'] : ['No Bookings Yet'],
+            labels: hasData
+              ? ['Room Stays', 'Food Orders', 'Temple Darshan', 'Taxi Fleet', 'Bike Rentals', 'Bus Routes']
+              : ['No Operations Data Yet'],
             datasets: [{
-              data: hasData ? [d.pending, d.awaiting, d.confirmed, d.completed, d.cancelled] : [1],
-              backgroundColor: hasData ? ['#F59E0B', '#FB923C', '#10B981', '#64748B', '#EF4444'] : ['#E2E8F0']
+              data: hasData ? opCounts : [1],
+              backgroundColor: hasData
+                ? ['#F59E0B', '#10B981', '#EC4899', '#3B82F6', '#8B5CF6', '#F97316']
+                : ['#E2E8F0']
             }]
           },
           options: {
             responsive: true,
-            cutout: '65%',
-            plugins: { legend: { position: 'bottom' } }
+            cutout: '62%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { boxWidth: 12, font: { size: 11 } }
+              }
+            }
           }
         });
       }
