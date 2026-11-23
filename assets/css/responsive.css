@@ -686,9 +686,38 @@
     font-size: 0.84rem;
   }
 
+  .gallery-card-img-wrap {
+    height: 195px;
+  }
+
+  .gallery-card-caption {
+    padding: 0.85rem 0.95rem;
+  }
+
+  .gallery-card-title {
+    font-size: 0.92rem;
+    line-height: 1.3;
+  }
+
+  .gallery-card-desc {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .gallery-badge-top {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    top: 8px;
+    left: 8px;
+  }
+
+  .gallery-swiper {
+    padding: 10px 4px 35px;
+  }
+
   .gallery-swiper-prev,
   .gallery-swiper-next {
-    display: none;
+    display: none !important;
   }
 
   .gallery-item img {

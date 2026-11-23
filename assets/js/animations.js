@@ -53,11 +53,11 @@ function initSwipers() {
   const gallerySwiperEl = document.querySelector('.gallery-swiper');
   if (gallerySwiperEl && typeof Swiper !== 'undefined') {
     new Swiper('.gallery-swiper', {
-      slidesPerView: 1.25,
-      spaceBetween: 14,
+      slidesPerView: 1.15,
+      spaceBetween: 16,
       loop: true,
       autoplay: {
-        delay: 3200,
+        delay: 3500,
         disableOnInteraction: false,
         pauseOnMouseEnter: true
       },
@@ -70,9 +70,9 @@ function initSwipers() {
         clickable: true,
       },
       breakpoints: {
-        480: { slidesPerView: 2.1, spaceBetween: 16 },
+        480: { slidesPerView: 2, spaceBetween: 16 },
         768: { slidesPerView: 3, spaceBetween: 20 },
-        1024: { slidesPerView: 4, spaceBetween: 24 }
+        1200: { slidesPerView: 4, spaceBetween: 24 }
       }
     });
   }
