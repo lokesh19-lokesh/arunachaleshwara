@@ -29,10 +29,20 @@ function initSwipers() {
   // Tour packages slider (homepage)
   const tourSwiperEl = document.querySelector('.tour-swiper');
   if (tourSwiperEl && typeof Swiper !== 'undefined') {
-    new Swiper('.tour-swiper', {
-      slidesPerView: 1,
-      spaceBetween: 24,
-      loop: false,
+    if (window.packagesSwiper && typeof window.packagesSwiper.destroy === 'function') {
+      try {
+        window.packagesSwiper.destroy(true, true);
+      } catch (e) {}
+    }
+    window.packagesSwiper = new Swiper('.tour-swiper', {
+      slidesPerView: 1.08,
+      spaceBetween: 16,
+      loop: true,
+      autoplay: {
+        delay: 4500,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      },
       navigation: {
         nextEl: '.tour-swiper-next',
         prevEl: '.tour-swiper-prev',
@@ -42,9 +52,18 @@ function initSwipers() {
         clickable: true,
       },
       breakpoints: {
-        576: { slidesPerView: 2 },
-        992: { slidesPerView: 3 },
-        1200: { slidesPerView: 3 }
+        576: {
+          slidesPerView: 2,
+          spaceBetween: 20
+        },
+        992: {
+          slidesPerView: 3,
+          spaceBetween: 24
+        },
+        1200: {
+          slidesPerView: 3,
+          spaceBetween: 24
+        }
       }
     });
   }

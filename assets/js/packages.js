@@ -1246,7 +1246,16 @@ function renderFeaturedPackages(containerId) {
         window.PACKAGES_DATA = PACKAGES_DATA;
         const freshFeatured = PACKAGES_DATA.filter(p => p.featured);
         container.innerHTML = buildCardsHTML(freshFeatured);
-        if (window.packagesSwiper && typeof window.packagesSwiper.update === 'function') {
+        if (window.packagesSwiper && typeof window.packagesSwiper.destroy === 'function') {
+          try {
+            window.packagesSwiper.destroy(true, true);
+            if (typeof initSwipers === 'function') {
+              initSwipers();
+            }
+          } catch (e) {
+            window.packagesSwiper.update();
+          }
+        } else if (window.packagesSwiper && typeof window.packagesSwiper.update === 'function') {
           window.packagesSwiper.update();
         }
       }

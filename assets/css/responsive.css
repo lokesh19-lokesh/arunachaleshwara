@@ -718,8 +718,14 @@
   .gallery-swiper-prev,
   .gallery-swiper-next,
   .testimonial-swiper-prev,
-  .testimonial-swiper-next {
+  .testimonial-swiper-next,
+  .tour-swiper-prev,
+  .tour-swiper-next {
     display: none !important;
+  }
+
+  .tour-swiper {
+    padding: 8px 4px 38px;
   }
 
   .gallery-item img {
