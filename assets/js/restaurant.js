@@ -8,6 +8,7 @@
 
   let currentCategory = 'all';
   let searchQuery = '';
+  let selectedRestaurant = null;
   let restaurantSettings = {
     restaurant_name: 'Arunachaleshwara Pure Veg Restaurant',
     tagline: '100% Traditional South Indian Pure Vegetarian Dining & Room Delivery',
@@ -20,6 +21,34 @@
   };
   let categories = [];
   let menuItems = [];
+
+  // Helper to get available restaurants
+  function getRestaurantsList() {
+    if (typeof window !== 'undefined' && Array.isArray(window.RESTAURANTS_LIST) && window.RESTAURANTS_LIST.length > 0) {
+      return window.RESTAURANTS_LIST;
+    }
+    return [
+      {
+        id: 'arn-inhouse',
+        name: 'Arunachaleshwara Pure Veg Restaurant',
+        tagline: 'In-House Sattvic & Temple Cuisine',
+        badge: 'Our In-House Kitchen (Fastest)',
+        cuisine: 'South Indian • Sattvic Temple Food • Desi Ghee • Unlimited Thali',
+        location: 'Avulpet Bypass (Arunachaleshwara Sannidhi)',
+        distance: 'In-House (Direct Room Service to all 17 Rooms)',
+        timings: '06:30 AM – 10:30 PM',
+        deliveryTime: '15 – 25 mins',
+        rating: '4.9',
+        ratingCount: '480+ Reviews',
+        image: 'assets/images/services/restaurant.jpg',
+        featured: true,
+        minOrder: 100,
+        deliveryFee: 0,
+        is_open: true,
+        description: 'Our dedicated in-house kitchen right at Arunachaleshwara Sannidhi. Serving steaming idlis, ghee roast dosas, traditional banana leaf thali meals, degree filter kaapi, and direct delivery to all 17 hotel rooms.'
+      }
+    ];
+  }
 
   // Cart format: [ { id, name, price, image, quantity } ]
   function getCart() {
@@ -175,6 +204,125 @@
         if (deliveryEl) deliveryEl.textContent = `₹${deliveryFee.toLocaleString('en-IN')}`;
         if (grandTotalEl) grandTotalEl.textContent = `₹${grandTotal.toLocaleString('en-IN')}`;
       }
+    }
+  }
+
+  // Render Restaurant Selection Cards
+  function renderRestaurantCards() {
+    const grid = document.getElementById('restaurantCardsGrid');
+    if (!grid) return;
+    const list = getRestaurantsList();
+
+    grid.innerHTML = list.map(rest => `
+      <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card h-100 restaurant-card shadow-sm border-0 position-relative">
+          <div class="restaurant-card-img-wrap">
+            <img src="${rest.image || 'assets/images/services/restaurant.jpg'}" alt="${rest.name}" class="restaurant-card-img" loading="lazy" onerror="this.onerror=null;this.src='assets/images/services/restaurant.jpg';">
+            <div class="restaurant-badge-overlay">
+              <span class="badge rounded-pill fw-bold shadow-sm" style="background: ${rest.featured ? '#45120E' : 'rgba(0,0,0,0.75)'}; color: ${rest.featured ? '#FFC908' : '#FFFFFF'};">
+                <i class="bi ${rest.featured ? 'bi-patch-check-fill text-warning' : 'bi-shop'} me-1"></i> ${rest.badge}
+              </span>
+              <span class="restaurant-rating-pill shadow-sm">
+                <i class="bi bi-star-fill text-warning me-1"></i>${rest.rating} <span class="fw-normal" style="font-size: 0.72rem; opacity: 0.85;">(${rest.ratingCount})</span>
+              </span>
+            </div>
+          </div>
+          <div class="card-body p-4 d-flex flex-column justify-content-between">
+            <div>
+              <h4 class="fw-bold text-maroon mb-1" style="font-family: var(--ff-heading, 'Cinzel', serif); font-size: 1.25rem;">
+                ${rest.name}
+              </h4>
+              <p class="small text-muted mb-3" style="line-height: 1.45;">
+                ${rest.description}
+              </p>
+
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-light text-maroon border border-gold-2 small py-1 px-2">
+                  <i class="bi bi-geo-alt-fill text-gold me-1"></i>${rest.distance}
+                </span>
+                <span class="badge bg-light text-maroon border border-gold-2 small py-1 px-2">
+                  <i class="bi bi-clock-fill text-gold me-1"></i>${rest.timings}
+                </span>
+                <span class="badge bg-light text-maroon border border-gold-2 small py-1 px-2">
+                  <i class="bi bi-bicycle text-gold me-1"></i>${rest.deliveryTime}
+                </span>
+                <span class="badge bg-light text-success border border-gold-2 small py-1 px-2 fw-bold">
+                  <i class="bi bi-check-circle-fill me-1"></i>100% Pure Veg
+                </span>
+              </div>
+            </div>
+
+            <div class="pt-3 border-top mt-2">
+              <button type="button" class="btn btn-warning w-100 py-2 fw-bold text-dark rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" onclick="window.arnRestaurant.selectRestaurant('${rest.id}')">
+                <span>Select Restaurant &amp; View Menu</span>
+                <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Select Restaurant & Show its Food Menu
+  function selectRestaurant(restId, scroll = true) {
+    const list = getRestaurantsList();
+    selectedRestaurant = list.find(r => r.id === restId) || list[0];
+    if (!selectedRestaurant) return;
+
+    try {
+      localStorage.setItem('arn_selected_restaurant', selectedRestaurant.id);
+    } catch (e) {}
+
+    // Show Menu Section, Hide Selection Section
+    const selectionSection = document.getElementById('restaurantSelectionSection');
+    const menuSection = document.getElementById('restaurantMenuSection');
+    if (selectionSection) selectionSection.classList.add('d-none');
+    if (menuSection) menuSection.classList.remove('d-none');
+
+    // Update Active Restaurant Info Bar
+    const nameEl = document.getElementById('activeRestName');
+    const badgeEl = document.getElementById('activeRestBadge');
+    const infoEl = document.getElementById('activeRestInfo');
+    const menuTitle = document.getElementById('menuSectionTitle');
+    const cartRestName = document.getElementById('cartDrawerRestaurantName');
+    const checkoutRestName = document.getElementById('checkoutModalRestaurantName');
+
+    if (nameEl) nameEl.textContent = selectedRestaurant.name;
+    if (badgeEl) badgeEl.textContent = selectedRestaurant.badge;
+    if (infoEl) infoEl.innerHTML = `<i class="bi bi-geo-alt-fill text-gold me-1"></i>${selectedRestaurant.location} • <i class="bi bi-clock-fill text-gold me-1"></i>${selectedRestaurant.timings} • <i class="bi bi-star-fill text-warning me-1"></i>${selectedRestaurant.rating} (${selectedRestaurant.ratingCount})`;
+    if (menuTitle) menuTitle.textContent = `${selectedRestaurant.name} — Food Menu`;
+    if (cartRestName) cartRestName.textContent = selectedRestaurant.name;
+    if (checkoutRestName) checkoutRestName.textContent = selectedRestaurant.name;
+
+    // Apply Delivery Fee and Min Order from Restaurant Settings
+    if (selectedRestaurant.deliveryFee !== undefined) {
+      restaurantSettings.delivery_fee = selectedRestaurant.deliveryFee;
+    }
+    if (selectedRestaurant.minOrder !== undefined) {
+      restaurantSettings.min_order_amount = selectedRestaurant.minOrder;
+    }
+
+    renderCategories();
+    renderMenuItems();
+    updateCartUI();
+
+    if (scroll && menuSection) {
+      menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // Switch / Go Back to Restaurant List
+  function showRestaurantList() {
+    const selectionSection = document.getElementById('restaurantSelectionSection');
+    const menuSection = document.getElementById('restaurantMenuSection');
+    if (selectionSection) selectionSection.classList.remove('d-none');
+    if (menuSection) menuSection.classList.add('d-none');
+
+    renderRestaurantCards();
+
+    if (selectionSection) {
+      selectionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
@@ -383,6 +531,10 @@
     }
 
     // Populate order summary in checkout modal
+    const activeRest = selectedRestaurant || getRestaurantsList()[0];
+    const restNameEl = document.getElementById('checkoutModalRestaurantName');
+    if (restNameEl && activeRest) restNameEl.textContent = activeRest.name;
+
     const summaryList = document.getElementById('checkoutOrderSummaryList');
     const subtotalEl = document.getElementById('checkoutSubtotal');
     const deliveryEl = document.getElementById('checkoutDeliveryFee');
@@ -451,14 +603,17 @@
     const subtotal = getCartSubtotal();
     const deliveryFee = restaurantSettings.delivery_fee || 30;
     const grandTotal = subtotal + deliveryFee;
+    const activeRest = selectedRestaurant || getRestaurantsList()[0];
 
     const orderPayload = {
+      restaurantId: activeRest.id,
+      restaurantName: activeRest.name,
       customerName: name,
       mobile: mobile,
       email: email,
       fulfillmentType: fulfillment,
       roomNumber: roomNo,
-      deliveryAddress: fulfillment === 'Room Delivery' ? `Room #${roomNo} (Arunachaleshwara Accommodation)` : (fulfillment === 'Restaurant Pickup' ? 'Self Pickup at Restaurant Counter' : 'Dine-In Table'),
+      deliveryAddress: fulfillment === 'Room Delivery' ? `Room #${roomNo} (Arunachaleshwara Accommodation)` : (fulfillment === 'Restaurant Pickup' ? `Self Pickup at ${activeRest.name} Counter` : 'Dine-In Table'),
       specialInstructions: notes,
       subtotal: subtotal,
       deliveryFee: deliveryFee,
@@ -507,6 +662,7 @@
     // Format WhatsApp Message
     const itemsText = order.items.map(it => `• ${it.name} × ${it.quantity} (₹${it.price * it.quantity})`).join('\n');
     const waMsg = `*Namaste! New Food Order Reservation*\n\n` +
+      `*Restaurant:* ${order.restaurantName || restaurantSettings.restaurant_name}\n` +
       `*Order ID:* ${orderId}\n` +
       `*Customer:* ${order.customerName}\n` +
       `*Mobile:* ${order.mobile}\n` +
@@ -517,7 +673,7 @@
       `*Delivery Fee:* ₹${order.deliveryFee}\n` +
       `*Total Amount:* ₹${order.totalAmount}\n` +
       `*Payment:* Pending at Delivery / Counter\n\n` +
-      `Please confirm my food order preparation & delivery time. Om Namah Shivaya!`;
+      `Please confirm my food order preparation & delivery time from ${order.restaurantName || 'the restaurant'}. Om Namah Shivaya!`;
 
     const waBtn = document.getElementById('btnOrderSuccessWhatsApp');
     if (waBtn) {
@@ -551,6 +707,22 @@
     if (restNameEl && restaurantSettings.restaurant_name) restNameEl.textContent = restaurantSettings.restaurant_name;
     if (restTimingsEl && restaurantSettings.timings) restTimingsEl.textContent = restaurantSettings.timings;
     if (restPhoneEl && restaurantSettings.contact_phone) restPhoneEl.textContent = restaurantSettings.contact_phone;
+
+    // Render Restaurant Selection Cards
+    renderRestaurantCards();
+
+    // Check if restaurant is specified in URL query (?restaurant=arn-inhouse)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const restParam = urlParams.get('restaurant');
+      if (restParam) {
+        selectRestaurant(restParam, false);
+      } else {
+        showRestaurantList();
+      }
+    } catch (e) {
+      showRestaurantList();
+    }
 
     renderCategories();
     renderMenuItems();
@@ -592,6 +764,10 @@
     handleFulfillmentChange,
     openCheckoutModal,
     submitFoodOrder,
+    selectRestaurant,
+    showRestaurantList,
+    renderRestaurantCards,
+    getRestaurantsList,
     init
   };
 

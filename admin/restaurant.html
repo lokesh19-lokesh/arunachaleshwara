@@ -650,6 +650,15 @@
                 <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
                   <h6 class="fw-bold text-maroon mb-2"><i class="bi bi-person-fill text-gold me-1"></i> Guest &amp; Fulfillment Details</h6>
                   <div class="row g-2">
+                    <div class="col-12">
+                      <label class="form-label small fw-bold text-maroon"><i class="bi bi-shop me-1 text-gold"></i> Select Restaurant / Kitchen *</label>
+                      <select id="adminOrderRestaurantSelect" class="form-select form-select-sm fw-semibold">
+                        <option value="Arunachaleshwara Pure Veg Restaurant" selected>🏨 Arunachaleshwara Pure Veg Restaurant (In-House Kitchen)</option>
+                        <option value="Arunai Annamalaiyar Pure Veg">🛕 Arunai Annamalaiyar Pure Veg (Temple Car Street)</option>
+                        <option value="Aakash Pure Veg Restaurant">🌿 Aakash Pure Veg Restaurant (Chengam Road)</option>
+                        <option value="Sri Aariya Bhavan Pure Veg">⚡ Sri Aariya Bhavan Pure Veg (Bus Stand Road)</option>
+                      </select>
+                    </div>
                     <div class="col-md-6">
                       <label class="form-label small fw-bold">Customer / Devotee Name *</label>
                       <input type="text" id="adminOrderCustName" class="form-control form-control-sm" placeholder="e.g. Ramesh Kumar" required>
@@ -1796,7 +1805,10 @@
         const deliveryFee = parseFloat(document.getElementById('adminOrderDeliveryFee').value) || 0;
         const totalAmount = subtotal + deliveryFee;
 
+        const selectedRest = document.getElementById('adminOrderRestaurantSelect') ? document.getElementById('adminOrderRestaurantSelect').value : 'Arunachaleshwara Pure Veg Restaurant';
+
         const orderData = {
+          restaurantName: selectedRest,
           customerName: custName,
           mobile: mobile,
           fulfillmentType: fulfillmentType,

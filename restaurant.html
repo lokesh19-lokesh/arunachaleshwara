@@ -103,6 +103,53 @@
       display: none;
     }
 
+    /* Restaurant Selection Card Styling */
+    .restaurant-card {
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+      border: 1.5px solid #E8DFD3;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .restaurant-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 32px rgba(69, 18, 14, 0.12) !important;
+      border-color: #FFC908;
+    }
+    .restaurant-card-img-wrap {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+    .restaurant-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .restaurant-card:hover .restaurant-card-img {
+      transform: scale(1.05);
+    }
+    .restaurant-badge-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+    .restaurant-rating-pill {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      color: #FFC908;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 50px;
+    }
+
     /* Category Navigation Pills */
     .cat-pills-wrapper {
       display: flex;
@@ -231,17 +278,17 @@
           <i class="bi bi-patch-check-fill text-warning"></i> 100% PURE VEGETARIAN &amp; SATTVIC CUISINE
         </div>
         <h1 class="mb-2" style="font-family: var(--ff-heading, 'Cinzel', serif); font-size: clamp(1.8rem, 4vw, 2.8rem); color: #45120E; font-weight: 800;" id="restaurantHeroName">
-          Arunachaleshwara Pure Veg Restaurant
+          Tiruvannamalai Pure Veg Restaurants
         </h1>
         <div class="gold-divider mx-auto mb-3" style="background: #45120E;"></div>
         <p class="lead mx-auto mb-3" style="max-width: 760px; color: #45120E !important; font-weight: 500;">
-          Authentic South Indian Breakfast Tiffin, Traditional Banana Leaf Thali Meals, Kumbakonam Degree Filter Kaapi, and Fast Room Delivery for Temple Devotees.
+          Select a trusted pure veg restaurant below to explore authentic South Indian breakfast, traditional banana leaf thali meals, degree filter kaapi, and fast room delivery.
         </p>
 
         <!-- Timings & Room Service Info -->
         <div class="d-flex flex-wrap justify-content-center align-items-center gap-3 mt-3">
           <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background: #45120E; color: #FFFFFF; font-weight: 600;">
-            <i class="bi bi-clock-fill text-warning me-1"></i> <span id="restaurantHeroTimings">Daily 06:30 AM – 10:30 PM</span>
+            <i class="bi bi-clock-fill text-warning me-1"></i> <span id="restaurantHeroTimings">Daily 06:00 AM – 11:00 PM</span>
           </span>
           <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background: #45120E; color: #FFFFFF; font-weight: 600;">
             <i class="bi bi-door-open-fill text-warning me-1"></i> Direct Room Service to All 17 Rooms
@@ -301,15 +348,69 @@
       </div>
     </section>
 
-    <!-- Menu Section -->
-    <section class="py-5" style="background: #FFF9EF;">
+    <!-- STEP 1: RESTAURANT SELECTION SECTION -->
+    <section id="restaurantSelectionSection" class="py-5" style="background: #FFF9EF;">
       <div class="container">
+        <div class="text-center mb-5">
+          <span class="badge px-3 py-2 rounded-pill fw-bold mb-2 shadow-sm" style="background: #45120E; color: #FFC908; letter-spacing: 1px;">
+            <i class="bi bi-shop me-1"></i> STEP 1 • SELECT RESTAURANT
+          </span>
+          <h2 class="text-maroon fw-bold mb-2" style="font-family: var(--ff-heading, 'Cinzel', serif);">
+            Choose a Pure Veg Restaurant
+          </h2>
+          <p class="text-muted mx-auto" style="max-width: 650px;">
+            Select your preferred pure vegetarian restaurant in Tiruvannamalai to browse their food dishes, customize items, and order directly to your room or table.
+          </p>
+          <div class="gold-divider mx-auto"></div>
+        </div>
+
+        <!-- Grid of Restaurant Cards -->
+        <div class="row g-4" id="restaurantCardsGrid">
+          <!-- Dynamically populated by restaurant.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: RESTAURANT MENU & ORDER SECTION (Visible after selecting a restaurant) -->
+    <section id="restaurantMenuSection" class="py-5 d-none" style="background: #FFF9EF;">
+      <div class="container">
+
+        <!-- Active Restaurant Bar -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 p-md-4" style="background: #FFFFFF; border-left: 6px solid #FFC908 !important;">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+              <button type="button" class="btn btn-outline-maroon btn-sm rounded-pill fw-bold px-3" onclick="window.arnRestaurant.showRestaurantList()">
+                <i class="bi bi-arrow-left me-1"></i> Change Restaurant
+              </button>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-success small"><i class="bi bi-check-circle-fill me-1"></i>Selected Restaurant</span>
+                  <span class="badge bg-warning text-dark fw-bold" id="activeRestBadge">In-House Kitchen</span>
+                </div>
+                <h3 class="fw-bold text-maroon mb-0 mt-1" id="activeRestName" style="font-family: var(--ff-heading, 'Cinzel', serif);">
+                  Arunachaleshwara Pure Veg Restaurant
+                </h3>
+                <small class="text-muted d-block mt-1" id="activeRestInfo">
+                  <i class="bi bi-geo-alt-fill text-gold me-1"></i>Avulpet Bypass • <i class="bi bi-clock-fill text-gold me-1"></i>06:30 AM – 10:30 PM • <i class="bi bi-star-fill text-warning me-1"></i>4.9 (480+ Reviews)
+                </small>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="window.arnRestaurant.showRestaurantList()">
+                <i class="bi bi-arrow-left-right me-1"></i> Switch Restaurant
+              </button>
+              <button type="button" class="btn btn-sm btn-warning rounded-pill fw-bold px-3 text-dark shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvasDrawer">
+                <i class="bi bi-bag-check-fill me-1"></i> View Cart <span class="badge bg-dark text-white rounded-pill ms-1 cart-badge-count d-none">0</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Search Bar and Title -->
         <div class="row align-items-center mb-4 g-3">
           <div class="col-lg-6">
-            <h2 class="text-maroon fw-bold mb-1" style="font-family: var(--ff-heading, 'Cinzel', serif);">
-              Explore Our Food Menu
+            <h2 class="text-maroon fw-bold mb-1" style="font-family: var(--ff-heading, 'Cinzel', serif);" id="menuSectionTitle">
+              Explore Food Menu
             </h2>
             <p class="text-muted small mb-0" id="menuDishesCount">
               Loading fresh kitchen specialties...
@@ -370,6 +471,15 @@
       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body p-3 d-flex flex-column justify-content-between" style="background: #F8F5F0;">
+
+      <!-- Selected Restaurant Label in Cart -->
+      <div id="cartRestaurantBar" class="p-2 mb-2 rounded-3 bg-white border border-gold-2 small d-flex align-items-center justify-content-between shadow-sm">
+        <div>
+          <span class="text-muted d-block" style="font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px;">ORDERING FROM:</span>
+          <strong class="text-maroon d-block" id="cartDrawerRestaurantName" style="font-size: 0.85rem;">Arunachaleshwara Pure Veg Restaurant</strong>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-maroon py-0 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" onclick="window.arnRestaurant.showRestaurantList()" data-bs-dismiss="offcanvas">Change</button>
+      </div>
 
       <!-- Empty State -->
       <div id="cartDrawerEmptyState" class="text-center py-5 my-auto">
@@ -433,6 +543,18 @@
             <div class="alert alert-warning py-2 px-3 small border-0 d-flex align-items-center gap-2 mb-3" style="background: #FFF8E1; color: #795548;">
               <i class="bi bi-info-circle-fill text-warning fs-5"></i>
               <div>No online payment required now! Pay via Cash or UPI at your door / counter upon order delivery.</div>
+            </div>
+
+            <!-- Selected Restaurant in Checkout -->
+            <div class="alert alert-light border py-2 px-3 small d-flex align-items-center justify-content-between mb-3 shadow-sm rounded-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shop text-gold fs-5"></i>
+                <div>
+                  <span class="text-muted d-block" style="font-size: 0.72rem; font-weight: 600;">Selected Restaurant</span>
+                  <strong class="text-maroon" id="checkoutModalRestaurantName">Arunachaleshwara Pure Veg Restaurant</strong>
+                </div>
+              </div>
+              <span class="badge bg-success small"><i class="bi bi-patch-check-fill me-1"></i>Pure Veg Certified</span>
             </div>
 
             <!-- Customer Details -->

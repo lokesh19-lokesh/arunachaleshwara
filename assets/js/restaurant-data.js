@@ -300,8 +300,89 @@ const DEFAULT_MENU_ITEMS = [
   }
 ];
 
+// --- Certified Pure Vegetarian Restaurants in Tiruvannamalai ---
+const RESTAURANTS_LIST = [
+  {
+    id: 'arn-inhouse',
+    name: 'Arunachaleshwara Pure Veg Restaurant',
+    tagline: 'In-House Sattvic & Temple Cuisine',
+    badge: 'Our In-House Kitchen (Fastest)',
+    cuisine: 'South Indian • Sattvic Temple Food • Desi Ghee • Unlimited Thali',
+    location: 'Avulpet Bypass (Arunachaleshwara Sannidhi)',
+    distance: 'In-House (Direct Room Service to all 17 Rooms)',
+    timings: '06:30 AM – 10:30 PM',
+    deliveryTime: '15 – 25 mins',
+    rating: '4.9',
+    ratingCount: '480+ Reviews',
+    image: 'assets/images/services/restaurant.jpg',
+    featured: true,
+    minOrder: 100,
+    deliveryFee: 0,
+    is_open: true,
+    description: 'Our dedicated in-house kitchen right at Arunachaleshwara Sannidhi. Serving steaming idlis, ghee roast dosas, traditional banana leaf thali meals, degree filter kaapi, and direct delivery to all 17 hotel rooms.'
+  },
+  {
+    id: 'arunai-annamalaiyar',
+    name: 'Arunai Annamalaiyar Pure Veg',
+    tagline: 'Sacred Temple Facing Traditional Meals',
+    badge: 'Temple Car Street Favorite',
+    cuisine: 'South Indian Tiffin • Meals & Thali • Ghee Sweets',
+    location: 'Sannathi Street, Near Eastern Raja Gopuram',
+    distance: '0.8 km from Sannidhi',
+    timings: '06:30 AM – 10:00 PM',
+    deliveryTime: '25 – 35 mins',
+    rating: '4.8',
+    ratingCount: '340+ Reviews',
+    image: 'assets/images/gallery/g4.jpg',
+    featured: false,
+    minOrder: 150,
+    deliveryFee: 30,
+    is_open: true,
+    description: 'Popular temple-facing pure vegetarian dining destination renowned among girivalam devotees for podi thatte idlis, vadai sambar, and authentic chola-style thali.'
+  },
+  {
+    id: 'aakash-pure-veg',
+    name: 'Aakash Pure Veg Restaurant',
+    tagline: 'Sattvic Delicacies & Multi-Cuisine Veg',
+    badge: 'Near Sri Ramanasramam',
+    cuisine: 'North & South Indian • Jain Sattvic • Degree Kaapi',
+    location: 'Chengam Road, Near Sri Ramanasramam',
+    distance: '1.4 km from Sannidhi',
+    timings: '07:00 AM – 10:30 PM',
+    deliveryTime: '30 – 40 mins',
+    rating: '4.7',
+    ratingCount: '290+ Reviews',
+    image: 'assets/images/gallery/g5.jpg',
+    featured: false,
+    minOrder: 150,
+    deliveryFee: 35,
+    is_open: true,
+    description: 'Wholesome sattvic, Jain-friendly, and North Indian specialties alongside South Indian tiffin, beloved by spiritual seekers and families visiting Ramanasramam.'
+  },
+  {
+    id: 'sri-aariya-bhavan',
+    name: 'Sri Aariya Bhavan Pure Veg',
+    tagline: 'Crispy Dosas & Express Tiffin Service',
+    badge: 'Bypass Road Express',
+    cuisine: 'Crispy Dosas • Medu Vada • Pongal • Degree Kaapi',
+    location: 'Bus Stand Bypass Road, Tiruvannamalai',
+    distance: '1.2 km from Sannidhi',
+    timings: '06:00 AM – 11:00 PM',
+    deliveryTime: '20 – 30 mins',
+    rating: '4.6',
+    ratingCount: '210+ Reviews',
+    image: 'assets/images/gallery/g10.jpg',
+    featured: false,
+    minOrder: 120,
+    deliveryFee: 30,
+    is_open: true,
+    description: 'Celebrated for early-morning Girivalam breakfast packs, lightning-fast delivery, crispy golden medu vadas, and authentic Kumbakonam brass degree filter coffee.'
+  }
+];
+
 // Global exposure
 if (typeof window !== 'undefined') {
   window.DEFAULT_RESTAURANT_CATEGORIES = DEFAULT_RESTAURANT_CATEGORIES;
   window.DEFAULT_MENU_ITEMS = DEFAULT_MENU_ITEMS;
+  window.RESTAURANTS_LIST = RESTAURANTS_LIST;
 }
