@@ -24,6 +24,13 @@
 
   // Helper to get available restaurants
   function getRestaurantsList() {
+    try {
+      const cached = localStorage.getItem('arn_restaurants_list');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
     if (typeof window !== 'undefined' && Array.isArray(window.RESTAURANTS_LIST) && window.RESTAURANTS_LIST.length > 0) {
       return window.RESTAURANTS_LIST;
     }
@@ -249,6 +256,11 @@
                 <span class="badge bg-light text-success border border-gold-2 small py-1 px-2 fw-bold">
                   <i class="bi bi-check-circle-fill me-1"></i>100% Pure Veg
                 </span>
+                ${rest.is_open === false ? `
+                  <span class="badge bg-danger text-white border small py-1 px-2 fw-bold">
+                    <i class="bi bi-door-closed-fill me-1"></i>Currently Closed
+                  </span>
+                ` : ''}
               </div>
             </div>
 
@@ -357,6 +369,14 @@
     if (!grid) return;
 
     let filtered = menuItems;
+
+    // Filter by Selected Restaurant
+    if (selectedRestaurant && selectedRestaurant.id) {
+      const restSpecific = menuItems.filter(item => !item.restaurant_id || item.restaurant_id === 'all' || item.restaurant_id === selectedRestaurant.id);
+      if (restSpecific.length > 0) {
+        filtered = restSpecific;
+      }
+    }
 
     // Filter by Category
     if (currentCategory !== 'all') {
@@ -728,11 +748,34 @@
     renderMenuItems();
     updateCartUI();
 
+    // Silently fetch dynamic restaurants list from Supabase
+    if (typeof window.fetchRestaurantsFromSupabase === 'function') {
+      window.fetchRestaurantsFromSupabase().then(dbList => {
+        if (dbList && dbList.length > 0) {
+          renderRestaurantCards();
+          if (selectedRestaurant) {
+            selectedRestaurant = dbList.find(r => r.id === selectedRestaurant.id) || selectedRestaurant;
+          }
+        }
+      }).catch(() => {});
+    }
+
     // Subscribe to live Real-Time sync without page reload
     if (window.ArnRealtimeSync && !window.__arnRestSyncSubscribed) {
       window.__arnRestSyncSubscribed = true;
       window.ArnRealtimeSync.subscribe('menu', () => {
         init();
+      });
+      window.ArnRealtimeSync.subscribe('restaurants', async () => {
+        if (typeof window.fetchRestaurantsFromSupabase === 'function') {
+          await window.fetchRestaurantsFromSupabase();
+        }
+        renderRestaurantCards();
+        if (selectedRestaurant) {
+          const list = getRestaurantsList();
+          selectedRestaurant = list.find(r => r.id === selectedRestaurant.id) || selectedRestaurant;
+          selectRestaurant(selectedRestaurant.id, false);
+        }
       });
       window.ArnRealtimeSync.subscribe('restaurant_settings', () => {
         init();

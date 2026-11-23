@@ -49,6 +49,8 @@
       ArnRealtimeSync.notifySubscribers('menu', 'storage_update', null, false);
     } else if (event.key === 'arn_restaurant_settings') {
       ArnRealtimeSync.notifySubscribers('restaurant_settings', 'storage_update', null, false);
+    } else if (event.key === 'arn_restaurants_list') {
+      ArnRealtimeSync.notifySubscribers('restaurants', 'storage_update', null, false);
     } else if (event.key === 'arn_rooms_inventory') {
       ArnRealtimeSync.notifySubscribers('accommodation', 'storage_update', null, false);
     }
@@ -250,9 +252,12 @@
           ArnRealtimeSync.notifySubscribers('menu', payload.eventType, payload.new || payload.old, true);
         });
 
-        // Restaurant Settings
+        // Restaurant Settings & Outlets
         channel.on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_settings' }, payload => {
           ArnRealtimeSync.notifySubscribers('restaurant_settings', payload.eventType, payload.new || payload.old, true);
+        });
+        channel.on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, payload => {
+          ArnRealtimeSync.notifySubscribers('restaurants', payload.eventType, payload.new || payload.old, true);
         });
 
         // Payments

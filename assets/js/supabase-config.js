@@ -361,6 +361,143 @@ async function fetchGalleryFromSupabase() {
 }
 
 /**
+ * Fetch dynamic restaurants list from Supabase / localStorage / defaults
+ */
+async function fetchRestaurantsFromSupabase() {
+  const defaultList = (typeof RESTAURANTS_LIST !== 'undefined' && Array.isArray(RESTAURANTS_LIST))
+    ? RESTAURANTS_LIST
+    : (typeof window !== 'undefined' && Array.isArray(window.RESTAURANTS_LIST) ? window.RESTAURANTS_LIST : []);
+
+  try {
+    const rawLocal = localStorage.getItem('arn_restaurants_list');
+    let localList = rawLocal ? JSON.parse(rawLocal) : defaultList;
+
+    if (!supabaseClient) return localList;
+
+    const { data, error } = await supabaseClient
+      .from('restaurants')
+      .select('*')
+      .order('is_featured', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      const mapped = data.map(r => ({
+        id: r.id,
+        name: r.name,
+        tagline: r.tagline || '',
+        badge: r.badge || 'Pure Veg',
+        cuisine: r.cuisine || '',
+        location: r.location || '',
+        distance: r.distance || '',
+        timings: r.timings || '06:30 AM – 10:30 PM',
+        deliveryTime: r.delivery_time || r.deliveryTime || '20 – 30 mins',
+        rating: String(r.rating || '4.8'),
+        ratingCount: r.rating_count || r.ratingCount || '300+ Reviews',
+        image: r.image || 'assets/images/services/restaurant.jpg',
+        featured: r.is_featured === true || r.featured === true,
+        minOrder: Number(r.min_order !== undefined ? r.min_order : (r.minOrder || 100)),
+        deliveryFee: Number(r.delivery_fee !== undefined ? r.delivery_fee : (r.deliveryFee !== undefined ? r.deliveryFee : 30)),
+        is_open: r.is_open !== false,
+        description: r.description || ''
+      }));
+      localStorage.setItem('arn_restaurants_list', JSON.stringify(mapped));
+      if (typeof window !== 'undefined') window.RESTAURANTS_LIST = mapped;
+      return mapped;
+    }
+    return localList;
+  } catch (err) {
+    console.warn('Error fetching restaurants from Supabase:', err);
+    return defaultList;
+  }
+}
+
+/**
+ * Save / Update a Restaurant (Admin)
+ */
+async function saveRestaurantToSupabase(rest) {
+  try {
+    let list = [];
+    const raw = localStorage.getItem('arn_restaurants_list');
+    if (raw) list = JSON.parse(raw);
+    else if (typeof RESTAURANTS_LIST !== 'undefined' && Array.isArray(RESTAURANTS_LIST)) list = [...RESTAURANTS_LIST];
+
+    if (!rest.id) {
+      rest.id = 'rest_' + Date.now();
+    }
+
+    const idx = list.findIndex(r => String(r.id) === String(rest.id));
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...rest };
+    } else {
+      list.push(rest);
+    }
+    localStorage.setItem('arn_restaurants_list', JSON.stringify(list));
+    if (typeof window !== 'undefined') window.RESTAURANTS_LIST = list;
+
+    if (supabaseClient) {
+      const dbPayload = {
+        id: rest.id,
+        name: rest.name,
+        tagline: rest.tagline || '',
+        badge: rest.badge || '',
+        cuisine: rest.cuisine || '',
+        location: rest.location || '',
+        distance: rest.distance || '',
+        timings: rest.timings || '',
+        delivery_time: rest.deliveryTime || '',
+        rating: parseFloat(rest.rating) || 4.8,
+        rating_count: rest.ratingCount || '',
+        image: rest.image || '',
+        is_featured: rest.featured === true,
+        min_order: Number(rest.minOrder || 100),
+        delivery_fee: Number(rest.deliveryFee !== undefined ? rest.deliveryFee : 30),
+        is_open: rest.is_open !== false,
+        description: rest.description || '',
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabaseClient.from('restaurants').upsert([dbPayload]);
+      if (error) console.warn('Supabase restaurant upsert note:', error.message);
+    }
+
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('restaurants', 'restaurant_saved', rest);
+    }
+    return { success: true, restaurant: rest };
+  } catch (err) {
+    console.error('saveRestaurantToSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Delete a Restaurant (Admin)
+ */
+async function deleteRestaurantFromSupabase(restId) {
+  try {
+    let list = [];
+    const raw = localStorage.getItem('arn_restaurants_list');
+    if (raw) list = JSON.parse(raw);
+    else if (typeof RESTAURANTS_LIST !== 'undefined' && Array.isArray(RESTAURANTS_LIST)) list = [...RESTAURANTS_LIST];
+
+    list = list.filter(r => String(r.id) !== String(restId));
+    localStorage.setItem('arn_restaurants_list', JSON.stringify(list));
+    if (typeof window !== 'undefined') window.RESTAURANTS_LIST = list;
+
+    if (supabaseClient) {
+      const { error } = await supabaseClient.from('restaurants').delete().eq('id', restId);
+      if (error) console.warn('Supabase restaurant delete note:', error.message);
+    }
+
+    if (window.ArnRealtimeSync) {
+      window.ArnRealtimeSync.publish('restaurants', 'restaurant_deleted', { id: restId });
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('deleteRestaurantFromSupabase error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
  * Fetch dynamic restaurant settings from Supabase / localStorage / defaults
  */
 async function fetchRestaurantSettingsFromSupabase() {
@@ -481,6 +618,7 @@ async function saveMenuItemToSupabase(item) {
     if (raw) items = JSON.parse(raw);
     else if (typeof DEFAULT_MENU_ITEMS !== 'undefined') items = [...DEFAULT_MENU_ITEMS];
 
+    item.restaurant_id = item.restaurant_id || 'all';
     const existingIdx = items.findIndex(x => String(x.id) === String(item.id));
     if (existingIdx !== -1) {
       items[existingIdx] = { ...items[existingIdx], ...item };
@@ -758,6 +896,9 @@ if (typeof window !== 'undefined') {
   window.submitContactMessageToSupabase = submitContactMessageToSupabase;
 
   // Restaurant & Food Ordering functions
+  window.fetchRestaurantsFromSupabase = fetchRestaurantsFromSupabase;
+  window.saveRestaurantToSupabase = saveRestaurantToSupabase;
+  window.deleteRestaurantFromSupabase = deleteRestaurantFromSupabase;
   window.fetchRestaurantSettingsFromSupabase = fetchRestaurantSettingsFromSupabase;
   window.saveRestaurantSettingsToSupabase = saveRestaurantSettingsToSupabase;
   window.fetchRestaurantMenuFromSupabase = fetchRestaurantMenuFromSupabase;

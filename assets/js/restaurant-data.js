@@ -380,6 +380,20 @@ const RESTAURANTS_LIST = [
   }
 ];
 
+// Immediate hydration from admin-saved localStorage if available
+try {
+  if (typeof localStorage !== 'undefined') {
+    const rawSaved = localStorage.getItem('arn_restaurants_list');
+    if (rawSaved) {
+      const parsed = JSON.parse(rawSaved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        RESTAURANTS_LIST.length = 0;
+        parsed.forEach(r => RESTAURANTS_LIST.push(r));
+      }
+    }
+  }
+} catch (e) {}
+
 // Global exposure
 if (typeof window !== 'undefined') {
   window.DEFAULT_RESTAURANT_CATEGORIES = DEFAULT_RESTAURANT_CATEGORIES;

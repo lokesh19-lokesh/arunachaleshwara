@@ -108,6 +108,11 @@
             </button>
           </li>
           <li class="nav-item">
+            <button class="nav-link fw-bold text-dark" id="tabBtnRestaurants" data-bs-toggle="tab" data-bs-target="#restaurantsPane">
+              <i class="bi bi-shop text-warning me-1"></i> Restaurants &amp; Outlets (<span id="restaurantsCountBadge">4</span>)
+            </button>
+          </li>
+          <li class="nav-item">
             <button class="nav-link fw-bold text-dark" id="tabBtnDishes" data-bs-toggle="tab" data-bs-target="#dishesPane">
               <i class="bi bi-cup-hot-fill text-warning me-1"></i> Menu Items (<span id="dishesCountBadge">0</span>)
             </button>
@@ -182,7 +187,50 @@
             </div>
           </div>
 
-          <!-- TAB 2: MENU ITEMS CATALOG -->
+          <!-- TAB 2: RESTAURANTS & OUTLETS -->
+          <div class="tab-pane fade" id="restaurantsPane">
+            <div class="admin-card">
+              <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <h6 class="admin-card-title mb-0"><i class="bi bi-shop text-warning"></i> Certified Restaurants &amp; Outlets</h6>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadAllRestaurantData()" title="Refresh Restaurants">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <input type="text" id="searchRestaurantsInput" class="form-control form-control-sm" placeholder="Search restaurant, location..." style="width: 220px;" oninput="renderRestaurantsTable()">
+                  <button type="button" class="btn btn-sm btn-admin-yellow fw-bold shadow-sm" onclick="openAddRestaurantModal()">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Add New Restaurant
+                  </button>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 70px;">Photo</th>
+                      <th>Restaurant &amp; Badge</th>
+                      <th>Address &amp; Location</th>
+                      <th>Timings &amp; Delivery</th>
+                      <th>Rating</th>
+                      <th>Status</th>
+                      <th style="width: 140px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="restaurantsTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm text-warning me-2"></div> Loading restaurants...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: MENU ITEMS CATALOG -->
           <div class="tab-pane fade" id="dishesPane">
             <div class="admin-card">
               <div class="admin-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -196,31 +244,35 @@
 
               <!-- Filter Bar for Dishes -->
               <div class="p-3 border-bottom bg-light d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                <div class="d-flex gap-2">
-                  <select id="filterDishCategory" class="form-select form-select-sm" style="width: 220px;" onchange="renderDishesTable()">
+                <div class="d-flex flex-wrap gap-2">
+                  <select id="filterDishRestaurant" class="form-select form-select-sm" style="width: 200px;" onchange="renderDishesTable()">
+                    <option value="all">All Restaurants / Outlets</option>
+                  </select>
+                  <select id="filterDishCategory" class="form-select form-select-sm" style="width: 190px;" onchange="renderDishesTable()">
                     <option value="all">All Categories</option>
                     <!-- Populated dynamically -->
                   </select>
-                  <select id="filterDishAvailability" class="form-select form-select-sm" style="width: 150px;" onchange="renderDishesTable()">
+                  <select id="filterDishAvailability" class="form-select form-select-sm" style="width: 140px;" onchange="renderDishesTable()">
                     <option value="all">All Availability</option>
                     <option value="available">In Stock</option>
                     <option value="unavailable">Sold Out</option>
                   </select>
                 </div>
-                <input type="text" id="searchDishInput" class="form-control form-control-sm" placeholder="Search dish name..." style="width: 220px;" oninput="renderDishesTable()">
+                <input type="text" id="searchDishInput" class="form-control form-control-sm" placeholder="Search dish name..." style="width: 200px;" oninput="renderDishesTable()">
               </div>
 
               <div class="table-responsive">
                 <table class="table admin-table align-middle">
                   <thead>
                     <tr>
-                      <th>Photo</th>
+                      <th style="width: 60px;">Photo</th>
                       <th>Dish Name &amp; Description</th>
                       <th>Category</th>
+                      <th>Restaurant / Outlet</th>
                       <th>Price</th>
                       <th>Special / Tags</th>
                       <th>Availability</th>
-                      <th>Actions</th>
+                      <th style="width: 90px;">Actions</th>
                     </tr>
                   </thead>
                   <tbody id="dishesTableBody">
@@ -351,6 +403,160 @@
     </main>
   </div>
 
+  <!-- MODAL: ADD / EDIT RESTAURANT -->
+  <div class="modal fade" id="restaurantModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title fw-bold" id="restaurantModalTitle">Add New Restaurant / Outlet</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="restaurantForm" onsubmit="saveRestaurant(event)">
+            <input type="hidden" id="modalRestaurantId">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label small fw-bold">Restaurant Name *</label>
+                <input type="text" id="modalRestaurantName" class="form-control" placeholder="e.g. Arunachaleshwara Pure Veg Restaurant" required>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold">Badge Text</label>
+                <input type="text" id="modalRestaurantBadge" class="form-control" placeholder="e.g. Our In-House Kitchen (Fastest)">
+              </div>
+
+              <div class="col-md-7">
+                <label class="form-label small fw-bold">Tagline &amp; Cuisine Specialties</label>
+                <input type="text" id="modalRestaurantCuisine" class="form-control" placeholder="e.g. South Indian • Sattvic Temple Food • Desi Ghee">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label small fw-bold">Delivery Zone / Distance Note *</label>
+                <input type="text" id="modalRestaurantDistance" class="form-control" placeholder="e.g. In-House (Direct Room Service to all 17 Rooms) or 0.8 km from Sannidhi" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Full Address &amp; Location *</label>
+                <input type="text" id="modalRestaurantLocation" class="form-control" placeholder="e.g. Avulpet Bypass, Near Arunachaleswarar Temple, Tiruvannamalai, Tamil Nadu 606601" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Restaurant Description / Content *</label>
+                <textarea id="modalRestaurantDescription" class="form-control" rows="2" placeholder="Describe the restaurant, signature dishes, chef specials, service quality..." required></textarea>
+              </div>
+
+              <!-- Picture / Image Upload, Preview & Preset Selector -->
+              <div class="col-12">
+                <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-1">
+                  <span><i class="bi bi-image text-warning me-1"></i> Restaurant Picture &amp; Banner Upload *</span>
+                  <span id="restaurantUploadStatus" class="small"></span>
+                </label>
+                <div class="p-3 rounded-3 border" style="background: #FFFDF9; border-color: #E2D9CC !important;">
+                  <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="position-relative flex-shrink-0" style="width: 130px; height: 90px; border-radius: 10px; overflow: hidden; border: 2px solid #E2D9CC; background: #F8F5EE; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                      <img id="modalRestaurantImagePreview" src="../assets/images/services/restaurant.jpg" alt="Preview"
+                           style="width: 100%; height: 100%; object-fit: cover;"
+                           onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
+                      <span class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white text-center py-1 fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                        PREVIEW
+                      </span>
+                    </div>
+
+                    <div class="flex-grow-1" style="min-width: 250px;">
+                      <div class="d-flex flex-wrap gap-2 mb-2">
+                        <label class="btn btn-sm btn-admin-yellow fw-bold mb-0 shadow-sm" style="cursor: pointer;">
+                          <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Picture
+                          <input type="file" id="modalRestaurantImageFile" accept="image/png,image/jpeg,image/webp,image/jpg" class="d-none" onchange="handleRestaurantImageUpload(this)">
+                        </label>
+
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-collection-fill text-warning me-1"></i> Preset Photos
+                          </button>
+                          <ul class="dropdown-menu shadow border-0" style="font-size: 0.85rem; max-height: 280px; overflow-y: auto;">
+                            <li><h6 class="dropdown-header text-maroon fw-bold">Curated Restaurant &amp; Food Photos</h6></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetRestaurantImage('assets/images/services/restaurant.jpg')">
+                              <span>🍛</span> Arunachaleshwara Banana Leaf Thali
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetRestaurantImage('assets/images/gallery/g4.jpg')">
+                              <span>🥞</span> Arunai Annamalaiyar Traditional Food
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetRestaurantImage('assets/images/gallery/g5.jpg')">
+                              <span>☕</span> Aakash Sattvic &amp; Filter Kaapi
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetRestaurantImage('assets/images/gallery/g10.jpg')">
+                              <span>🛕</span> Sri Aariya Bhavan Express
+                            </button></li>
+                            <li><button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="selectPresetRestaurantImage('assets/images/popup.png')">
+                              <span>🌄</span> Arunachala Sacred Temple Panorama
+                            </button></li>
+                          </ul>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetRestaurantImage()" title="Reset photo">
+                          <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </button>
+                      </div>
+
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i> Image URL</span>
+                        <input type="text" id="modalRestaurantImageUrl" class="form-control" placeholder="assets/images/services/restaurant.jpg or https://..."
+                               oninput="updateRestaurantImagePreview(this.value)">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Operating Timings *</label>
+                <input type="text" id="modalRestaurantTimings" class="form-control" placeholder="06:30 AM – 10:30 PM" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Avg Delivery Time *</label>
+                <input type="text" id="modalRestaurantDeliveryTime" class="form-control" placeholder="15 – 25 mins" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Rating (out of 5)</label>
+                <input type="text" id="modalRestaurantRating" class="form-control" placeholder="4.9">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Review Count</label>
+                <input type="text" id="modalRestaurantRatingCount" class="form-control" placeholder="480+ Reviews">
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Min Order (₹)</label>
+                <input type="number" id="modalRestaurantMinOrder" class="form-control" placeholder="100" min="0">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold">Delivery Fee (₹)</label>
+                <input type="number" id="modalRestaurantDeliveryFee" class="form-control" placeholder="30" min="0">
+              </div>
+              <div class="col-md-3 d-flex align-items-center">
+                <div class="form-check form-switch mt-4">
+                  <input class="form-check-input" type="checkbox" id="modalRestaurantIsFeatured">
+                  <label class="form-check-label small fw-bold" for="modalRestaurantIsFeatured">In-House / Featured</label>
+                </div>
+              </div>
+              <div class="col-md-3 d-flex align-items-center">
+                <div class="form-check form-switch mt-4">
+                  <input class="form-check-input" type="checkbox" id="modalRestaurantIsOpen" checked>
+                  <label class="form-check-label small fw-bold" for="modalRestaurantIsOpen">Open for Orders</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+              <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-admin-yellow fw-bold px-4 shadow-sm">
+                <i class="bi bi-check-circle-fill me-1"></i> Save Restaurant
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ADD / EDIT DISH -->
   <div class="modal fade" id="dishModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -371,15 +577,22 @@
                 <label class="form-label small fw-bold">Price (₹) *</label>
                 <input type="number" id="dishPrice" class="form-control" min="1" placeholder="85" required>
               </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-bold">Regional Name (Tamil / Telugu)</label>
-                <input type="text" id="dishRegionalName" class="form-control" placeholder="e.g. நெய் ரோஸ்ட் / నేతి మసాలా దోశ">
-              </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label class="form-label small fw-bold">Category *</label>
                 <select id="dishCategory" class="form-select" required>
                   <!-- Populated dynamically -->
                 </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Restaurant Outlet</label>
+                <select id="dishRestaurantId" class="form-select">
+                  <option value="all">All Restaurants &amp; Outlets</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-bold">Regional Name (Tamil / Telugu)</label>
+                <input type="text" id="dishRegionalName" class="form-control" placeholder="e.g. நெய் ரோஸ்ட் / నేతి మసాలా దోశ">
               </div>
               <div class="col-12">
                 <label class="form-label small fw-bold">Description &amp; Inclusions</label>
@@ -834,6 +1047,7 @@
   <script src="assets/js/admin-core.js"></script>
 
   <script>
+    let gRestaurants = [];
     let gCategories = [];
     let gMenuItems = [];
     let gOrders = [];
@@ -852,15 +1066,20 @@
         }
       }
 
-      // Check URL params for direct tab selection (e.g. ?tab=orders)
+      // Check URL params for direct tab selection (e.g. ?tab=orders or ?tab=restaurants)
       const urlParams = new URLSearchParams(window.location.search);
-      const isOrdersTab = urlParams.get('tab') === 'orders';
+      const tabParam = urlParams.get('tab');
+      const isOrdersTab = tabParam === 'orders';
+      const isRestaurantsTab = tabParam === 'restaurants';
 
       // 1. Render Admin Sidebar & Header
       if (typeof renderAdminSidebar === 'function') renderAdminSidebar(isOrdersTab ? 'restaurant-orders' : 'restaurant-menu');
-      if (typeof renderAdminHeader === 'function') renderAdminHeader('Restaurant & Food Orders', 'Menu Catalog, Kitchen Timings & Live Room Delivery');
+      if (typeof renderAdminHeader === 'function') renderAdminHeader('Restaurant & Food Orders', 'Outlets, Menu Catalog, Kitchen Timings & Live Room Delivery');
 
-      if (isOrdersTab) {
+      if (isRestaurantsTab) {
+        const btn = document.getElementById('tabBtnRestaurants');
+        if (btn && window.bootstrap) new bootstrap.Tab(btn).show();
+      } else if (isOrdersTab) {
         const btn = document.getElementById('tabBtnOrders');
         if (btn && window.bootstrap) new bootstrap.Tab(btn).show();
       }
@@ -876,6 +1095,9 @@
       if (window.ArnRealtimeSync) {
         window.ArnRealtimeSync.subscribe('restaurant_orders', () => {
           loadFoodOrders();
+        });
+        window.ArnRealtimeSync.subscribe('restaurants', () => {
+          loadAllRestaurantData();
         });
         window.ArnRealtimeSync.subscribe('menu', () => {
           loadAllRestaurantData();
@@ -895,7 +1117,18 @@
         gSettings = await fetchRestaurantSettingsFromSupabase();
         populateSettingsForm();
       }
-      // 2. Menu Catalog
+      // 2. Restaurants Outlets
+      if (typeof fetchRestaurantsFromSupabase === 'function') {
+        gRestaurants = await fetchRestaurantsFromSupabase();
+      } else {
+        const rawRest = localStorage.getItem('arn_restaurants_list');
+        gRestaurants = rawRest ? JSON.parse(rawRest) : (typeof RESTAURANTS_LIST !== 'undefined' ? RESTAURANTS_LIST : []);
+      }
+      const restBadge = document.getElementById('restaurantsCountBadge');
+      if (restBadge) restBadge.textContent = gRestaurants.length;
+      renderRestaurantsTable();
+
+      // 3. Menu Catalog
       if (typeof fetchRestaurantMenuFromSupabase === 'function') {
         const data = await fetchRestaurantMenuFromSupabase();
         gCategories = data.categories || [];
@@ -904,7 +1137,7 @@
         gCategories = typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined' ? DEFAULT_RESTAURANT_CATEGORIES : [];
         gMenuItems = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
       }
-      // 3. Orders
+      // 4. Orders
       await loadFoodOrders();
 
       renderCategoriesTable();
@@ -1102,13 +1335,328 @@
     }
 
     /* ----------------------------------------------------
+       RESTAURANTS & OUTLETS TAB
+       ---------------------------------------------------- */
+    function renderRestaurantsTable() {
+      const tbody = document.getElementById('restaurantsTableBody');
+      if (!tbody) return;
+      const search = (document.getElementById('searchRestaurantsInput')?.value || '').toLowerCase().trim();
+
+      let filtered = gRestaurants || [];
+      if (search) {
+        filtered = filtered.filter(r =>
+          (r.name && r.name.toLowerCase().includes(search)) ||
+          (r.location && r.location.toLowerCase().includes(search)) ||
+          (r.badge && r.badge.toLowerCase().includes(search)) ||
+          (r.cuisine && r.cuisine.toLowerCase().includes(search))
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No restaurants found. Click "Add New Restaurant" to add an outlet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(rest => {
+        const imgSrc = typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(rest.image || 'assets/images/services/restaurant.jpg') : (rest.image || '../assets/images/services/restaurant.jpg');
+        return `
+          <tr>
+            <td>
+              <img src="${imgSrc}" alt="${escapeHtml(rest.name)}" class="food-thumb-img" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #E2D9CC;" onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
+            </td>
+            <td>
+              <div class="fw-bold text-maroon">${escapeHtml(rest.name)}</div>
+              ${rest.badge ? `<span class="badge bg-warning text-dark font-monospace" style="font-size: 0.72rem;">${escapeHtml(rest.badge)}</span>` : ''}
+              ${rest.featured ? `<span class="badge bg-dark text-warning ms-1" style="font-size: 0.7rem;">In-House</span>` : ''}
+              <small class="text-muted d-block line-clamp-2 mt-1" style="font-size: 0.75rem;">${escapeHtml(rest.description || '')}</small>
+            </td>
+            <td>
+              <div class="small fw-semibold text-dark"><i class="bi bi-geo-alt-fill text-gold me-1"></i>${escapeHtml(rest.location || '')}</div>
+              <small class="text-secondary d-block">${escapeHtml(rest.distance || '')}</small>
+            </td>
+            <td>
+              <div class="small"><i class="bi bi-clock-fill text-gold me-1"></i>${escapeHtml(rest.timings || '')}</div>
+              <small class="text-muted"><i class="bi bi-bicycle text-gold me-1"></i>${escapeHtml(rest.deliveryTime || '')}</small>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border">
+                <i class="bi bi-star-fill text-warning me-1"></i>${escapeHtml(String(rest.rating || '4.8'))}
+              </span>
+              <small class="text-muted d-block" style="font-size: 0.72rem;">${escapeHtml(rest.ratingCount || '')}</small>
+            </td>
+            <td>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" ${rest.is_open !== false ? 'checked' : ''} onchange="toggleRestaurantOpen('${rest.id}', this.checked)">
+                <label class="form-check-label small ${rest.is_open !== false ? 'text-success' : 'text-danger'}">
+                  ${rest.is_open !== false ? 'Open' : 'Closed'}
+                </label>
+              </div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="openEditRestaurantModal('${rest.id}')" title="Edit Restaurant Details">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <a href="../restaurant.html?restaurant=${encodeURIComponent(rest.id)}" target="_blank" class="btn btn-outline-warning text-dark" title="View Menu on Website">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                <button class="btn btn-outline-danger" onclick="deleteRestaurant('${rest.id}')" title="Delete Restaurant">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openAddRestaurantModal() {
+      document.getElementById('restaurantModalTitle').textContent = 'Add New Restaurant / Outlet';
+      document.getElementById('modalRestaurantId').value = '';
+      document.getElementById('modalRestaurantName').value = '';
+      document.getElementById('modalRestaurantBadge').value = 'Popular Choice';
+      document.getElementById('modalRestaurantCuisine').value = 'South Indian • Sattvic Temple Food • Filter Kaapi';
+      document.getElementById('modalRestaurantDistance').value = 'Near Temple';
+      document.getElementById('modalRestaurantLocation').value = 'Tiruvannamalai, Tamil Nadu';
+      document.getElementById('modalRestaurantDescription').value = '';
+      document.getElementById('modalRestaurantTimings').value = '06:30 AM – 10:30 PM';
+      document.getElementById('modalRestaurantDeliveryTime').value = '20 – 30 mins';
+      document.getElementById('modalRestaurantRating').value = '4.8';
+      document.getElementById('modalRestaurantRatingCount').value = '150+ Reviews';
+      document.getElementById('modalRestaurantMinOrder').value = '100';
+      document.getElementById('modalRestaurantDeliveryFee').value = '30';
+      document.getElementById('modalRestaurantIsFeatured').checked = false;
+      document.getElementById('modalRestaurantIsOpen').checked = true;
+
+      const defImg = 'assets/images/services/restaurant.jpg';
+      document.getElementById('modalRestaurantImageUrl').value = defImg;
+      updateRestaurantImagePreview(defImg);
+      const statusEl = document.getElementById('restaurantUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
+
+      new bootstrap.Modal(document.getElementById('restaurantModal')).show();
+    }
+
+    function openEditRestaurantModal(restId) {
+      const rest = gRestaurants.find(r => String(r.id) === String(restId));
+      if (!rest) return;
+
+      document.getElementById('restaurantModalTitle').textContent = 'Edit Restaurant Details';
+      document.getElementById('modalRestaurantId').value = rest.id;
+      document.getElementById('modalRestaurantName').value = rest.name || '';
+      document.getElementById('modalRestaurantBadge').value = rest.badge || '';
+      document.getElementById('modalRestaurantCuisine').value = rest.cuisine || '';
+      document.getElementById('modalRestaurantDistance').value = rest.distance || '';
+      document.getElementById('modalRestaurantLocation').value = rest.location || '';
+      document.getElementById('modalRestaurantDescription').value = rest.description || '';
+      document.getElementById('modalRestaurantTimings').value = rest.timings || '06:30 AM – 10:30 PM';
+      document.getElementById('modalRestaurantDeliveryTime').value = rest.deliveryTime || '20 – 30 mins';
+      document.getElementById('modalRestaurantRating').value = rest.rating || '4.8';
+      document.getElementById('modalRestaurantRatingCount').value = rest.ratingCount || '200+ Reviews';
+      document.getElementById('modalRestaurantMinOrder').value = rest.minOrder !== undefined ? rest.minOrder : 100;
+      document.getElementById('modalRestaurantDeliveryFee').value = rest.deliveryFee !== undefined ? rest.deliveryFee : 30;
+      document.getElementById('modalRestaurantIsFeatured').checked = rest.featured === true;
+      document.getElementById('modalRestaurantIsOpen').checked = rest.is_open !== false;
+
+      const curImg = rest.image || 'assets/images/services/restaurant.jpg';
+      document.getElementById('modalRestaurantImageUrl').value = curImg;
+      updateRestaurantImagePreview(curImg);
+      const statusEl = document.getElementById('restaurantUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
+
+      new bootstrap.Modal(document.getElementById('restaurantModal')).show();
+    }
+
+    async function saveRestaurant(e) {
+      e.preventDefault();
+      const id = document.getElementById('modalRestaurantId').value || ('rest_' + Date.now());
+      const name = document.getElementById('modalRestaurantName').value.trim();
+      const badge = document.getElementById('modalRestaurantBadge').value.trim() || 'Pure Veg';
+      const cuisine = document.getElementById('modalRestaurantCuisine').value.trim();
+      const distance = document.getElementById('modalRestaurantDistance').value.trim();
+      const location = document.getElementById('modalRestaurantLocation').value.trim();
+      const description = document.getElementById('modalRestaurantDescription').value.trim();
+      const timings = document.getElementById('modalRestaurantTimings').value.trim() || '06:30 AM – 10:30 PM';
+      const deliveryTime = document.getElementById('modalRestaurantDeliveryTime').value.trim() || '20 – 30 mins';
+      const rating = document.getElementById('modalRestaurantRating').value.trim() || '4.8';
+      const ratingCount = document.getElementById('modalRestaurantRatingCount').value.trim() || '200+ Reviews';
+      const minOrder = parseFloat(document.getElementById('modalRestaurantMinOrder').value) || 0;
+      const deliveryFee = parseFloat(document.getElementById('modalRestaurantDeliveryFee').value) || 0;
+      const featured = document.getElementById('modalRestaurantIsFeatured').checked;
+      const isOpen = document.getElementById('modalRestaurantIsOpen').checked;
+      const image = document.getElementById('modalRestaurantImageUrl').value.trim() || 'assets/images/services/restaurant.jpg';
+
+      const restObj = {
+        id,
+        name,
+        badge,
+        cuisine,
+        distance,
+        location,
+        description,
+        timings,
+        deliveryTime,
+        rating,
+        ratingCount,
+        minOrder,
+        deliveryFee,
+        featured,
+        is_open: isOpen,
+        image
+      };
+
+      if (typeof saveRestaurantToSupabase === 'function') {
+        await saveRestaurantToSupabase(restObj);
+      } else {
+        const raw = localStorage.getItem('arn_restaurants_list');
+        let list = raw ? JSON.parse(raw) : (typeof RESTAURANTS_LIST !== 'undefined' ? [...RESTAURANTS_LIST] : []);
+        const idx = list.findIndex(r => String(r.id) === String(id));
+        if (idx !== -1) list[idx] = restObj;
+        else list.push(restObj);
+        localStorage.setItem('arn_restaurants_list', JSON.stringify(list));
+      }
+
+      await loadAllRestaurantData();
+
+      const modalEl = document.getElementById('restaurantModal');
+      const bsModal = bootstrap.Modal.getInstance(modalEl);
+      if (bsModal) bsModal.hide();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast(`Restaurant "${name}" saved successfully!`, 'success');
+      }
+    }
+
+    async function toggleRestaurantOpen(restId, isOpen) {
+      const rest = gRestaurants.find(r => String(r.id) === String(restId));
+      if (!rest) return;
+      rest.is_open = isOpen;
+      if (typeof saveRestaurantToSupabase === 'function') {
+        await saveRestaurantToSupabase(rest);
+      }
+      renderRestaurantsTable();
+      if (typeof showAdminToast === 'function') {
+        showAdminToast(`Restaurant marked as ${isOpen ? 'Open' : 'Closed'}.`, 'info');
+      }
+    }
+
+    async function deleteRestaurant(restId) {
+      const rest = gRestaurants.find(r => String(r.id) === String(restId));
+      if (!confirm(`Are you sure you want to delete restaurant "${rest ? rest.name : restId}"?`)) return;
+
+      if (typeof deleteRestaurantFromSupabase === 'function') {
+        await deleteRestaurantFromSupabase(restId);
+      }
+      await loadAllRestaurantData();
+
+      if (typeof showAdminToast === 'function') {
+        showAdminToast('Restaurant removed successfully.', 'info');
+      }
+    }
+
+    function updateRestaurantImagePreview(url) {
+      const previewEl = document.getElementById('modalRestaurantImagePreview');
+      if (!previewEl) return;
+      const clean = (url || '').trim();
+      previewEl.src = clean ? (typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(clean) : clean) : '../assets/images/services/restaurant.jpg';
+    }
+
+    async function handleRestaurantImageUpload(fileInput) {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('restaurantUploadStatus');
+      const previewEl = document.getElementById('modalRestaurantImagePreview');
+      const inputEl = document.getElementById('modalRestaurantImageUrl');
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Please select a photo under 5 MB.');
+        fileInput.value = '';
+        return;
+      }
+
+      try {
+        previewEl.src = URL.createObjectURL(file);
+      } catch (e) {}
+
+      statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-warning me-1"></span><span class="text-muted small">Uploading...</span>';
+
+      try {
+        let uploadedUrl = null;
+        if (window.adminSupabase && typeof uploadAdminImage === 'function') {
+          try {
+            uploadedUrl = await uploadAdminImage(file, 'restaurant');
+          } catch (e) {}
+        }
+
+        if (uploadedUrl) {
+          inputEl.value = uploadedUrl;
+          previewEl.src = uploadedUrl;
+          statusEl.innerHTML = '<span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Uploaded!</span>';
+        } else {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            const dataUrl = evt.target.result;
+            inputEl.value = dataUrl;
+            previewEl.src = dataUrl;
+            statusEl.innerHTML = '<span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Attached!</span>';
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        statusEl.innerHTML = '<span class="text-danger small">Upload failed</span>';
+      } finally {
+        fileInput.value = '';
+      }
+    }
+
+    function selectPresetRestaurantImage(val) {
+      if (!val) return;
+      document.getElementById('modalRestaurantImageUrl').value = val;
+      updateRestaurantImagePreview(val);
+      const statusEl = document.getElementById('restaurantUploadStatus');
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="text-success fw-semibold small"><i class="bi bi-check2 me-1"></i>Preset Selected</span>';
+      }
+    }
+
+    function resetRestaurantImage() {
+      const def = 'assets/images/services/restaurant.jpg';
+      document.getElementById('modalRestaurantImageUrl').value = def;
+      updateRestaurantImagePreview(def);
+      const statusEl = document.getElementById('restaurantUploadStatus');
+      if (statusEl) statusEl.innerHTML = '';
+    }
+
+    /* ----------------------------------------------------
        MENU ITEMS CATALOG TAB
        ---------------------------------------------------- */
     function renderDishesTable() {
       const tbody = document.getElementById('dishesTableBody');
+      const restSelect = document.getElementById('filterDishRestaurant');
+      const restFilter = restSelect ? restSelect.value : 'all';
       const catFilter = document.getElementById('filterDishCategory').value;
       const availFilter = document.getElementById('filterDishAvailability').value;
       const search = document.getElementById('searchDishInput').value.toLowerCase().trim();
+
+      // Populate Restaurant dropdown in filter & modal
+      const dishModalRestSelect = document.getElementById('dishRestaurantId');
+      const currentRestVal = restSelect ? restSelect.value : 'all';
+
+      if (restSelect) {
+        restSelect.innerHTML = `<option value="all">All Restaurants / Outlets</option>` + (gRestaurants || []).map(r => `
+          <option value="${r.id}">${escapeHtml(r.name)}</option>
+        `).join('');
+        restSelect.value = currentRestVal;
+      }
+
+      if (dishModalRestSelect) {
+        const curModalRest = dishModalRestSelect.value || 'all';
+        dishModalRestSelect.innerHTML = `<option value="all">All Restaurants &amp; Outlets</option>` + (gRestaurants || []).map(r => `
+          <option value="${r.id}">${escapeHtml(r.name)}</option>
+        `).join('');
+        dishModalRestSelect.value = curModalRest;
+      }
 
       // Populate Category dropdowns in filter & modal
       const catSelect = document.getElementById('filterDishCategory');
@@ -1125,6 +1673,9 @@
       `).join('');
 
       let filtered = gMenuItems;
+      if (restFilter !== 'all') {
+        filtered = filtered.filter(m => !m.restaurant_id || m.restaurant_id === 'all' || m.restaurant_id === restFilter);
+      }
       if (catFilter !== 'all') {
         filtered = filtered.filter(m => m.category_slug === catFilter);
       }
@@ -1138,28 +1689,35 @@
       }
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No dishes found. Click "Add New Dish" to add to menu.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">No dishes found. Click "Add New Dish" to add to menu.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map(dish => {
         const catObj = gCategories.find(c => c.slug === dish.category_slug);
         const catName = catObj ? catObj.name : dish.category_slug;
+        const matchedRest = (gRestaurants || []).find(r => r.id === dish.restaurant_id);
+        const restName = matchedRest ? matchedRest.name : (dish.restaurant_id === 'all' || !dish.restaurant_id ? 'All Outlets' : dish.restaurant_id);
 
         return `
           <tr>
             <td>
               <img src="${typeof resolveAdminImgSrc === 'function' ? resolveAdminImgSrc(dish.image || 'assets/images/services/restaurant.jpg') : (dish.image || '../assets/images/services/restaurant.jpg')}"
-                   alt="${dish.name}" class="food-thumb-img"
+                   alt="${escapeHtml(dish.name)}" class="food-thumb-img"
                    onerror="this.onerror=null;this.src='../assets/images/services/restaurant.jpg';">
             </td>
             <td>
-              <div class="fw-bold text-maroon">${dish.name}</div>
-              ${dish.regional_name ? `<small class="text-secondary d-block fst-italic">${dish.regional_name}</small>` : ''}
-              <small class="text-muted d-block line-clamp-2" style="font-size: 0.75rem;">${dish.description || ''}</small>
+              <div class="fw-bold text-maroon">${escapeHtml(dish.name)}</div>
+              ${dish.regional_name ? `<small class="text-secondary d-block fst-italic">${escapeHtml(dish.regional_name)}</small>` : ''}
+              <small class="text-muted d-block line-clamp-2" style="font-size: 0.75rem;">${escapeHtml(dish.description || '')}</small>
             </td>
             <td>
-              <span class="badge bg-light text-dark border">${catName}</span>
+              <span class="badge bg-light text-dark border">${escapeHtml(catName)}</span>
+            </td>
+            <td>
+              <span class="badge ${matchedRest ? 'bg-warning-subtle text-dark border border-warning' : 'bg-light text-muted border'}" style="font-size: 0.75rem;">
+                <i class="bi bi-shop me-1"></i>${escapeHtml(restName)}
+              </span>
             </td>
             <td>
               <strong class="text-maroon fs-6">₹${Number(dish.price).toLocaleString('en-IN')}</strong>
@@ -1197,6 +1755,9 @@
       document.getElementById('dishPrice').value = '';
       document.getElementById('dishRegionalName').value = '';
       document.getElementById('dishDescription').value = '';
+      if (document.getElementById('dishRestaurantId')) {
+        document.getElementById('dishRestaurantId').value = 'all';
+      }
       document.getElementById('dishImage').value = 'assets/images/services/restaurant.jpg';
       updateDishImagePreview('assets/images/services/restaurant.jpg');
       const statusEl = document.getElementById('dishUploadStatus');
@@ -1217,6 +1778,9 @@
       document.getElementById('dishPrice').value = dish.price;
       document.getElementById('dishRegionalName').value = dish.regional_name || '';
       document.getElementById('dishCategory').value = dish.category_slug;
+      if (document.getElementById('dishRestaurantId')) {
+        document.getElementById('dishRestaurantId').value = dish.restaurant_id || 'all';
+      }
       document.getElementById('dishDescription').value = dish.description || '';
       const curImg = dish.image || 'assets/images/services/restaurant.jpg';
       document.getElementById('dishImage').value = curImg;
@@ -1236,6 +1800,7 @@
       const price = parseFloat(document.getElementById('dishPrice').value) || 0;
       const regional = document.getElementById('dishRegionalName').value.trim();
       const category = document.getElementById('dishCategory').value;
+      const restaurantId = document.getElementById('dishRestaurantId') ? document.getElementById('dishRestaurantId').value : 'all';
       const desc = document.getElementById('dishDescription').value.trim();
       const image = document.getElementById('dishImage').value.trim() || 'assets/images/services/restaurant.jpg';
       const isAvailable = document.getElementById('dishIsAvailable').checked;
@@ -1245,6 +1810,16 @@
         id,
         name,
         price,
+        regional_name: regional,
+        category_slug: category,
+        restaurant_id: restaurantId,
+        description: desc,
+        image,
+        is_available: isAvailable,
+        is_special: isSpecial,
+        is_veg: true,
+        order_num: gMenuItems.length + 1
+      };
         regional_name: regional,
         category_slug: category,
         description: desc,
