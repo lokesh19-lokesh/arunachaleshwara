@@ -1041,12 +1041,23 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/admin-auth.js"></script>
+  <script src="assets/js/booking-helpers.js"></script>
   <script src="../assets/js/supabase-config.js"></script>
   <script src="../assets/js/restaurant-data.js"></script>
   <script src="assets/js/realtime-sync.js"></script>
   <script src="assets/js/admin-core.js"></script>
 
   <script>
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     let gRestaurants = [];
     let gCategories = [];
     let gMenuItems = [];
@@ -1112,48 +1123,101 @@
     });
 
     async function loadAllRestaurantData() {
-      // 1. Settings
-      if (typeof fetchRestaurantSettingsFromSupabase === 'function') {
-        gSettings = await fetchRestaurantSettingsFromSupabase();
+      // 0. Instant Synchronous Zero-Delay Render from local cache & defaults (0ms!)
+      try {
+        const rawSettings = localStorage.getItem('arn_restaurant_settings');
+        gSettings = rawSettings ? JSON.parse(rawSettings) : {
+          restaurant_name: 'Arunachaleshwara Pure Veg Restaurant',
+          timings: 'Daily 06:30 AM – 10:30 PM',
+          is_open: true
+        };
         populateSettingsForm();
-      }
-      // 2. Restaurants Outlets
-      if (typeof fetchRestaurantsFromSupabase === 'function') {
-        gRestaurants = await fetchRestaurantsFromSupabase();
-      } else {
+
         const rawRest = localStorage.getItem('arn_restaurants_list');
-        gRestaurants = rawRest ? JSON.parse(rawRest) : (typeof RESTAURANTS_LIST !== 'undefined' ? RESTAURANTS_LIST : []);
-      }
-      const restBadge = document.getElementById('restaurantsCountBadge');
-      if (restBadge) restBadge.textContent = gRestaurants.length;
-      renderRestaurantsTable();
+        gRestaurants = rawRest ? JSON.parse(rawRest) : (typeof RESTAURANTS_LIST !== 'undefined' ? [...RESTAURANTS_LIST] : []);
+        const restBadge = document.getElementById('restaurantsCountBadge');
+        if (restBadge) restBadge.textContent = gRestaurants.length;
+        renderRestaurantsTable();
 
-      // 3. Menu Catalog
-      if (typeof fetchRestaurantMenuFromSupabase === 'function') {
-        const data = await fetchRestaurantMenuFromSupabase();
-        gCategories = data.categories || [];
-        gMenuItems = data.items || [];
-      } else {
-        gCategories = typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined' ? DEFAULT_RESTAURANT_CATEGORIES : [];
-        gMenuItems = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
-      }
-      // 4. Orders
-      await loadFoodOrders();
+        const rawCats = localStorage.getItem('arn_restaurant_categories');
+        gCategories = rawCats ? JSON.parse(rawCats) : (typeof DEFAULT_RESTAURANT_CATEGORIES !== 'undefined' ? [...DEFAULT_RESTAURANT_CATEGORIES] : []);
 
-      renderCategoriesTable();
-      renderDishesTable();
-      updateKPICards();
+        const rawItems = localStorage.getItem('arn_restaurant_items');
+        gMenuItems = rawItems ? JSON.parse(rawItems) : (typeof DEFAULT_MENU_ITEMS !== 'undefined' ? [...DEFAULT_MENU_ITEMS] : []);
+
+        const rawOrders = localStorage.getItem('arn_food_orders');
+        gOrders = rawOrders ? JSON.parse(rawOrders) : [];
+
+        renderCategoriesTable();
+        renderDishesTable();
+        renderOrdersTable();
+        updateKPICards();
+      } catch (err) {
+        console.warn('Sync cache render note:', err);
+      }
+
+      // 1. Silent Background Parallel Sync from Supabase
+      Promise.allSettled([
+        (typeof fetchRestaurantSettingsFromSupabase === 'function')
+          ? fetchRestaurantSettingsFromSupabase().then(s => { if (s) { gSettings = s; populateSettingsForm(); } })
+          : Promise.resolve(),
+        (typeof fetchRestaurantsFromSupabase === 'function')
+          ? fetchRestaurantsFromSupabase().then(r => {
+              if (r && r.length > 0) {
+                gRestaurants = r;
+                const restBadge = document.getElementById('restaurantsCountBadge');
+                if (restBadge) restBadge.textContent = gRestaurants.length;
+                renderRestaurantsTable();
+              }
+            })
+          : Promise.resolve(),
+        (typeof fetchRestaurantMenuFromSupabase === 'function')
+          ? fetchRestaurantMenuFromSupabase().then(data => {
+              if (data) {
+                if (data.categories && data.categories.length) gCategories = data.categories;
+                if (data.items && data.items.length) gMenuItems = data.items;
+                renderCategoriesTable();
+                renderDishesTable();
+              }
+            })
+          : Promise.resolve(),
+        (typeof fetchFoodOrdersFromSupabase === 'function')
+          ? fetchFoodOrdersFromSupabase().then(orders => {
+              if (orders) {
+                gOrders = orders;
+                renderOrdersTable();
+              }
+            })
+          : Promise.resolve()
+      ]).then(() => {
+        updateKPICards();
+      }).catch(err => {
+        console.warn('Background Supabase refresh note:', err);
+      });
     }
 
     async function loadFoodOrders() {
-      if (typeof fetchFoodOrdersFromSupabase === 'function') {
-        gOrders = await fetchFoodOrdersFromSupabase();
-      } else {
+      // Immediate local render
+      try {
         const raw = localStorage.getItem('arn_food_orders');
-        gOrders = raw ? JSON.parse(raw) : [];
+        if (raw) gOrders = JSON.parse(raw);
+        renderOrdersTable();
+        updateKPICards();
+      } catch (e) {}
+
+      // Fresh background fetch
+      if (typeof fetchFoodOrdersFromSupabase === 'function') {
+        try {
+          const fresh = await fetchFoodOrdersFromSupabase();
+          if (fresh) {
+            gOrders = fresh;
+            renderOrdersTable();
+            updateKPICards();
+          }
+        } catch (err) {
+          console.warn('loadFoodOrders sync error:', err);
+        }
       }
-      renderOrdersTable();
-      updateKPICards();
     }
 
     function updateKPICards() {

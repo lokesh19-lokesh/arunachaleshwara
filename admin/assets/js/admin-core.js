@@ -421,6 +421,17 @@ function clearWhatsAppTemplatesCache() {
   try { sessionStorage.removeItem('arn_cache_whatsapp_templates'); } catch (e) { }
 }
 
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+window.escapeHtml = escapeHtml;
 window.renderAdminSidebar = renderAdminSidebar;
 window.renderAdminHeader = renderAdminHeader;
 window.showAdminToast = showAdminToast;
