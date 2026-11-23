@@ -1515,6 +1515,24 @@ header.scrolled .top-bar,
   transform: scale(1.08);
 }
 
+/* ---------- Testimonial Swiper Slider ---------- */
+.testimonial-swiper {
+  padding: 10px 4px 45px;
+  position: relative;
+}
+
+.testimonial-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+.testimonial-swiper .testimonial-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 /* ---------- Testimonial Cards ---------- */
 .testimonial-card {
   background: var(--clr-white);

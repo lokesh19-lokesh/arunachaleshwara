@@ -77,24 +77,30 @@ function initSwipers() {
     });
   }
 
-  // Testimonial swiper
+  // Testimonial swiper (left-to-right slider)
   const testimonialSwiperEl = document.querySelector('.testimonial-swiper');
   if (testimonialSwiperEl && typeof Swiper !== 'undefined') {
     new Swiper('.testimonial-swiper', {
-      slidesPerView: 1,
-      spaceBetween: 24,
+      slidesPerView: 1.08,
+      spaceBetween: 16,
       loop: true,
       autoplay: {
-        delay: 5000,
+        delay: 4500,
         disableOnInteraction: false,
+        pauseOnMouseEnter: true
+      },
+      navigation: {
+        nextEl: '.testimonial-swiper-next',
+        prevEl: '.testimonial-swiper-prev',
       },
       pagination: {
         el: '.testimonial-swiper-pagination',
         clickable: true,
       },
       breakpoints: {
-        768: { slidesPerView: 2 },
-        1024: { slidesPerView: 3 }
+        576: { slidesPerView: 1.5, spaceBetween: 20 },
+        768: { slidesPerView: 2, spaceBetween: 24 },
+        1024: { slidesPerView: 3, spaceBetween: 24 }
       }
     });
   }

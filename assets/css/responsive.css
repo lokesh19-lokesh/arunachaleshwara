@@ -716,7 +716,9 @@
   }
 
   .gallery-swiper-prev,
-  .gallery-swiper-next {
+  .gallery-swiper-next,
+  .testimonial-swiper-prev,
+  .testimonial-swiper-next {
     display: none !important;
   }
 
