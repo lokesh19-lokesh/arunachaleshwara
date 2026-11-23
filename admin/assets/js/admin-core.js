@@ -122,11 +122,11 @@ function renderAdminHeader(pageTitle, subtitle = '') {
 
       <!-- Role-Based Notification Bell with Dropdown -->
       <div class="dropdown notification-dropdown-wrapper position-relative" id="adminNotifWrapper">
-        <button class="btn btn-sm btn-outline-secondary position-relative d-inline-flex align-items-center justify-content-center notification-bell-btn" id="adminNotifBellBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifications">
+        <button type="button" class="btn btn-sm btn-outline-secondary position-relative d-inline-flex align-items-center justify-content-center notification-bell-btn" id="adminNotifBellBtn" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.toggleDropdown(event)" aria-expanded="false" title="Notifications">
           <i class="bi bi-bell-fill fs-6" id="adminNotifBellIcon" style="color: #45120E;"></i>
           <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none notification-badge" id="adminNotifBadge">0</span>
         </button>
-        <div class="dropdown-menu dropdown-menu-end shadow-lg notification-dropdown-menu p-0 border-0" id="adminNotifDropdown" style="width: 380px; max-width: 92vw; border-radius: 12px; overflow: hidden; z-index: 1060; border: 1px solid rgba(0,0,0,0.08) !important;">
+        <div class="dropdown-menu dropdown-menu-end shadow-lg notification-dropdown-menu p-0 border-0" id="adminNotifDropdown">
           <!-- Dropdown Header -->
           <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
@@ -139,8 +139,8 @@ function renderAdminHeader(pageTitle, subtitle = '') {
                 <i class="bi bi-volume-up-fill text-success" id="adminNotifSoundIcon"></i>
                 <span id="adminNotifSoundLabel" class="d-none d-sm-inline">Sound</span>
               </button>
-              <!-- Test "Bemp" Sound -->
-              <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.playBempSound(true)" title="Test 'Bemp' Chime" style="font-size: 0.75rem; height: 26px;">
+              <!-- Test Loud "Bemp" Sound -->
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="window.ArnAdminNotifications && window.ArnAdminNotifications.playBempSound(true)" title="Test Loud 'Bemp' Chime" style="font-size: 0.75rem; height: 26px;">
                 <i class="bi bi-music-note-beamed text-primary"></i>
               </button>
               <!-- Clear / Mark All Read -->
@@ -150,10 +150,16 @@ function renderAdminHeader(pageTitle, subtitle = '') {
             </div>
           </div>
 
-          <!-- RBAC Filter Indicator -->
+          <!-- RBAC Filter Indicator & Real-time Status -->
           <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between" style="font-size: 0.72rem;">
-            <span class="text-muted"><i class="bi bi-shield-check text-primary me-1"></i>Role Access:</span>
-            <span class="badge bg-secondary bg-opacity-10 text-secondary" id="adminNotifRoleBadge">Loading RBAC...</span>
+            <div class="d-flex align-items-center gap-1 text-muted">
+              <i class="bi bi-shield-check text-primary"></i>
+              <span>Role:</span>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary" id="adminNotifRoleBadge">Loading RBAC...</span>
+            </div>
+            <span class="text-success d-inline-flex align-items-center gap-1" style="font-size: 0.68rem; font-weight: 600;" title="Real-Time Data Sync Active">
+              <span class="spinner-grow spinner-grow-sm text-success" style="width: 5px; height: 5px;" role="status"></span> Live Sync
+            </span>
           </div>
 
           <!-- Notification Items List -->
@@ -186,13 +192,14 @@ function renderAdminHeader(pageTitle, subtitle = '') {
 }
 
 /**
- * Role-Based Admin Notification Engine with Audible "Bemp" Alert Chime
+ * Role-Based Admin Notification Engine with Audible "Bemp" Alert Chime & Real-Time Sync
  */
 const ArnAdminNotifications = {
   STORAGE_KEY: 'arn_admin_notifications',
   SOUND_MUTED_KEY: 'arn_admin_sound_muted',
   _audioCtx: null,
   _initialized: false,
+  _syncInterval: null,
 
   isSoundMuted() {
     try {
@@ -237,7 +244,42 @@ const ArnAdminNotifications = {
   },
 
   /**
-   * Synthesize dual-tone "Bemp" alert sound via Web Audio API
+   * Toggle dropdown open/close reliably
+   */
+  toggleDropdown(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    // Resume audio context on interaction if suspended
+    if (this._audioCtx && this._audioCtx.state === 'suspended') {
+      this._audioCtx.resume().catch(() => {});
+    }
+
+    const dropdown = document.getElementById('adminNotifDropdown');
+    const bellBtn = document.getElementById('adminNotifBellBtn');
+    if (!dropdown) return;
+
+    const isShowing = dropdown.classList.contains('show');
+    if (isShowing) {
+      dropdown.classList.remove('show');
+      if (bellBtn) bellBtn.setAttribute('aria-expanded', 'false');
+    } else {
+      dropdown.classList.add('show');
+      if (bellBtn) bellBtn.setAttribute('aria-expanded', 'true');
+      this.render();
+    }
+  },
+
+  closeDropdown() {
+    const dropdown = document.getElementById('adminNotifDropdown');
+    const bellBtn = document.getElementById('adminNotifBellBtn');
+    if (dropdown) dropdown.classList.remove('show');
+    if (bellBtn) bellBtn.setAttribute('aria-expanded', 'false');
+  },
+
+  /**
+   * Synthesize LOUD, punchy, dual-tone "Bemp" alert sound via Web Audio API
    */
   playBempSound(force = false) {
     try {
@@ -256,50 +298,59 @@ const ArnAdminNotifications = {
 
       const now = ctx.currentTime;
 
-      // Master Gain for smooth volume control
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0.28, now);
-      master.connect(ctx.destination);
+      // Dynamics Compressor to maximize loudness and punch without clipping
+      const compressor = ctx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-14, now);
+      compressor.knee.setValueAtTime(8, now);
+      compressor.ratio.setValueAtTime(4, now);
+      compressor.attack.setValueAtTime(0.002, now);
+      compressor.release.setValueAtTime(0.2, now);
+      compressor.connect(ctx.destination);
 
-      // Punchy tone ("Bem"): Triangle wave ramping 440 -> 554 Hz
+      // Loud Master Gain (92% volume)
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.92, now);
+      master.connect(compressor);
+
+      // Tone 1: Low-Mid Punchy "Bem" (520Hz ramping to 660Hz)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = 'triangle';
-      osc1.frequency.setValueAtTime(440.0, now);
-      osc1.frequency.exponentialRampToValueAtTime(554.37, now + 0.08);
-      gain1.gain.setValueAtTime(0.24, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.frequency.setValueAtTime(520.0, now);
+      osc1.frequency.exponentialRampToValueAtTime(659.25, now + 0.09); // Glides from C#5 to E5
+      gain1.gain.setValueAtTime(0.85, now);
+      gain1.gain.exponentialRampToValueAtTime(0.005, now + 0.14);
       osc1.connect(gain1);
       gain1.connect(master);
       osc1.start(now);
-      osc1.stop(now + 0.13);
+      osc1.stop(now + 0.15);
 
-      // High resonant chime ("-p!"): Sine wave peaking at 784 -> 880 Hz
+      // Tone 2: Loud High Resonant Bell "-p!" (880Hz peaking at 1046.5Hz)
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(783.99, now + 0.06);
-      osc2.frequency.exponentialRampToValueAtTime(880.00, now + 0.16);
+      osc2.frequency.setValueAtTime(880.00, now + 0.08); // A5
+      osc2.frequency.exponentialRampToValueAtTime(1046.50, now + 0.18); // Glides to C6
       gain2.gain.setValueAtTime(0.001, now);
-      gain2.gain.setValueAtTime(0.30, now + 0.06);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      gain2.gain.setValueAtTime(0.95, now + 0.08); // Full loud peak
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
       osc2.connect(gain2);
       gain2.connect(master);
-      osc2.start(now + 0.06);
-      osc2.stop(now + 0.39);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.50);
 
-      // Rich harmonic overtone (C6 1046.5 Hz)
+      // Tone 3: Bright High Sparkle (1318.5Hz / E6)
       const osc3 = ctx.createOscillator();
       const gain3 = ctx.createGain();
       osc3.type = 'sine';
-      osc3.frequency.setValueAtTime(1046.50, now + 0.07);
+      osc3.frequency.setValueAtTime(1318.51, now + 0.09);
       gain3.gain.setValueAtTime(0.001, now);
-      gain3.gain.setValueAtTime(0.12, now + 0.07);
-      gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.30);
+      gain3.gain.setValueAtTime(0.55, now + 0.09);
+      gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.38);
       osc3.connect(gain3);
       gain3.connect(master);
-      osc3.start(now + 0.07);
-      osc3.stop(now + 0.31);
+      osc3.start(now + 0.09);
+      osc3.stop(now + 0.40);
     } catch (e) {
       console.warn('Notification audio playback note:', e);
     }
@@ -390,7 +441,7 @@ const ArnAdminNotifications = {
    */
   saveNotifications(notifs) {
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notifs.slice(0, 35)));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(notifs.slice(0, 40)));
     } catch (e) {}
   },
 
@@ -403,7 +454,84 @@ const ArnAdminNotifications = {
   },
 
   /**
-   * Push incoming notification with RBAC filtering, "bemp" sound, bell shake & badge
+   * Sync Real-Time Data from localStorage and Supabase
+   */
+  syncRealtimeData() {
+    try {
+      let changed = false;
+      const allNotifs = this.getAllNotifications();
+
+      // 1. Sync recent real food orders
+      const rawFood = localStorage.getItem('arn_food_orders');
+      if (rawFood) {
+        try {
+          const foodOrders = JSON.parse(rawFood);
+          if (Array.isArray(foodOrders)) {
+            foodOrders.slice(0, 6).forEach(order => {
+              const orderId = order.order_id || order.id || order.order_number;
+              if (!orderId) return;
+              const notifId = `notif_order_${orderId}`;
+              if (!allNotifs.some(n => n.id === notifId)) {
+                const itemsSummary = Array.isArray(order.items)
+                  ? order.items.map(i => `${i.name || i.title || 'Item'} x${i.quantity || 1}`).slice(0, 2).join(', ')
+                  : (order.fulfillment_type === 'room_delivery' ? `Room ${order.room_number || ''} Delivery` : 'Room Delivery / Dine-in');
+                const amtStr = order.total_amount ? ` • ₹${order.total_amount}` : '';
+                allNotifs.unshift({
+                  id: notifId,
+                  type: 'food_order',
+                  modules: ['services', 'bookings'],
+                  title: `New Food Order #${orderId}`,
+                  message: `${itemsSummary}${amtStr}`,
+                  link: 'restaurant.html?tab=orders',
+                  timestamp: order.timestamp || Date.now(),
+                  read: false
+                });
+                changed = true;
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      // 2. Sync recent real room bookings
+      const rawRooms = localStorage.getItem('arn_room_bookings');
+      if (rawRooms) {
+        try {
+          const roomBookings = JSON.parse(rawRooms);
+          if (Array.isArray(roomBookings)) {
+            roomBookings.slice(0, 6).forEach(b => {
+              const bId = b.booking_id || b.id;
+              if (!bId) return;
+              const notifId = `notif_booking_${bId}`;
+              if (!allNotifs.some(n => n.id === notifId)) {
+                allNotifs.unshift({
+                  id: notifId,
+                  type: 'room_booking',
+                  modules: ['accommodation', 'bookings'],
+                  title: `New Room Booking #${bId}`,
+                  message: `${b.customer_name || 'Guest'} • ${b.room_category || 'Room Booking'}`,
+                  link: 'bookings.html',
+                  timestamp: b.timestamp || Date.now(),
+                  read: false
+                });
+                changed = true;
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      if (changed) {
+        this.saveNotifications(allNotifs);
+        this.render();
+      }
+    } catch (err) {
+      console.warn('Realtime sync check note:', err);
+    }
+  },
+
+  /**
+   * Push incoming notification with RBAC filtering, LOUD "bemp" sound, bell shake & badge
    */
   pushNotification(notif) {
     if (!notif) return false;
@@ -428,7 +556,7 @@ const ArnAdminNotifications = {
     all.unshift(item);
     this.saveNotifications(all);
 
-    // Play audible "bemp" sound
+    // Play loud audible "bemp" sound
     this.playBempSound();
 
     // Trigger bell shake animation
@@ -601,6 +729,7 @@ const ArnAdminNotifications = {
   init() {
     this.render();
     this.updateRoleFilter();
+    this.syncRealtimeData();
 
     // Audio unlock listener for browser autoplay policy
     const unlockAudio = () => {
@@ -613,30 +742,51 @@ const ArnAdminNotifications = {
     window.addEventListener('click', unlockAudio, { once: true });
     window.addEventListener('keydown', unlockAudio, { once: true });
 
-    // Fallback toggle for notification bell in case Bootstrap dropdown is not initialized
-    const bellBtn = document.getElementById('adminNotifBellBtn');
-    const dropdown = document.getElementById('adminNotifDropdown');
-    if (bellBtn && dropdown) {
-      bellBtn.onclick = (e) => {
-        // If bootstrap dropdown is not active, toggle manually
-        if (!bellBtn.getAttribute('data-bs-toggle-active')) {
-          e.stopPropagation();
-          dropdown.classList.toggle('show');
-        }
-      };
+    // Global click listener to close dropdown when clicking outside
+    if (!this._hasClickOutsideListener) {
       document.addEventListener('click', (e) => {
-        if (!bellBtn.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.classList.remove('show');
+        const wrapper = document.getElementById('adminNotifWrapper');
+        const dropdown = document.getElementById('adminNotifDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+          if (wrapper && !wrapper.contains(e.target)) {
+            dropdown.classList.remove('show');
+            const bell = document.getElementById('adminNotifBellBtn');
+            if (bell) bell.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          this.closeDropdown();
+        }
+      });
+      this._hasClickOutsideListener = true;
+    }
+
+    // Subscribe to cross-tab storage changes for real-time sync
+    window.addEventListener('storage', (e) => {
+      if (e.key === this.STORAGE_KEY) {
+        this.render();
+      } else if (e.key === 'arn_food_orders' || e.key === 'arn_room_bookings') {
+        this.syncRealtimeData();
+      }
+    });
+
+    // Subscribe to ArnRealtimeSync bus events
+    if (window.ArnRealtimeSync && typeof window.ArnRealtimeSync.subscribe === 'function') {
+      window.ArnRealtimeSync.subscribe('*', (topic, action, payload, isExternal) => {
+        if (topic === 'restaurant_orders' || topic === 'bookings' || topic === 'payments') {
+          this.syncRealtimeData();
         }
       });
     }
 
-    // Subscribe to cross-tab storage changes for notifications
-    window.addEventListener('storage', (e) => {
-      if (e.key === this.STORAGE_KEY) {
-        this.render();
-      }
-    });
+    // Periodic real-time background polling (every 6 seconds)
+    if (!this._syncInterval) {
+      this._syncInterval = setInterval(() => {
+        this.syncRealtimeData();
+      }, 6000);
+    }
 
     this._initialized = true;
   }
